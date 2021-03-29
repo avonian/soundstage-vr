@@ -4,5 +4,9 @@
  * @type {import('@vue/cli-service').ProjectOptions}
  */
 module.exports = {
-  productionSourceMap: false
+  productionSourceMap: false,
+  devServer: {
+    host: 'dev.vr.soundstage.fm',
+    https: true
+  }
 }

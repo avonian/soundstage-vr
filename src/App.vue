@@ -724,6 +724,24 @@
         }
       }
     },
+    async beforeMount() {
+      let jwt = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('jwt='))
+        .split('=')[1];
+      if(jwt) {
+        //let ticketNumber = urlParams('t');
+        let response = await fetch(`${process.env.VUE_APP_API_URL}/tickets/${urlParams.get('t')}/verify`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            'accepts': 'application/json',
+            "Authorization": `Bearer ${jwt}`
+          }
+        });
+        let data = response.json();
+        console.log()
+      }
+    },
     mounted: async function () {
       /* Preload default video only (just so it's ready on scene start) */
       this.preloadVideos(true)
