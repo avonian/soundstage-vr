@@ -1,0 +1,40 @@
+{
+ "keys": {
+   "accessKey": "B6BBC11AA10A02A5273D4017E2BF2A85104BB8BE",
+   "secretKey": "C946FCB0A4F61421790059CFB724878011777697"
+ },
+ "applicationId": "6060436f5647670016152de7",
+ "filesSrc": [
+   "./dist/**/*.html",
+   "./dist/**/*.js"
+ ],
+ "filesDest": "./",
+ "params": [
+   {
+     "name": "whitespaceRemoval"
+   },
+   {
+     "name": "identifiersRenaming",
+     "options": {
+       "mode": "SAFEST"
+     }
+   }
+ ],
+ "areSubscribersOrdered": false,
+ "applicationTypes": {
+   "webBrowserApp": true,
+   "desktopApp": false,
+   "serverApp": false,
+   "hybridMobileApp": false,
+   "javascriptNativeApp": false,
+   "html5GameApp": false
+ },
+ "languageSpecifications": {
+   "es5": true,
+   "es6": false,
+   "es7": false
+ },
+ "sourceMaps": false,
+ "useRecommendedOrder": true,
+ "jscramblerVersion": "7.0"
+}

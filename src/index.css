@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #202036;
+    color: white;
+}
+
+select, select:focus, select:active, select:focus-visible, select:focus-within {
+    border: 1px solid white !important;
+    padding: 0.3rem;
+}
+
+.text-magenta {
+    color: #ff00aa;
+}
+
+.bg-alt-primary {
+    background-color: #27273e;
+}
+
+.bg-alt-primary-transparent {
+    background-color: rgb(39 39 62 / 64%) !important;
+}
+
+#main-progress-bar {
+    background: linear-gradient(90deg, #dd17c4, #6b31e5);
+}
+
+.progress-bar-wrapper {
+    box-shadow: 0px 0px 12px rgba(216, 0, 255, 0.75);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.gradient-ultra {
+    background: linear-gradient(90deg, #dd17c4, #6b31e5);
+}
+
+.glow-dark {
+    box-shadow: 0px 0px 15px rgba(46, 0, 52, 0.5);
+}
+
+.glow-ultra {
+    box-shadow: 0px 0px 30px rgba(216, 0, 255, 0.75);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.glow-ultra:hover {
+    box-shadow: 0px 0px 40px rgb(230, 0, 255);
+}
+
+.glow-ultra-sm {
+    box-shadow: 0px 0px 12px rgba(216, 0, 255, 0.75);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.glow-ultra-sm:hover {
+    box-shadow: 0px 0px 12px rgb(230, 0, 255);
+}
+
+#btn-debug {
+    display: inline-block;
+    bottom: 0;
+    position: absolute;
+    width: 150px;
+    text-align: center;
+}
+
+
+.btn-camera {
+    display: inline-block;
+    bottom: 0;
+    position: absolute;
+    width: 100px;
+    left: calc(50% - 50px);
+    text-align: center;
+}
+
+#emojis {
+    background-color: rgba(0,0,0, 0.5);
+    border-radius: 15px;
+}
+
+#scene-explorer-host, #inspector-host {
+    z-index: 9999;
+}
+
+.cursor-none {
+    cursor: none
+}
