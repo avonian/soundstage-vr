@@ -1277,11 +1277,11 @@ class MediaSoup extends MediaStreams {
 }
 
 class Emoji {
-  constructor( link, scene ) {
-    this.href = link.href;
-    this.baseUrl = link.baseURI;
-    this.file = link.href.substring(link.baseURI.length);
-    this.texture = new BABYLON.Texture(link.href, scene, null, false);
+  constructor( filename, baseUrl, scene ) {
+    this.href = baseUrl + filename;
+    this.baseUrl = baseUrl;
+    this.file = filename;
+    this.texture = new BABYLON.Texture(this.href, scene, null, false);
     this.texture.name = "emoji:"+this.file;
     this.name = this.file.substring(0, this.file.lastIndexOf('.'));
   }
@@ -1291,24 +1291,55 @@ class Emojis {
     this.scene = scene;
     this.position = position;
     this.callback = callback;
-    this.baseUrl = "./assets/emojis/";
+    this.baseUrl = "/assets/emojis/";
     this.suffix = ".png";
-    this.emojis = [];
+    this.emojis = [
+      "1f44b.png",
+      "1f44c.png",
+      "1f44d.png",
+      "1f44f.png",
+      "1f493.png",
+      "1f525.png",
+      "1f608.png",
+      "1f60d.png",
+      "1f60e.png",
+      "1f635-1f4ab.png",
+      "1f64c.png",
+      "1f64f.png",
+      "1f918.png",
+      "1f919.png",
+      "1f923.png",
+      "1f929.png",
+      "1f92b.png",
+      "1f970.png",
+      "1f971.png",
+      "1f972.png",
+      "1f973.png",
+      "1f975.png",
+      "1f976.png",
+      "1f9e8.png",
+      "270a.png",
+      "2764-1f525.png",
+      "alien.png",
+      "beaming-face-with-smiling-eyes.png",
+      "exploding-head.png",
+      "face-blowing-a-kiss.png",
+      "face-with-hand-over-mouth.png",
+      "face-with-symbols-on-mouth.png",
+      "face-with-tongue.png",
+      "skull.png",
+      "slightly-smiling-face.png",
+      "winking-face.png",
+    ];
   }
   init() {
-    VRSPACEUI.listFiles(this.baseUrl, (xmlHttp) => {
-      var links = xmlHttp.responseXML.links;
-      for ( var i = 0; i < links.length; i++ ) {
-        var link = links[i];
-        if ( link.href.endsWith(this.suffix) ) {
-          this.emojis.push(new Emoji(link, this.scene));
-        }
-      }
-      console.log(this.emojis);
-      if ( this.callback ) {
-        this.callback(this);
-      }
-    });
+    for(var i = 0; i < this.emojis.length; i++) {
+      this.emojis[i] = new Emoji(this.emojis[i], this.baseUrl, this.scene);
+    }
+    console.log(this.emojis);
+    if ( this.callback ) {
+      this.callback(this);
+    }
   }
   copy() {
     var ret = new Emojis(this.scene);

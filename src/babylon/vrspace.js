@@ -184,17 +184,7 @@ class VRSpace {
   }
   
   connect() {
-    var url = window.location.href; // http://localhost:8080/console.html
-    this.log("This href "+url);
-    var start = url.indexOf('/');
-    var protocol = url.substring(0,start);
-    var webSocketProtocol = 'ws';
-    if ( protocol == 'https:' ) {
-      webSocketProtocol = 'wss';
-    }
-    //var end = url.lastIndexOf('/'); // localhost:8080/babylon/vrspace
-    var end = url.indexOf('/', start+2); // localhost:8080/vrspace
-    url = webSocketProtocol+':'+url.substring(start,end)+'/vrspace'; // ws://localhost:8080/vrspace
+    var url = process.env.VUE_APP_SERVER_URL; // http://localhost:8080/console.html
     this.log("Connecting to "+url);
     this.ws = new WebSocket(url);
     this.ws.onopen = () => {
