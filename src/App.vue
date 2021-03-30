@@ -744,7 +744,6 @@
       }
 
       if(!this.eventConfig) {
-        debugger;
         return;
       }
       /* Preload default video only (just so it's ready on scene start) */
@@ -778,6 +777,10 @@
     },
     methods: {
       async initConfig() {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          this.eventConfig = JSON.parse(process.env.VUE_APP_DEMO_CONFIG);
+          return;
+        }
         let jwt = document.cookie
           .split('; ')
           .find(row => row.startsWith('jwt='))

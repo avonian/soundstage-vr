@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build && jscrambler",
+    "build": "vue-cli-service build && javascript-obfuscator ./dist --output ./dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -14,7 +14,6 @@
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "jscrambler": "^5.5.25",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -24,6 +23,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
+    "javascript-obfuscator": "^2.11.0",
     "prettier": "^2.2.1"
   }
 }
