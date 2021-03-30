@@ -240,16 +240,6 @@ export class VRSpaceUI {
     group.play(false);
   }
 
-  showHideUI(hide = true) {
-    var controls = document.body.querySelectorAll(":not(canvas, #app, #app > div, audio)");
-    for(var el of controls) {
-      if(hide) {
-        el.classList.add('hidden');
-      } else {
-        el.classList.remove('hidden');
-      }
-    }
-  }
 }
 
 export const VRSPACEUI = new VRSpaceUI();

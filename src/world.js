@@ -878,7 +878,7 @@ export class NightClub extends World {
 
   initStageControls( callback ) {
     // stage controls
-    this.stageControls = new StageControls(this.displays, camera1.position, callback, this.userSettings );
+    this.stageControls = new StageControls(this.displays, camera1.position, callback, this.userSettings, this );
     this.stageControls.init();
   }
 
@@ -1453,11 +1453,12 @@ class Emojis {
 }
 
 class StageControls {
-  constructor (displays, position, callback, userSettings) {
+  constructor (displays, position, callback, userSettings, world) {
     this.displays = displays;
     this.callback = callback;
     this.videos = Videos;
     this.userSettings = userSettings;
+    this.world = world;
   }
   init () {
     if (this.callback) {
@@ -1489,13 +1490,13 @@ class StageControls {
 
     switch(event.action) {
       case 'playVideo':
-        world.initializeDisplays(Videos[event.videoIndex].url, [event.target]);
+        this.world.initializeDisplays(Videos[event.videoIndex].url, [event.target]);
         break;
       case "castUser":
         let videos = document.querySelectorAll('video')
         for(var video of videos) {
           if(video.getAttribute('peerid') === event.userId) {
-            world.initializeDisplays(video, [event.target])
+            this.world.initializeDisplays(video, [event.target])
           }
         }
         break;
@@ -1669,16 +1670,26 @@ class CinemaCamera {
         }, 10000)
       }
     });
-    VRSPACEUI.showHideUI();
+    this.showHideUI();
     document.removeEventListener('keydown', this.stop.bind(this))
     document.addEventListener('keydown', this.stop.bind(this));
   }
   stop(event) {
     if(event.key === "Escape"){
-      VRSPACEUI.showHideUI(false)
+      this.showHideUI(false)
       if(this.activeAnimation) {
         this.continueLooping = false;
         this.activeAnimation.stop();
+      }
+    }
+  }
+  showHideUI(hide = true) {
+    var controls = document.body.querySelectorAll(":not(canvas, #app, #app > div, audio)");
+    for(var el of controls) {
+      if(hide) {
+        el.classList.add('hidden');
+      } else {
+        el.classList.remove('hidden');
       }
     }
   }
