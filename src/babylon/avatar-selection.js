@@ -25,21 +25,8 @@ export class AvatarSelection extends World {
   }
   async createCamera() {
     // Add a camera to the scene and attach it to the canvas
-    this.camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 2, -5), this.scene);
-    //camera = new BABYLON.ArcRotateCamera("Camera", 0, 2, -3, new BABYLON.Vector3(0, 1, 0), scene);
-    //camera.setPosition(new BABYLON.Vector3(0, 2, -3));
-    //var camera = new BABYLON.FlyCamera("FlyCamera", new BABYLON.Vector3(0, 5, -10), scene);
-    this.camera.maxZ = 100000;
-    this.camera.minZ = 0;
+    this.camera = this.universalCamera(new BABYLON.Vector3(0, 2, -5));
     this.camera.setTarget(new BABYLON.Vector3(0,1.5,0));
-    // not required, world.init() does that
-    //this.camera.attachControl(canvas, true);
-    this.camera.applyGravity = true;
-    //Set the ellipsoid around the camera (e.g. your player's size)
-    //camera.ellipsoid = new BABYLON.Vector3(.5, 1.8, .5);
-    //camera.ellipsoidOffset = -0.2
-    this.camera.checkCollisions = true;
-    this.camera.speed = 0.5;
   }
   async createLights() {
     // Add lights to the scene
@@ -378,11 +365,13 @@ export class AvatarSelection extends World {
         }
         var enter = () => {
           worldManager.VRSPACE.removeWelcomeListener(enter);
-          worldManager.VRSPACE.sendMy('mesh', avatarUrl)
+          worldManager.VRSPACE.sendMy('mesh', avatarUrl);
+          worldManager.VRSPACE.sendMy('userHeight', userHeight);
           // CHECKME better way to flag publishing video?
           worldManager.VRSPACE.addWelcomeListener((welcome)=>worldManager.pubSub(welcome.client, 'video' === avatarUrl));
           // TODO add enter command to API
-          worldManager.VRSPACE.send('{"command":{"Enter":{"world":"'+portal.name+'"}}}');
+          worldManager.VRSPACE.sendCommand("Enter",{world:portal.name});
+          worldManager.VRSPACE.sendCommand("Session");
         };
         worldManager.VRSPACE.addWelcomeListener(enter);
         worldManager.VRSPACE.connect();
@@ -396,6 +385,7 @@ export class AvatarSelection extends World {
 
       this.vrHelper.stopTracking();
       this.camera.detachControl(this.canvas);
+      this.dispose();
       world.WORLD.init(this.engine, portal.name, this.scene, afterLoad, portal.worldUrl()+"/").then((newScene)=>{
         console.log(world);
         this.vrHelper.clearFloors();
@@ -413,239 +403,36 @@ export class AvatarSelection extends World {
             // TODO: this is to simulate mouse click/screen tap
             gamepad.onButtonUpObservable.add( (number) => console.log(number) );          
           }
+          // CHECKME: why?
           this.scene.activeCamera = world.WORLD.camera;
         }
-        this.camera.dispose();
-        this.removePortals();
-        this.room.dispose(); // AKA ground
-        this.skyBox.dispose();
-        this.skyBox.material.dispose();
-        this.light.dispose();
-        this.shadowGenerator.dispose();
         
-        // TODO properly dispose of avatar
-        if ( this.character ) {
-          this.character.dispose();
-          this.character = null;          
-        }
-        
-        this.mainButtons.dispose();
-        this.characterButtons.dispose();
-        
-        if ( this.animationSelection ) {
-          this.animationSelection.dispose();
-        }
-        if ( this.guiManager ) {
-          this.guiManager.dispose();          
-        }
-        this.scene = null; // next call to render loop stops the current loop
       });
     })
   }
-  
-  // copied from https://github.com/BabylonJS/Babylon.js/blob/master/src/scene.ts
-  clearScene(scene) {
-      scene.beforeRender = null;
-      scene.afterRender = null;
 
-      //if (EngineStore._LastCreatedScene === scene) {
-        //  EngineStore._LastCreatedScene = null;
-      //}
-
-      scene.skeletons = [];
-      scene.morphTargetManagers = [];
-      scene._transientComponents = [];
-      scene._isReadyForMeshStage.clear();
-      scene._beforeEvaluateActiveMeshStage.clear();
-      scene._evaluateSubMeshStage.clear();
-      scene._activeMeshStage.clear();
-      scene._cameraDrawRenderTargetStage.clear();
-      scene._beforeCameraDrawStage.clear();
-      scene._beforeRenderTargetDrawStage.clear();
-      scene._beforeRenderingGroupDrawStage.clear();
-      scene._beforeRenderingMeshStage.clear();
-      scene._afterRenderingMeshStage.clear();
-      scene._afterRenderingGroupDrawStage.clear();
-      scene._afterCameraDrawStage.clear();
-      scene._afterRenderTargetDrawStage.clear();
-      scene._afterRenderStage.clear();
-      scene._beforeCameraUpdateStage.clear();
-      scene._beforeClearStage.clear();
-      scene._gatherRenderTargetsStage.clear();
-      scene._gatherActiveCameraRenderTargetsStage.clear();
-      scene._pointerMoveStage.clear();
-      scene._pointerDownStage.clear();
-      scene._pointerUpStage.clear();
-
-      for (let component of scene._components) {
-          component.dispose();
-      }
-
-      scene.importedMeshesFiles = [];
-
-      if (scene.stopAllAnimations) {
-          scene.stopAllAnimations();
-      }
-
-      scene.resetCachedMaterial();
-
-      // Smart arrays
-      if (scene.activeCamera) {
-          scene.activeCamera._activeMeshes.dispose();
-          scene.activeCamera = null;
-      }
-      scene._activeMeshes.dispose();
-      scene._renderingManager.dispose();
-      scene._processedMaterials.dispose();
-      scene._activeParticleSystems.dispose();
-      scene._activeSkeletons.dispose();
-      scene._softwareSkinnedMeshes.dispose();
-      scene._renderTargets.dispose();
-      scene._registeredForLateAnimationBindings.dispose();
-      scene._meshesForIntersections.dispose();
-      scene._toBeDisposed = [];
-
-      // Abort active requests
-      for (let request of scene._activeRequests) {
-          request.abort();
-      }
-
-      // Events
-      scene.onDisposeObservable.notifyObservers(scene);
-
-      scene.onDisposeObservable.clear();
-      scene.onBeforeRenderObservable.clear();
-      scene.onAfterRenderObservable.clear();
-      scene.onBeforeRenderTargetsRenderObservable.clear();
-      scene.onAfterRenderTargetsRenderObservable.clear();
-      scene.onAfterStepObservable.clear();
-      scene.onBeforeStepObservable.clear();
-      scene.onBeforeActiveMeshesEvaluationObservable.clear();
-      scene.onAfterActiveMeshesEvaluationObservable.clear();
-      scene.onBeforeParticlesRenderingObservable.clear();
-      scene.onAfterParticlesRenderingObservable.clear();
-      scene.onBeforeDrawPhaseObservable.clear();
-      scene.onAfterDrawPhaseObservable.clear();
-      scene.onBeforeAnimationsObservable.clear();
-      scene.onAfterAnimationsObservable.clear();
-      scene.onDataLoadedObservable.clear();
-      scene.onBeforeRenderingGroupObservable.clear();
-      scene.onAfterRenderingGroupObservable.clear();
-      scene.onMeshImportedObservable.clear();
-      scene.onBeforeCameraRenderObservable.clear();
-      scene.onAfterCameraRenderObservable.clear();
-      scene.onReadyObservable.clear();
-      scene.onNewCameraAddedObservable.clear();
-      scene.onCameraRemovedObservable.clear();
-      scene.onNewLightAddedObservable.clear();
-      scene.onLightRemovedObservable.clear();
-      scene.onNewGeometryAddedObservable.clear();
-      scene.onGeometryRemovedObservable.clear();
-      scene.onNewTransformNodeAddedObservable.clear();
-      scene.onTransformNodeRemovedObservable.clear();
-      scene.onNewMeshAddedObservable.clear();
-      scene.onMeshRemovedObservable.clear();
-      scene.onNewSkeletonAddedObservable.clear();
-      scene.onSkeletonRemovedObservable.clear();
-      scene.onNewMaterialAddedObservable.clear();
-      scene.onMaterialRemovedObservable.clear();
-      scene.onNewTextureAddedObservable.clear();
-      scene.onTextureRemovedObservable.clear();
-      scene.onPrePointerObservable.clear();
-      scene.onPointerObservable.clear();
-      scene.onPreKeyboardObservable.clear();
-      scene.onKeyboardObservable.clear();
-      scene.onActiveCameraChanged.clear();
-
-      scene.detachControl();
-
-      // Detach cameras
-      var canvas = scene._engine.getInputElement();
-
-      if (canvas) {
-          var index;
-          for (index = 0; index < scene.cameras.length; index++) {
-              scene.cameras[index].detachControl(canvas);
-          }
-      }
-
-      // Release animation groups
-      while (scene.animationGroups.length) {
-          scene.animationGroups[0].dispose();
-      }
-
-      // Release lights
-      while (scene.lights.length) {
-          scene.lights[0].dispose();
-      }
-
-      // Release meshes
-      while (scene.meshes.length) {
-          scene.meshes[0].dispose(true);
-      }
-      // CHECKME: WORKAROUND
-      var i = 0;
-      while (i < scene.transformNodes.length) {
-        console.log("Disposing transformNode "+i+"/"+scene.transformNodes.length);
-        if ( scene.transformNodes[i].isDisposed() ) {
-          i++;
-        }
-        console.log(scene.transformNodes[i]);
-          scene.transformNodes[i].dispose(true);
-      }
-
-      // Release cameras
-      while (scene.cameras.length) {
-          scene.cameras[0].dispose();
-      }
-
-      // Release materials
-      if (scene._defaultMaterial) {
-          scene._defaultMaterial.dispose();
-      }
-      while (scene.multiMaterials.length) {
-          scene.multiMaterials[0].dispose();
-      }
-      while (scene.materials.length) {
-          scene.materials[0].dispose();
-      }
-
-      // Release particles
-      while (scene.particleSystems.length) {
-          scene.particleSystems[0].dispose();
-      }
-
-      // Release postProcesses
-      while (scene.postProcesses.length) {
-          scene.postProcesses[0].dispose();
-      }
-
-      // Release textures
-      while (scene.textures.length) {
-          scene.textures[0].dispose();
-      }
-
-      // Release UBO
-      scene._sceneUbo.dispose();
-
-      if (scene._multiviewSceneUbo) {
-          scene._multiviewSceneUbo.dispose();
-      }
-
-      // Post-processes
-      scene.postProcessManager.dispose();
-
-      // Remove from engine
-      index = scene._engine.scenes.indexOf(scene);
-
-      if (index > -1) {
-          scene._engine.scenes.splice(index, 1);
-      }
-
-      scene._engine.wipeCaches(true);
-      scene._isDisposed = true;
+  dispose() {
+    super.dispose();
+    this.removePortals();
+    this.room.dispose(); // AKA ground
+    // TODO properly dispose of avatar
+    if ( this.character ) {
+      this.character.dispose();
+      this.character = null;          
+    }
     
-  }
+    this.mainButtons.dispose();
+    this.characterButtons.dispose();
+    
+    if ( this.animationSelection ) {
+      this.animationSelection.dispose();
+    }
+    if ( this.guiManager ) {
+      this.guiManager.dispose();          
+    }
+    // CHECKME: this scene should be cleaned up, but when?
+    //this.scene = null; // next call to render loop stops the current loop
+  }  
 }
 
 export const WORLD = new AvatarSelection();

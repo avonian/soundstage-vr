@@ -10,13 +10,15 @@ export class VRSpaceUI {
     this.initialized = false;
     this.debug = false;
     this.fps = 5; // CHECKME: reasonable default fps
+    this.loadProgressIndicator = (scene, camera) => this.loadProgressIndicatorFactory(scene, camera);
+    this.indicator = null;
   }
 
   async init(scene) {
     if ( ! this.initialized || this.scene !== scene ) {
       this.scene = scene;
       // TODO figure out location of script
-      var container = await BABYLON.SceneLoader.LoadAssetContainerAsync("/models/","logo.glb",this.scene);
+      var container = await BABYLON.SceneLoader.LoadAssetContainerAsync("/babylon/","logo.glb",this.scene);
       this.logo = container.meshes[0];
       for ( var i = 0; i < container.meshes; i++ ) {
         container.meshes[i].checkCollisions = false;
@@ -28,6 +30,13 @@ export class VRSpaceUI {
     return this;
   }
 
+  loadProgressIndicatorFactory(scene, camera) {
+    if ( ! this.indicator ) {
+      this.indicator = new LoadProgressIndicator(scene, camera);
+    }
+    return this.indicator;
+  }
+  
   log( something ) {
     if ( this.debug ) {
       console.log( something );
@@ -36,7 +45,7 @@ export class VRSpaceUI {
 
   async loadPortal(scene) {
     if ( ! this.portal ) {
-      var container = await BABYLON.SceneLoader.LoadAssetContainerAsync("/models/portal/", "scene.gltf", this.scene)
+      var container = await BABYLON.SceneLoader.LoadAssetContainerAsync("/babylon/portal/", "scene.gltf", scene)
       container.materials[0].albedoColor = BABYLON.Color3.FromHexString('#B3EEF3');
       container.materials[0].metallic = 0.85;
       
@@ -239,6 +248,7 @@ export class VRSpaceUI {
     anim.getKeys()[1].value = dest;
     group.play(false);
   }
+  
 
 }
 
@@ -1356,7 +1366,10 @@ export class World {
     this.gravityEnabled = true;
     this.collisionsEnabled = true;
     await this.createScene(engine);
-    this.indicator = new LoadProgressIndicator(this.scene, this.camera);
+    if ( ! this.onProgress ) {
+      this.indicator = VRSPACEUI.loadProgressIndicator(this.scene, this.camera);
+      this.onProgress = (evt, name) => this.indicator.progress( evt, name )
+    }
     this.registerRenderLoop();
     this.createTerrain();
     this.load(callback);
@@ -1380,7 +1393,7 @@ export class World {
     // TODO dispose of old shadow generator
     var shadowGenerator = await this.createShadows();
     if ( shadowGenerator ) {
-      this.shadowGenertor = shadowGenerator;
+      this.shadowGenerator = shadowGenerator;
     }
     // TODO dispose of old skybox
     var skyBox = await this.createSkyBox();
@@ -1405,6 +1418,56 @@ export class World {
   async createEffects() {};
   async createPhysics() {};
   async createTerrain() {}
+  
+  // utility method, creates camera and sets defaults
+  universalCamera(pos, name) {
+    if ( !name ) {
+      name = "UniversalCamera";
+    } 
+    var camera = new BABYLON.UniversalCamera(name, pos, this.scene);
+    camera.maxZ = 100000;
+    camera.minZ = 0;
+    camera.applyGravity = true;
+    camera.speed = 0.2;
+    // 1.8 m high:
+    camera.ellipsoid = new BABYLON.Vector3(.5, .9, .5);
+    // eyes at 1.6 m:
+    camera.ellipsoidOffset = new BABYLON.Vector3(0, .2, 0);
+    camera.checkCollisions = true;
+    
+    camera.keysDown = [40, 83]; // down, S
+    camera.keysLeft = [37, 65]; // left, A
+    camera.keysRight = [39, 68]; // right, D
+    camera.keysUp = [38, 87]; // up, W
+    camera.keysUpward = [36, 33, 32]; // home, pgup, space
+    
+    return camera;    
+  }
+  
+  async dispose() {
+    if ( this.camera ) {
+      this.camera.dispose();
+      this.camera = null;    
+    }
+    if ( this.skyBox ) {
+      this.skyBox.dispose();
+      this.skyBox.material.dispose();
+      this.skyBox = null;    
+    }
+    if ( this.light ) {
+      this.light.dispose();
+      this.light = null;
+    }
+    if ( this.shadowGenerator ) {
+      this.shadowGenerator.dispose();
+      this.shadowGenerator = null;    
+    }
+    if ( this.scene && this.scene.lights ) {
+      this.scene.lights.forEach( (l) => {
+        l.dispose();
+      });
+    }
+  }
   
   initXR() {
     if ( ! this.vrHelper ) {
@@ -1436,14 +1499,33 @@ export class World {
   _collisions( meshes, state ) {
     if ( meshes ) {
       for ( var i=0; i<meshes.length; i++ ) {
-        meshes[i].checkCollisions = state;
+        this.setMeshCollisions( meshes[i], state );
       }
     }
   }
   
+  setMeshCollisions(mesh, state) {
+    mesh.checkCollisions = state;    
+  }
+  
+  loadProgress( evt, name ) {
+    if ( this.onProgress ) {
+      this.onProgress( evt, name );
+    }
+  }
+  loadingStart(name) {
+    if ( this.indicator ) {
+      this.indicator.add(name);
+    }
+  }
+  loadingStop(name) {
+    if ( this.indicator ) {
+      this.indicator.remove(name);
+    }
+  }
+  
   load(callback) {
-    var indicator = this.indicator;
-    indicator.add(this.name);
+    this.loadingStart(name);
 
     BABYLON.SceneLoader.LoadAssetContainer(this.baseUrl,
       this.file,
@@ -1462,16 +1544,16 @@ export class World {
 
         // do something with the scene
         VRSPACEUI.log("World loaded");
-        this.indicator.remove(this.name);
+        this.loadingStop(this.name);
         //floor = new FloorRibbon(scene);
         //floor.showUI();
         this.collisions(this.collisionsEnabled);
         if ( callback ) {
           callback(this);
         }
-    },
-    // onProgress:
-    (evt) => { indicator.progress( evt, name ) }
+      },
+      // onProgress:
+      (evt) => { this.loadProgress(evt, name) }
     );
     
     return this;
@@ -1487,10 +1569,10 @@ export class World {
       if ( this.scene ) {
         this.scene.render();
       } else {
-        this.engine.stopRenderLoop(loop);
+        engine.stopRenderLoop(loop);
       }
     }
-    this.engine.runRenderLoop(loop);
+    engine.runRenderLoop(loop);
   }
 
   async loadAsset(relativePath, file, scene) {
@@ -1691,6 +1773,7 @@ export class WorldManager {
     var dir = new ServerFolder( baseUrl, dir, fix );
     var avatar = new Avatar(this.scene, dir);
     avatar.fps = this.fps;
+    avatar.userHeight = obj.userHeight;
     avatar.debug = true;
     avatar.load( (c) => {
       // FIXME: this is not container but avatar
@@ -1955,6 +2038,9 @@ export class MediaStreams {
   }
   
   async init( callback ) {
+    await import('./openvidu-browser-2.15.0.js');
+    this.OV = new OpenVidu();
+    this.session = this.OV.initSession();
     this.session.on('streamCreated', (event) => {
       // client id can be used to match the stream with the avatar
       // server sets the client id as connection user data

@@ -76,6 +76,7 @@ class Client extends VRObject {
     this.rightArmPos = { x: null, y: null, z: null };
     this.leftArmRot = { x: null, y: null, z: null, w: null };
     this.rightArmRot = { x: null, y: null, z: null, w: null };
+    this.userHeight = 1.8;
     this.token = null; // CHECKME: string, should be object?
   }
   hasAvatar() {
@@ -184,7 +185,17 @@ class VRSpace {
   }
   
   connect() {
-    var url = process.env.VUE_APP_SERVER_URL; // http://localhost:8080/console.html
+    var url = window.location.href; // http://localhost:8080/console.html
+    this.log("This href "+url);
+    var start = url.indexOf('/');
+    var protocol = url.substring(0,start);
+    var webSocketProtocol = 'ws';
+    if ( protocol == 'https:' ) {
+      webSocketProtocol = 'wss';
+    }
+    //var end = url.lastIndexOf('/'); // localhost:8080/babylon/vrspace
+    var end = url.indexOf('/', start+2); // localhost:8080/vrspace
+    url = webSocketProtocol+':'+url.substring(start,end)+'/vrspace'; // ws://localhost:8080/vrspace
     this.log("Connecting to "+url);
     this.ws = new WebSocket(url);
     this.ws.onopen = () => {
@@ -228,8 +239,10 @@ class VRSpace {
         // assuming custom object
         return '"'+field+'":'+JSON.stringify(value);
       }
+    } else if ( typeof value == 'number') {
+      return '"'+field+'":'+value;
     } else {
-      console.log("Unsupported datatype, ignored user event "+field+"="+value);
+      console.log("Unsupported datatype "+typeof value+", ignored user event "+field+"="+value);
       return '';
     }
   }
