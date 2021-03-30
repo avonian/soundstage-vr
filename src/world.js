@@ -843,7 +843,7 @@ export class NightClub extends World {
       }
     }
     worldManager.VRSPACE.addWelcomeListener(enter);
-    worldManager.VRSPACE.connect();
+    worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
 
   createAvatar() {

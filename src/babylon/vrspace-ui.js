@@ -1569,10 +1569,10 @@ export class World {
       if ( this.scene ) {
         this.scene.render();
       } else {
-        engine.stopRenderLoop(loop);
+        this.engine.stopRenderLoop(loop);
       }
     }
-    engine.runRenderLoop(loop);
+    this.engine.runRenderLoop(loop);
   }
 
   async loadAsset(relativePath, file, scene) {
