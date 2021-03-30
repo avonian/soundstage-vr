@@ -1028,7 +1028,7 @@ export class NightClub extends World {
     if ( ! rotation ) {
       rotation = camera.rotation;
     }
-    pos.position = {x:camera.position.x, y:camera.position.y, z:camera.position.z};
+    pos.position = {x:camera.position.x, y:camera.position.y*2, z:camera.position.z};
     pos.orientationEuler = {
       pitchDegrees:this.degrees(0),
       yawDegrees:this.degrees(Math.PI-rotation.y),
