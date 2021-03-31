@@ -878,7 +878,7 @@
           })
 
           // webcam/mic UI should be set up before 3D world, i.e. desired device ID has to be known
-          this.world = world = await new Nightclub()
+          this.world = world = await new Nightclub(urlParams)
 
           world.userSettings = userSettings
           world.onProgress = (evt) => {
@@ -903,6 +903,12 @@
 
             this.webcamEnabled = userSettings.enableWebcamFeeds
             this.micEnabled = true
+
+            // Check access level from URL hash to open curtains if true
+            if(urlParams.get('performer') || urlParams.get('debug')) {
+              console.log('perform or debug = true');
+              scene.getMeshByName('curtains').checkCollisions = false;
+            }
 
             /* Cache user settings again */
             userSettings.selectedAudioDeviceId = this.userSettings.selectedAudioDeviceId

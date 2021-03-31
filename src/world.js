@@ -32,7 +32,7 @@ var rightVector = new BABYLON.Vector3(-1, 0, 0);
 var forwardVector = new BABYLON.Vector3(0, 0, -1);
 var backwardVector = new BABYLON.Vector3(0, 0, 1);
 var upwardVector = new BABYLON.Vector3(0, .5, 0);
-var downwardVector = new BABYLON.Vector3(0, 0, 0); // gravity takes care of moving down 
+var downwardVector = new BABYLON.Vector3(0, 0, 0); // gravity takes care of moving down
 var timestamp = 0;
 var movementStart = 0;
 var movementTimeout = 5000;
@@ -60,23 +60,24 @@ let Videos = [
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
   { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
   { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-  { label: 'Loop 2', url: 'https://assets.soundstage.fm/vr/Loop-2.mp4' },
   { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
   { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
   { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
   { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-  { label: 'Spuke', url: 'https://assets.soundstage.fm/vr/Spuke.mp4' },
   { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-  { label: 'Wickit 1', url: 'https://assets.soundstage.fm/vr/WickIt-1.mp4'},
-  { label: 'Wickit 2', url: 'https://assets.soundstage.fm/vr/WickIt-2.mp4'},
+  { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/neon-laser-beams.mp4' },
+  { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
+  { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
+  { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
 ]
 // deals with everything inside 3D world
 export class NightClub extends World {
-  constructor() {
+  constructor(urlParams) {
     super();
-    this.file = 'Night_Club-bl-new 9-8.glb';
+    this.file = 'Night_Club-2903-4.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
+    this.urlParams = urlParams;
     // TODO: load, not in constructor
     spaceProperties = new SpaceProperties();
   }
@@ -101,7 +102,7 @@ export class NightClub extends World {
     this.ground.material.specularColor = BABYLON.Color3.FromHexString("#E330D0");
     //this.ground.material.backFaceCulling = false;
     this.ground.material.alpha = 0.8;
-    this.ground.position = new BABYLON.Vector3(0, -3, 0);
+    this.ground.position = new BABYLON.Vector3(0, -4, 0);
     this.ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
     this.ground.checkCollisions = true;
   }
@@ -149,8 +150,8 @@ export class NightClub extends World {
     curtains.position.x = 2;
     curtains.position.y = 1;
     curtains.position.z = 5.72;
-// It has no material by default, so when turn visuals off it will be just black currently
-// Video texture added at initializeDisplays() below
+    curtains.checkCollisions = true
+    curtains.visibility = 0
   }
 
   async createPhysics() {
@@ -162,7 +163,9 @@ export class NightClub extends World {
     this.collisionsEnabled = true;
 
     // First person camera:
-    camera1 = new BABYLON.UniversalCamera("First Person Camera", new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7), this.scene); // If needed in the future DJ starts at 0, 3, 7
+
+    let spawnPosition = this.urlParams.get('performer') ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
+    camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     camera1.maxZ = 100000;
     camera1.minZ = 0;
@@ -413,7 +416,7 @@ export class NightClub extends World {
     }
   }
 
-  initializeDisplays(videoSource = false, displays = ['DJTableVideo', 'WindowVideo', 'curtains']) {
+  initializeDisplays(videoSource = false, displays = ['DJTableVideo', 'WindowVideo']) {
 
     if(!userSettings.enableVisuals) {
       return;
@@ -441,28 +444,6 @@ export class NightClub extends World {
         texture: tableTexture
       });
     }
-
-    if(displays.indexOf('curtains') !== -1) {
-      var curtainsMaterial = new BABYLON.StandardMaterial("curtainsMaterial", this.scene);
-      var curtainsTexture = new BABYLON.VideoTexture("video", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
-      curtainsMaterial.emissiveTexture = curtainsTexture;
-      curtainsMaterial.emissiveTexture.uScale = 1;
-      curtainsMaterial.emissiveTexture.vScale = -1;
-      curtainsMaterial.emissiveTexture.uOffset = 0.95;
-      let curtainsMesh = this.scene.getMeshByName("curtains")
-      curtainsMesh.material = curtainsMaterial;
-      this.displays.push({
-        name: "curtains",
-        mesh: curtainsMesh,
-        texture: curtainsTexture
-      });
-    }
-
 
     if(displays.indexOf('WindowVideo') !== -1) {
       var windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
@@ -1473,10 +1454,6 @@ class StageControls {
     let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
     this.execute(playWindowEvent);
     worldManager.VRSPACE.sendMy('stageEvent', playWindowEvent);
-
-    let playCurtainsEvent = { action: 'playVideo', target: "curtains", videoIndex: videoIndex };
-    this.execute(playCurtainsEvent);
-    worldManager.VRSPACE.sendMy('stageEvent', playCurtainsEvent);
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
