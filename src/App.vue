@@ -313,11 +313,11 @@
                             <option value="">No easing</option>
                             <option value="PowerEase">Power Ease</option>
                             <option value="CubicEase">Cubic Ease</option>
-                            <option value="PowerEase">Power Ease</option>
+                            <option value="SineEase">Sine Ease</option>
                         </select>
                         <a class="cursor-pointer glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 mr-6 bg-indigo-500"
                            @click="cameraMode = cameraModes[2]; world.playCameraAnimation(i);"
-                           v-for="i in [0,1,2,3,4,5,6,7,8]" :key="i">
+                           v-for="i in [0,1,2,3,4,5,6,7,8,9]" :key="i">
                             A{{ i+1 }}
                         </a>
                     </div>
@@ -699,7 +699,7 @@
         canBroadcast: false,
         debugging: urlParams.get('debug'),
         showStageControls: false,
-        freeCamSpeed: 0.025,
+        freeCamSpeed: 0.1,
         freeCamSensibility: 8000,
         recording: false,
         mediaRecorder: false,
