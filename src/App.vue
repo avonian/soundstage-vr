@@ -757,7 +757,12 @@
       this.preloadVideos(true)
 
       /* Retrieve values from local storage */
-      this.alreadyVisited = await localStorage.getItem('alreadyVisited')
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
+        this.alreadyVisited = true;
+        this.disclaimerAccepted = true;
+      } else {
+        this.alreadyVisited = await localStorage.getItem('alreadyVisited')
+      }
 
       userSettings = await localStorage.getItem('userSettings')
       userSettings = userSettings ? JSON.parse(userSettings) : defaultUserSettings
@@ -772,8 +777,12 @@
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
       /* Detects when devices are plugged/unplugged */
-      navigator.mediaDevices.ondevicechange = () => {
-        this.pollForDevices()
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
+        this.apply()
+      } else {
+        navigator.mediaDevices.ondevicechange = () => {
+          this.pollForDevices()
+        }
       }
 
       this.pollForDevices()
