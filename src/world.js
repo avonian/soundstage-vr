@@ -1487,8 +1487,8 @@ class SpaceProperties {
       chatRoom: 'p6afwjkb'
     }
     this.hiFi = {
-      server: 'api.highfidelity.com',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJjZDUwNDVhYy05ZDkxLTQyOTAtYjBlOS0wMjY4ZmU5MmFlNzMiLCJzcGFjZV9pZCI6IjRlMzA0MWQ4LTg0MmYtNGYyZS1hNzViLTZlZjhiNmY1NTE4MiIsInN0YWNrIjoiYXVkaW9uZXQtbWl4ZXItYXBpLWFscGhhLTAxIn0.qnb_Z-SvycCY23_QfiVUcvOwJ4-I6tYM489T_lmibt8'
+      server: 'api-pro.highfidelity.com',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJmMzRlZmViZC00YWRjLTRlZTMtOWNkNS0yOGE3OTcwOThhZmQiLCJzcGFjZV9pZCI6ImIxNzgxYTMxLTQ0YzYtNDcwYy05NzA5LTJhM2FmMmY2ZTNhNyIsInN0YWNrIjoiYXVkaW9uZXQtbWl4ZXItYXBpLXByby0wMiJ9.WZ3stcSSONH6QwHJUn04ZZ_8Ts_q0svRgpHlkg9VUOE'
       // server: 'api-soundstage.highfidelity.com',
       // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiI5MzM3OWIxOC05N2VmLTQ5NmMtYjFkYS05NDBmNGY3M2Y4OGUiLCJzcGFjZV9pZCI6IjQyOGQ0ZTY5LTlhOWItNDc2Mi1hNTU2LTk1NDliN2JkN2MxNiIsInN0YWNrIjoiYXVkaW9uZXQtbWl4ZXItYXBpLXNvdW5kc3RhZ2UwMSJ9.0k4DzPOe4gzS-k8I21SKis1LTL2ev8zp63cOfzhjkqk'
     }
