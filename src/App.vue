@@ -793,10 +793,10 @@
           this.eventConfig = JSON.parse(process.env.VUE_APP_DEMO_CONFIG);
           return;
         }
-        let jwt = document.cookie
+        let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
           .split('; ')
           .find(row => row.startsWith('jwt='))
-          .split('=')[1];
+          .split('=')[1] : false;
         if(jwt) {
           let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/verify`, {
             headers: {
@@ -811,6 +811,8 @@
           } else {
             this.invalidAccess = true;
           }
+        } else {
+          this.invalidAccess = true;
         }
       },
       async requestDevicePermissions () {
