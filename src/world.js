@@ -951,6 +951,7 @@ export class NightClub extends World {
     document.getElementById('audioOutput').setSinkId(playbackDeviceId);
   }
 
+  // see https://experiments.highfidelity.com/space-inspector/
   spatializeAudio() {
     if ( ! connected ) {
       return;
@@ -976,7 +977,7 @@ export class NightClub extends World {
       var rotY = 1.5*Math.PI-camera3.alpha;
       // we can track position of either cam1 or cam3
       // tracking cam1 because that's where avatar is
-      this.audioData( pos, camera1, {x:this.degrees(0), y:this.degrees(rotY), z:this.degrees(0)});
+      this.audioData( pos, camera1, {x:0, y:rotY, z:0});
     } else if ( activeCameraType === 'free' ) {
       if ( this.freeCamSpatialAudio || (document.querySelector('#freeCamSpatialAudio') && document.querySelector('#freeCamSpatialAudio').value === 'true')) {
         // we can track cameraFree as we track camera1, but soon as camera moves away from the avatar,
@@ -1000,7 +1001,7 @@ export class NightClub extends World {
     if ( ! rotation ) {
       rotation = camera.rotation;
     }
-    pos.position = {x:camera.position.x, y:camera.position.y*2, z:camera.position.z};
+    pos.position = {x:-camera.position.x, y:camera.position.y*2, z:camera.position.z};
     pos.orientationEuler = {
       pitchDegrees:this.degrees(0),
       yawDegrees:this.degrees(Math.PI-rotation.y),
