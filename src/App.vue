@@ -175,7 +175,7 @@
                                                     Gain Boost (when Broadcasting)
                                                 </label>
                                                 <div class="mt-1 flex rounded-md shadow-sm w-full">
-                                                    <input id="gainBoost" type="range" min="0" max="200" 
+                                                    <input id="gainBoost" type="range" min="0" max="200"
                                                            class="slider flex-grow"
                                                            v-model="userSettings.stereoGainBoost"
                                                     >
@@ -921,7 +921,7 @@
             this.micEnabled = true
 
             // Check if they have permission to go backstage
-            if(this.eventConfig.permissions['backstage']) {
+            if(this.eventConfig.permissions['access_backstage']) {
               scene.getMeshByName('curtains').checkCollisions = false;
             }
 

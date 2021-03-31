@@ -156,7 +156,7 @@ export class NightClub extends World {
 
     // First person camera:
 
-    let spawnPosition = this.role === 'artist' ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
+    let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
     camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     camera1.maxZ = 100000;
