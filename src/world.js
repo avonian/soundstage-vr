@@ -1457,7 +1457,7 @@ class StageControls {
     worldManager.VRSPACE.sendMy('stageEvent', castUserEvent);
   }
   async execute( event ) {
-    if(!userSettings.enableVisuals) {
+    if(!this.userSettings.enableVisuals) {
       return;
     }
 
