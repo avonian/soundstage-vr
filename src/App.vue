@@ -175,8 +175,10 @@
                                                     Gain Boost (when Broadcasting)
                                                 </label>
                                                 <div class="mt-1 flex rounded-md shadow-sm w-full">
-                                                    <input id="gainBoost" type="range" min="0" max="200" value="50"
-                                                           class="slider flex-grow">
+                                                    <input id="gainBoost" type="range" min="0" max="200" 
+                                                           class="slider flex-grow"
+                                                           v-model="userSettings.stereoGainBoost"
+                                                    >
                                                     <span class="w-12 text-center">{{ userSettings.stereoGainBoost }}%</span>
                                                 </div>
                                             </div>
@@ -651,7 +653,7 @@
   // Default user settings
   var defaultUserSettings = {
     enableStereo: false,
-    stereoGainBoost: 1,
+    stereoGainBoost: 0,
     enableWebcamFeeds: true,
     enableVisuals: true,
     selectedAudioDeviceId: null,
