@@ -6,7 +6,8 @@
 module.exports = {
   productionSourceMap: false,
   devServer: {
-    host: 'dev.vr.soundstage.fm',
+    host: 'localhost',
+    port: 8443,
     https: true
   }
 }
