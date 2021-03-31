@@ -44,17 +44,7 @@ var publishing = false;
 var connected = false;
 var worldManager = null;
 var trackAvatarRotation = true;
-var userSettings = {
-  enableStereo: false,
-  stereoGainBoost: 1,
-  enableWebcamFeeds: true,
-  enableVisuals: true,
-  selectedAudioDeviceId: null,
-  selectedPlaybackDeviceId: null,
-  selectedVideoDeviceId: null,
-  trackRotation: true,
-  schema: 0.1
-}
+
 let Videos = [
   { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -72,12 +62,14 @@ let Videos = [
 ]
 // deals with everything inside 3D world
 export class NightClub extends World {
-  constructor(urlParams) {
+  constructor(eventConfig, userSettings) {
     super();
     this.file = 'Night_Club-2903-4.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
-    this.urlParams = urlParams;
+    this.userSettings = userSettings;
+    this.role = eventConfig.role;
+    this.permissions = eventConfig.permissions;
     // TODO: load, not in constructor
     spaceProperties = new SpaceProperties();
   }
@@ -164,7 +156,7 @@ export class NightClub extends World {
 
     // First person camera:
 
-    let spawnPosition = this.urlParams.get('performer') ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
+    let spawnPosition = this.role === 'artist' ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
     camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     camera1.maxZ = 100000;
@@ -380,8 +372,7 @@ export class NightClub extends World {
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
     // media streaming stuff
-    this.mediaStreams = new MediaSoup(this.scene, 'videos');
-    this.mediaStreams.userSettings = this.userSettings;
+    this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings);
 
     // stop movement when focus is lost
     this.canvas.onblur = () => {
@@ -418,7 +409,7 @@ export class NightClub extends World {
 
   initializeDisplays(videoSource = false, displays = ['DJTableVideo', 'WindowVideo']) {
 
-    if(!userSettings.enableVisuals) {
+    if(!this.userSettings.enableVisuals) {
       return;
     }
 
@@ -802,7 +793,7 @@ export class NightClub extends World {
         // also write it to own avatar
         this.video.altText = name;
         // force displayText again if web cams are off since otherwise it shows 'N/A'
-        if(userSettings.enableWebcamFeeds === false) {
+        if(this.userSettings.enableWebcamFeeds === false) {
           this.video.displayText();
         }
       }
@@ -880,7 +871,7 @@ export class NightClub extends World {
     let stereo;
     let audioConstraints;
 
-    if(userSettings && userSettings.enableStereo) {
+    if(this.userSettings && this.userSettings.enableStereo) {
 
       window.audioContext = new AudioContext({
         sampleRate: 48000
@@ -910,7 +901,7 @@ export class NightClub extends World {
       window.performanceAudioGainNode.connect(audioStreamDestination);
 
       /* Apply custom value */
-      window.performanceAudioGainNode.gain.setValueAtTime(1 + (userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
+      window.performanceAudioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
 
       window.audioStream = audioStreamDestination.stream;
 
@@ -950,7 +941,7 @@ export class NightClub extends World {
       this.changePlaybackDevice(playbackDeviceId);
 
       // Disable auto-muting while stereo broadcasting
-      this.hifi._currentHiFiAudioAPIData.volumeThreshold = userSettings.enableStereo ? -96 : null
+      this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
 
     });
   }
@@ -966,7 +957,7 @@ export class NightClub extends World {
     }
     //console.log(changes);
     var pos = {};
-    if(userSettings && userSettings.enableStereo) {
+    if(this.userSettings && this.userSettings.enableStereo) {
       pos = {
         orientationEuler: {
           pitchDegrees: -7.646941233545094,
@@ -1111,6 +1102,11 @@ class HoloAvatar extends VideoAvatar {
 
 class MediaSoup extends MediaStreams {
 
+  constructor(scene, htmlElementName, userSettings) {
+    super(scene, htmlElementName);
+    this.userSettings = userSettings;
+  }
+
   addANewVideoElement(track, isLocal, peerId= false) {
     if (isLocal) {
       document.querySelector("#localVideo").srcObject = new MediaStream([track]);
@@ -1150,7 +1146,7 @@ class MediaSoup extends MediaStreams {
   }
 
   async init( roomId, callback ) {
-    if(!userSettings.enableWebcamFeeds) {
+    if(!this.userSettings.enableWebcamFeeds) {
       return;
     }
     // Initializing connection to the server.

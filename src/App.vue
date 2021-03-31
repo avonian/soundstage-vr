@@ -152,7 +152,7 @@
                                                     <span class="text-gray-400" v-else>No audio input devices found</span>
                                                 </div>
                                             </div>
-                                            <div class="col-span-2" v-if="performer">
+                                            <div class="col-span-2" v-if="canBroadcast">
                                                 <div class="space-y-4">
                                                     <div class="relative flex items-start">
                                                         <div class="flex items-center h-5">
@@ -169,7 +169,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-span-2" v-if="performer">
+                                            <div class="col-span-2" v-if="canBroadcast">
                                                 <label for="gainBoost"
                                                        class="block text-sm font-medium leading-5 text-white">
                                                     Gain Boost (when Broadcasting)
@@ -696,12 +696,11 @@
         cameraMode: null,
         webcamEnabled: false,
         micEnabled: false,
-        performer: urlParams.get('performer'),
+        canBroadcast: false,
         debugging: urlParams.get('debug'),
-        includeFreecam: urlParams.get('freecam'),
-        showStageControls: urlParams.get('stageControls'),
-        freeCamSpeed: urlParams.get('speed') ? urlParams.get('speed') : 0.025,
-        freeCamSensibility: urlParams.get('angularSensibility') ? urlParams.get('angularSensibility') : 8000,
+        showStageControls: false,
+        freeCamSpeed: 0.025,
+        freeCamSensibility: 8000,
         recording: false,
         mediaRecorder: false,
         cameraModes: [
@@ -736,7 +735,15 @@
     },
     mounted: async function () {
 
+      /* Set event configuration */
       await this.initConfig();
+      if(this.eventConfig) {
+        this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
+        if (this.eventConfig.permissions['stage_controls']) {
+          this.showStageControls = true;
+          this.cameraModes.push(['free', 'Free Cam'])
+        }
+      }
 
       this.deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'mobile' : 'other'
       if (this.deviceType === 'mobile') {
@@ -755,7 +762,7 @@
       userSettings = await localStorage.getItem('userSettings')
       userSettings = userSettings ? JSON.parse(userSettings) : defaultUserSettings
       for (var setting of Object.keys(defaultUserSettings)) {
-        if (!userSettings[setting]) {
+        if (userSettings[setting] === undefined) {
           userSettings[setting] = defaultUserSettings[setting]
         }
       }
@@ -763,10 +770,6 @@
       userSettings.enableStereo = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
-
-      if (this.includeFreecam) {
-        this.cameraModes.push(['free', 'Free Cam'])
-      }
 
       /* Detects when devices are plugged/unplugged */
       navigator.mediaDevices.ondevicechange = () => {
@@ -878,7 +881,7 @@
           })
 
           // webcam/mic UI should be set up before 3D world, i.e. desired device ID has to be known
-          this.world = world = await new Nightclub(urlParams)
+          this.world = world = await new Nightclub(this.eventConfig, this.userSettings);
 
           world.userSettings = userSettings
           world.onProgress = (evt) => {
@@ -904,9 +907,8 @@
             this.webcamEnabled = userSettings.enableWebcamFeeds
             this.micEnabled = true
 
-            // Check access level from URL hash to open curtains if true
-            if(urlParams.get('performer') || urlParams.get('debug')) {
-              console.log('perform or debug = true');
+            // Check if they have permission to go backstage
+            if(this.eventConfig.permissions['backstage']) {
               scene.getMeshByName('curtains').checkCollisions = false;
             }
 
@@ -1018,6 +1020,7 @@
           console.log('saved', await localStorage.getItem('userSettings'))
           userSettings = JSON.parse(JSON.stringify(this.userSettings))
           this.cachedUserSettings = JSON.parse(JSON.stringify(this.userSettings))
+          this.world.userSettings = this.userSettings;
 
           /* Reconnect to hifi after everythings settled */
           if (needsAudioRenegotiation) {
