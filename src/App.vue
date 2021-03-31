@@ -1191,7 +1191,7 @@
       castUser (userId) {
         if (userId !== '') {
           this.activeVideo = null
-          this.world.stageControls.cast(`${userId}`)
+          world.stageControls.cast(`${userId}`)
         }
       }
     }
