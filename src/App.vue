@@ -969,7 +969,7 @@
 
           }).then((s) => {
             scene = s
-            world.showVideo() // initialize own avatar
+            world.showVideo('//www.babylonjs-playground.com//textures/flare.png') // initialize own avatar
           })
 
           // Watch for browser/canvas resize events

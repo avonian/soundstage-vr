@@ -466,15 +466,19 @@ export class NightClub extends World {
   }
 
   // custom video/audio streaming support methods
-  async showVideo() {
+  async showVideo(altImage) {
+    let avatarOptions = {
+      radius: videoAvatarSize,
+    };
+    if ( altImage ) {
+      avatarOptions.altImage = altImage;
+    }
     if ( ! this.video ) {
-      this.video = new HoloAvatar( this.scene, null, {
-        radius: videoAvatarSize
-      });
+      this.video = new HoloAvatar( this.scene, null, avatarOptions);
       this.video.autoAttach = false;
       this.video.camera = camera1;
       this.video.autoStart = false;
-      await this.video.show();
+      this.video.show();
       if ( trackAvatarRotation ) {
         this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
       }
@@ -504,7 +508,7 @@ export class NightClub extends World {
 
   stopVideo() {
     if ( this.video ) {
-      this.video.displayText();
+      this.video.displayAlt();
     }
     publishing = false;
     this.mediaStreams.videoSource = false;
@@ -758,7 +762,7 @@ export class NightClub extends World {
     // change text on video avatar:
     this.video.altText = name;
     if ( ! publishing ) {
-      this.video.displayText();
+      this.video.displayAlt();
     }
 
     this.connectHiFi(audioDeviceId, playbackDeviceId);
@@ -794,12 +798,15 @@ export class NightClub extends World {
         this.video.altText = name;
         // force displayText again if web cams are off since otherwise it shows 'N/A'
         if(this.userSettings.enableWebcamFeeds === false) {
-          this.video.displayText();
+          this.video.displayAlt();
         }
       }
       // set own properties
       worldManager.VRSPACE.sendMy("name", name );
       worldManager.VRSPACE.sendMy("mesh", "video");
+      if ( this.video.altImage ) {
+        worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});        
+      }
       worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
       // enter a world
       worldManager.VRSPACE.sendCommand("Enter", {world:spaceProperties.spaceName});
@@ -818,8 +825,13 @@ export class NightClub extends World {
     worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
 
-  createAvatar() {
-    return new HoloAvatar( worldManager.scene, null, worldManager.customOptions );
+  createAvatar(obj) {
+    let avatar = new HoloAvatar( worldManager.scene, null, worldManager.customOptions );
+    // obj is the client object sent by the server
+    if ( obj.properties && obj.properties.altImage ) {
+      avatar.altImage = obj.properties.altImage;
+    }
+    return avatar;
   }
   randomizeAvatar(obj) {
     var avatar = this.createAvatar();
@@ -1192,7 +1204,7 @@ class MediaSoup extends MediaStreams {
       for ( var i = 0; i < this.clients.length; i++ ) {
         if ( this.clients[i].id == clientId ) {
           var avatar = this.clients[i].video;
-          avatar.displayText();
+          avatar.displayAlt();
           break;
         }
       }
