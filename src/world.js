@@ -771,7 +771,13 @@ export class NightClub extends World {
     worldManager.customOptions = {
       radius: videoAvatarSize,
       emojiEvent: (obj) => this.animateAvatar(obj),
-      stageEvent: (obj) => this.stageControls.execute(obj.stageEvent)
+      stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
+      properties: (obj) => {
+        console.log("Properties:", obj);
+        if ( obj.properties.stageEvent ) {
+          this.stageControls.execute(obj.properties.stageEvent);
+        }
+      }
     };
     worldManager.avatarFactory = this.createAvatar;
     // Use this for testing purposes, to randomize avatar movement:
@@ -828,8 +834,16 @@ export class NightClub extends World {
   createAvatar(obj) {
     let avatar = new HoloAvatar( worldManager.scene, null, worldManager.customOptions );
     // obj is the client object sent by the server
-    if ( obj.properties && obj.properties.altImage ) {
-      avatar.altImage = obj.properties.altImage;
+    if ( obj.properties ) {
+      if ( obj.properties.altImage ) {
+        avatar.altImage = obj.properties.altImage;
+      }
+      // TODO this can process only one stage event
+      // keep track of multiple states with multiple properties
+      // at this point stage controls are not initialized yet
+      if ( this.stageControls && obj.properties.stageEvent ) {
+        this.stageControls.execute(obj.properties.stageEvent);
+      }
     }
     return avatar;
   }
@@ -1455,19 +1469,20 @@ class StageControls {
       this.callback(this);
     }
   }
+  executeAndSend(event) {
+    this.execute(event);
+    worldManager.VRSPACE.sendMy('properties', {stageEvent: event});    
+  }
   play( videoIndex ) {
     let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
-    this.execute(playTableEvent);
-    worldManager.VRSPACE.sendMy('stageEvent', playTableEvent);
+    this.executeAndSend(playTableEvent);
 
     let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
-    this.execute(playWindowEvent);
-    worldManager.VRSPACE.sendMy('stageEvent', playWindowEvent);
+    this.executeAndSend(playWindowEvent);
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
-    this.execute(castUserEvent);
-    worldManager.VRSPACE.sendMy('stageEvent', castUserEvent);
+    this.executeAndSend(castUserEvent);
   }
   async execute( event ) {
     if(!this.userSettings.enableVisuals) {
