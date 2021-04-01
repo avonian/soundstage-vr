@@ -946,9 +946,20 @@ export class NightClub extends World {
   }
 
   async connectHiFi(audioDeviceId, playbackDeviceId) {
+    var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
-        userDataStreamingScope: HighFidelityAudio.HiFiUserDataStreamingScopes.NONE
+        userDataStreamingScope: HighFidelityAudio.HiFiUserDataStreamingScopes.NONE,
+        onConnectionStateChanged: (state) => {
+          console.log("HiFi state", state);
+          if ( "Disconnected" === state && !interval) {
+            console.log("Reconnecting to audio server");
+            interval = setInterval(() => this.connectHiFi(audioDeviceId, playbackDeviceId), 5000);
+          } else if ("Connected" === state && interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }
       });
     }
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
@@ -968,7 +979,6 @@ export class NightClub extends World {
 
       // Disable auto-muting while stereo broadcasting
       this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
-
     });
   }
 
