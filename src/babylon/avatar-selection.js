@@ -166,7 +166,6 @@ export class AvatarSelection extends World {
   
   createSelection(selectionCallback) {
     this.selectionCallback = selectionCallback;
-    this.indicator = new LoadProgressIndicator(this.scene, this.camera);
     VRSPACEUI.listMatchingFiles( '../content/char/', (folders) => {
       folders.push({name:"video"});
       var buttons = new Buttons(this.scene,"Avatars",folders,(dir) => this.createAvatarSelection(dir),"name");
@@ -359,6 +358,8 @@ export class AvatarSelection extends World {
         
         // TODO refactor this to WorldManager
         var worldManager = new WorldManager(world);
+        //worldManager.debug = true; // scene debug
+        //worldManager.VRSPACE.debug = true; // network debug
         if ( this.inXR ) {
           console.log("Tracking, "+this.inXR);
           worldManager.trackCamera(this.vrHelper.camera()); 
@@ -367,6 +368,8 @@ export class AvatarSelection extends World {
           worldManager.VRSPACE.removeWelcomeListener(enter);
           worldManager.VRSPACE.sendMy('mesh', avatarUrl);
           worldManager.VRSPACE.sendMy('userHeight', userHeight);
+          // send custom shared transient properties like this:
+          worldManager.VRSPACE.sendMy('properties', {string:'string', number:123.456});
           // CHECKME better way to flag publishing video?
           worldManager.VRSPACE.addWelcomeListener((welcome)=>worldManager.pubSub(welcome.client, 'video' === avatarUrl));
           // TODO add enter command to API
