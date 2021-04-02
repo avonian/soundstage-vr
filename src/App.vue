@@ -969,7 +969,7 @@
 
           }).then((s) => {
             scene = s
-            world.showVideo('//www.babylonjs-playground.com//textures/flare.png') // initialize own avatar
+            world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
           })
 
           // Watch for browser/canvas resize events
