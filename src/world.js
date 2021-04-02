@@ -246,14 +246,14 @@ export class NightClub extends World {
       var rotY = 1.5*Math.PI-camera3.alpha;
       if ( trackAvatarRotation ) {
         // convert alpha and beta to mesh rotation.y and rotation.x
-        this.video.mesh.rotation.y = rotY;
+        this.video.mesh.rotation.y = rotY;        
         // possible but looks weird:
         //this.video.mesh.rotation.x = 0.5*Math.PI - camera3.beta;
       }
       movementTracker.rotation.y = rotY;
       // and now also apply rotation to 1st person camera
       camera1.rotation.z = 0;
-      camera1.rotation.y = 1.5*Math.PI-camera3.alpha;
+      camera1.rotation.y = rotY;
       camera1.rotation.x = 0;
     }
     this.scene.registerBeforeRender( this.applyRotationToMesh );
@@ -290,6 +290,10 @@ export class NightClub extends World {
       }
 
     } else if ( 'free' === cameraType ) {
+      if ( trackAvatarRotation ) {
+        this.video.mesh.rotation.y = .5*Math.PI-camera3.alpha;
+        this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
+      }
       this.camera = this.cameraFree;
       if ( worldManager && this.video ) {
         worldManager.trackMesh(movementTracker);
