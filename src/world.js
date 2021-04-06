@@ -542,89 +542,111 @@ export class NightClub extends World {
     }
   }
 
-  cameraRotation(camera, field, max) {
-    var rotVertical = new BABYLON.AnimationGroup("CameraRotation "+field);
+  cameraRotation(camera, field, max, seconds) {
+    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
     var vAnim = new BABYLON.Animation("CameraRotation:"+field, "rotation."+field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
     var vKeys = [];
     vKeys.push({frame:0, value: camera.rotation[field]});
-    vKeys.push({frame:3, value: max});
+    vKeys.push({frame:seconds, value: max});
     vAnim.setKeys(vKeys);
-    rotVertical.addTargetedAnimation(vAnim, camera);
+    cameraRot.addTargetedAnimation(vAnim, camera);
 
-    rotVertical.onAnimationGroupEndObservable.add(() => {
+    cameraRot.onAnimationGroupEndObservable.add(() => {
       console.log("Camera rotation ended");
-      rotVertical.dispose();
+      cameraRot.dispose();
     });
-    rotVertical.play(false);
-    return rotVertical;
+    cameraRot.play(false);
+    return cameraRot;
   }
   
-  // keyboard event handler - 3rd person movement
-  handleKeyboard(kbInfo) {
-    if ( activeCameraType === '1p' ) {
-      switch (kbInfo.type) {
-        case BABYLON.KeyboardEventTypes.KEYDOWN:
-          console.log("KEY DOWN: ", kbInfo.event.key);
-          switch (kbInfo.event.key) {
-            case "ArrowLeft":
-              if ( ! this.rotAround ) {
-                this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2);              
-              }
-              break;
-            case "ArrowRight":
-            case "ArrowLeft":
-              if ( ! this.rotAround ) {
-                this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2);              
-              }
-              break;
-            case "ArrowUp":
-              if ( ! this.rotVertical ) {
-                this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2);              
-              }
-              break;
-            case "ArrowDown":
-              if ( ! this.rotVertical ) {
-                this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2);
-              }
-              break;
-            default:
-              // this can be used as text input eventually
-              break;
-          }
-          break;
-        case BABYLON.KeyboardEventTypes.KEYUP:
-          console.log("KEY UP: ", kbInfo.event.keyCode);
-          switch (kbInfo.event.key) {
-            case "ArrowLeft":
-            case "ArrowRight":
-              if ( this.rotAround) {
-                console.log("RotAround stop");
-                this.rotAround.stop();
-                delete this.rotAround;                
-              }
-              break;
-            case "ArrowUp":
-            case "ArrowDown":
-              if ( this.rotVertical ) {
-                console.log("RotVertical stop");
-                this.rotVertical.stop();
-                delete this.rotVertical;                
-              }
-              break;
-            default:
-              // this can be used as text input eventually
-              break;
-          }
-          break;
-      }
-    } else if ( activeCameraType != '3p' ) {
-      return;
-    }
+  arcRotation(camera, field, max, seconds) {
+    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
+    var vAnim = new BABYLON.Animation("CameraRotation:"+field, field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var vKeys = [];
+    vKeys.push({frame:0, value: camera[field]});
+    vKeys.push({frame:seconds, value: max});
+    vAnim.setKeys(vKeys);
+    cameraRot.addTargetedAnimation(vAnim, camera);
+
+    cameraRot.onAnimationGroupEndObservable.add(() => {
+      console.log("Camera rotation ended");
+      cameraRot.dispose();
+    });
+    cameraRot.play(false);
+    return cameraRot;
+  }
+
+  // keyboard event handler - camera rotation control, 3rd person movement
+  handleUniCamKeys(kbInfo) {
+    switch (kbInfo.type) {
+      case BABYLON.KeyboardEventTypes.KEYDOWN:
+        console.log("KEY DOWN: ", kbInfo.event.key);
+        switch (kbInfo.event.key) {
+          case "ArrowLeft":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2, 5);
+            }
+            break;
+          case "ArrowRight":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2, 5);
+            }
+            break;
+          case "ArrowUp":
+            if ( ! this.rotVertical ) {
+              this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2.1, 3);
+            }
+            break;
+          case "ArrowDown":
+            if ( ! this.rotVertical ) {
+              this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2.1, 3);
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+      case BABYLON.KeyboardEventTypes.KEYUP:
+        console.log("KEY UP: ", kbInfo.event.keyCode);
+        switch (kbInfo.event.key) {
+          case "ArrowLeft":
+          case "ArrowRight":
+            if ( this.rotAround) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;                
+            }
+            break;
+          case "ArrowUp":
+          case "ArrowDown":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;                
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+    }    
+  }
+  
+  handleArcCamKeys(kbInfo) {
     switch (kbInfo.type) {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
         //console.log("KEY DOWN: ", kbInfo.event.key, " directions: "+movingDirections);
         switch (kbInfo.event.key) {
+          case "Shift":
+            this.shiftPressed = true;
+            break;
           case "ArrowLeft":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha+Math.PI*2, 3);
+            }
+            break;          
           case "a":
           case "A":
             if ( ! movingLeft ) {
@@ -633,6 +655,10 @@ export class NightClub extends World {
             }
             break;
           case "ArrowRight":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);              
+            }
+            break;          
           case "d":
           case "D":
             if ( ! movingRight ) {
@@ -641,6 +667,17 @@ export class NightClub extends World {
             }
             break;
           case "ArrowUp":
+            if ( ! this.shiftPressed ) {
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
+                //this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
+              }
+            } else {
+              if ( ! this.camRadius ) {
+                this.camRadius = this.arcRotation(camera3, 'radius', 0, 3);
+              }
+            }
+            break;          
           case "w":
           case "W":
             if ( ! movingForward ) {
@@ -649,6 +686,17 @@ export class NightClub extends World {
             }
             break;
           case "ArrowDown":
+            if ( ! this.shiftPressed ) {
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
+                //this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
+              }
+            } else {
+              if ( ! this.camRadius ) {
+                this.camRadius = this.arcRotation(camera3, 'radius', 5, 3);
+              }
+            }
+            break;
           case "s":
           case "S":
             if ( ! movingBackward ) {
@@ -675,7 +723,20 @@ export class NightClub extends World {
       case BABYLON.KeyboardEventTypes.KEYUP:
         //console.log("KEY UP: ", kbInfo.event.keyCode, " directions: "+movingDirections);
         switch (kbInfo.event.key) {
+          case "Shift":
+            this.shiftPressed = false;
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
           case "ArrowLeft":
+            if ( this.rotAround ) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;                
+            }
+            break;
           case "a":
           case "A":
             if ( movingLeft ) {
@@ -684,6 +745,12 @@ export class NightClub extends World {
             }
             break;
           case "ArrowRight":
+            if ( this.rotAround) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;                
+            }
+            break;
           case "d":
           case "D":
             if ( movingRight ) {
@@ -692,6 +759,16 @@ export class NightClub extends World {
             }
             break;
           case "ArrowUp":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;                
+            }
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
           case "w":
           case "W":
             if ( movingForward ) {
@@ -700,6 +777,16 @@ export class NightClub extends World {
             }
             break;
           case "ArrowDown":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;                
+            }
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
           case "s":
           case "S":
             if ( movingBackward ) {
@@ -721,6 +808,14 @@ export class NightClub extends World {
             break;
         }
         break;
+    }
+    
+  }
+  handleKeyboard(kbInfo) {
+    if ( activeCameraType === '1p' ) {
+      this.handleUniCamKeys(kbInfo);
+    } else if ( activeCameraType === '3p' ) {
+      this.handleArcCamKeys(kbInfo);
     }
   }
 
