@@ -171,10 +171,14 @@ export class NightClub extends World {
     camera1.ellipsoidOffset = new BABYLON.Vector3(0, videoAvatarSize + avatarHeight, 0);
     camera1.checkCollisions = true;
 
-    camera1.keysDown = [40, 83]; // down, S
-    camera1.keysLeft = [37, 65]; // left, A
-    camera1.keysRight = [39, 68]; // right, D
-    camera1.keysUp = [38, 87]; // up, W
+    camera1.keysDown = [83]; // S
+    camera1.keysLeft = [65]; // A
+    camera1.keysRight = [68]; // D
+    camera1.keysUp = [87]; // W
+    //camera1.keysDown = [40, 83]; // down, S
+    //camera1.keysLeft = [37, 65]; // left, A
+    //camera1.keysRight = [39, 68]; // right, D
+    //camera1.keysUp = [38, 87]; // up, W
     camera1.keysUpward = [36, 33, 32]; // home, pgup, space
     console.log("1st Person Camera:")
     console.log(camera1);
@@ -538,9 +542,82 @@ export class NightClub extends World {
     }
   }
 
+  cameraRotation(camera, field, max) {
+    var rotVertical = new BABYLON.AnimationGroup("CameraRotation "+field);
+    var vAnim = new BABYLON.Animation("CameraRotation:"+field, "rotation."+field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var vKeys = [];
+    vKeys.push({frame:0, value: camera.rotation[field]});
+    vKeys.push({frame:3, value: max});
+    vAnim.setKeys(vKeys);
+    rotVertical.addTargetedAnimation(vAnim, camera);
+
+    rotVertical.onAnimationGroupEndObservable.add(() => {
+      console.log("Camera rotation ended");
+      rotVertical.dispose();
+    });
+    rotVertical.play(false);
+    return rotVertical;
+  }
+  
   // keyboard event handler - 3rd person movement
   handleKeyboard(kbInfo) {
-    if ( activeCameraType != '3p' ) {
+    if ( activeCameraType === '1p' ) {
+      switch (kbInfo.type) {
+        case BABYLON.KeyboardEventTypes.KEYDOWN:
+          console.log("KEY DOWN: ", kbInfo.event.key);
+          switch (kbInfo.event.key) {
+            case "ArrowLeft":
+              if ( ! this.rotAround ) {
+                this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2);              
+              }
+              break;
+            case "ArrowRight":
+            case "ArrowLeft":
+              if ( ! this.rotAround ) {
+                this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2);              
+              }
+              break;
+            case "ArrowUp":
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2);              
+              }
+              break;
+            case "ArrowDown":
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2);
+              }
+              break;
+            default:
+              // this can be used as text input eventually
+              break;
+          }
+          break;
+        case BABYLON.KeyboardEventTypes.KEYUP:
+          console.log("KEY UP: ", kbInfo.event.keyCode);
+          switch (kbInfo.event.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+              if ( this.rotAround) {
+                console.log("RotAround stop");
+                this.rotAround.stop();
+                delete this.rotAround;                
+              }
+              break;
+            case "ArrowUp":
+            case "ArrowDown":
+              if ( this.rotVertical ) {
+                console.log("RotVertical stop");
+                this.rotVertical.stop();
+                delete this.rotVertical;                
+              }
+              break;
+            default:
+              // this can be used as text input eventually
+              break;
+          }
+          break;
+      }
+    } else if ( activeCameraType != '3p' ) {
       return;
     }
     switch (kbInfo.type) {
