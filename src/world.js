@@ -580,7 +580,7 @@ export class NightClub extends World {
   handleUniCamKeys(kbInfo) {
     switch (kbInfo.type) {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
-        console.log("KEY DOWN: ", kbInfo.event.key);
+        //console.log("KEY DOWN: ", kbInfo.event.key);
         switch (kbInfo.event.key) {
           case "ArrowLeft":
             if ( ! this.rotAround ) {
@@ -608,7 +608,7 @@ export class NightClub extends World {
         }
         break;
       case BABYLON.KeyboardEventTypes.KEYUP:
-        console.log("KEY UP: ", kbInfo.event.keyCode);
+        //console.log("KEY UP: ", kbInfo.event.keyCode);
         switch (kbInfo.event.key) {
           case "ArrowLeft":
           case "ArrowRight":
