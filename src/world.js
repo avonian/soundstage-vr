@@ -962,7 +962,7 @@ export class NightClub extends World {
 
     //worldManager.trackRotation = trackAvatarRotation; // track rotation to show avatar's direction
 
-    worldManager.debug = true; // client debug
+    worldManager.debug = false; // client debug
     worldManager.VRSPACE.debug = false; // network debug
 
     worldManager.VRSPACE.addErrorListener( (error) => {
