@@ -45,6 +45,13 @@ var connected = false;
 var worldManager = null;
 var trackAvatarRotation = true;
 
+var tableMaterial;
+var tableTexture;
+var tableMesh;
+var windowMaterial;
+var windowTexture;
+var windowMesh;
+
 let Videos = [
   { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -250,7 +257,7 @@ export class NightClub extends World {
       var rotY = 1.5*Math.PI-camera3.alpha;
       if ( trackAvatarRotation ) {
         // convert alpha and beta to mesh rotation.y and rotation.x
-        this.video.mesh.rotation.y = rotY;        
+        this.video.mesh.rotation.y = rotY;
         // possible but looks weird:
         //this.video.mesh.rotation.x = 0.5*Math.PI - camera3.beta;
       }
@@ -422,8 +429,14 @@ export class NightClub extends World {
     }
 
     if(displays.indexOf('DJTableVideo') !== -1) {
-      var tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      var tableTexture = new BABYLON.VideoTexture("video", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+      if(tableMaterial) {
+        tableMaterial.dispose();
+      }
+      if(tableTexture) {
+        tableTexture.dispose();
+      }
+      tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
+      tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -434,7 +447,7 @@ export class NightClub extends World {
       tableMaterial.diffuseTexture.vOffset = -0.75;
       tableMaterial.emissiveTexture = tableTexture;
 
-      let tableMesh = this.scene.getMeshByName("DJTableVideo")
+      tableMesh = this.scene.getMeshByName("DJTableVideo")
       tableMesh.material = tableMaterial;
       console.log('tableMesh', tableMesh);
       this.displays.push({
@@ -445,8 +458,16 @@ export class NightClub extends World {
     }
 
     if(displays.indexOf('WindowVideo') !== -1) {
-      var windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      var windowTexture = new BABYLON.VideoTexture("video", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+
+      if(windowMaterial) {
+        windowMaterial.dispose();
+      }
+      if(windowTexture) {
+        windowTexture.dispose();
+      }
+
+      windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
+      windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -457,7 +478,7 @@ export class NightClub extends World {
       windowMaterial.diffuseTexture.uScale = -1;
       windowMaterial.diffuseTexture.vOffset = 0.17;
       windowMaterial.emissiveTexture = windowTexture;
-      let windowMesh = this.scene.getMeshByName("WindowVideo")
+      windowMesh = this.scene.getMeshByName("WindowVideo")
       windowMesh.material = windowMaterial;
       console.log('windowMesh', windowMesh);
       this.displays.push({
@@ -558,7 +579,7 @@ export class NightClub extends World {
     cameraRot.play(false);
     return cameraRot;
   }
-  
+
   arcRotation(camera, field, max, seconds) {
     var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
     var vAnim = new BABYLON.Animation("CameraRotation:"+field, field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
@@ -615,7 +636,7 @@ export class NightClub extends World {
             if ( this.rotAround) {
               console.log("RotAround stop");
               this.rotAround.stop();
-              delete this.rotAround;                
+              delete this.rotAround;
             }
             break;
           case "ArrowUp":
@@ -623,7 +644,7 @@ export class NightClub extends World {
             if ( this.rotVertical ) {
               console.log("RotVertical stop");
               this.rotVertical.stop();
-              delete this.rotVertical;                
+              delete this.rotVertical;
             }
             break;
           default:
@@ -631,9 +652,9 @@ export class NightClub extends World {
             break;
         }
         break;
-    }    
+    }
   }
-  
+
   handleArcCamKeys(kbInfo) {
     switch (kbInfo.type) {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
@@ -646,7 +667,7 @@ export class NightClub extends World {
             if ( ! this.rotAround ) {
               this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha+Math.PI*2, 3);
             }
-            break;          
+            break;
           case "a":
           case "A":
             if ( ! movingLeft ) {
@@ -656,9 +677,9 @@ export class NightClub extends World {
             break;
           case "ArrowRight":
             if ( ! this.rotAround ) {
-              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);              
+              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);
             }
-            break;          
+            break;
           case "d":
           case "D":
             if ( ! movingRight ) {
@@ -677,7 +698,7 @@ export class NightClub extends World {
                 this.camRadius = this.arcRotation(camera3, 'radius', 0, 3);
               }
             }
-            break;          
+            break;
           case "w":
           case "W":
             if ( ! movingForward ) {
@@ -734,7 +755,7 @@ export class NightClub extends World {
             if ( this.rotAround ) {
               console.log("RotAround stop");
               this.rotAround.stop();
-              delete this.rotAround;                
+              delete this.rotAround;
             }
             break;
           case "a":
@@ -748,7 +769,7 @@ export class NightClub extends World {
             if ( this.rotAround) {
               console.log("RotAround stop");
               this.rotAround.stop();
-              delete this.rotAround;                
+              delete this.rotAround;
             }
             break;
           case "d":
@@ -762,7 +783,7 @@ export class NightClub extends World {
             if ( this.rotVertical ) {
               console.log("RotVertical stop");
               this.rotVertical.stop();
-              delete this.rotVertical;                
+              delete this.rotVertical;
             }
             if ( this.camRadius ) {
               this.camRadius.stop();
@@ -780,7 +801,7 @@ export class NightClub extends World {
             if ( this.rotVertical ) {
               console.log("RotVertical stop");
               this.rotVertical.stop();
-              delete this.rotVertical;                
+              delete this.rotVertical;
             }
             if ( this.camRadius ) {
               this.camRadius.stop();
@@ -809,7 +830,7 @@ export class NightClub extends World {
         }
         break;
     }
-    
+
   }
   handleKeyboard(kbInfo) {
     if ( activeCameraType === '1p' ) {
@@ -987,7 +1008,7 @@ export class NightClub extends World {
       worldManager.VRSPACE.sendMy("name", name );
       worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});        
+        worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
       }
       worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
       // enter a world
@@ -1657,7 +1678,7 @@ class StageControls {
   }
   executeAndSend(event) {
     this.execute(event);
-    worldManager.VRSPACE.sendMy('properties', {stageEvent: event});    
+    worldManager.VRSPACE.sendMy('properties', {stageEvent: event});
   }
   play( videoIndex ) {
     let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
