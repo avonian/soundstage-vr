@@ -10,6 +10,6 @@ module.exports = {
     port: 8443,
     https: true,
     hot: false,
-    liveReload: false
+    liveReload: true
   }
 }
