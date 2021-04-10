@@ -1,8 +1,6 @@
 import { World, VideoAvatar, WorldManager, MediaStreams, VRSPACEUI } from './babylon/vrspace-ui.js';
 import mediasoup from './mediasoup'
 
-var spaceProperties;
-
 // in this space, 0.5 is minimum size that phisically makes sense
 var videoAvatarSize = 0.25;
 // distance from the floor
@@ -75,10 +73,10 @@ export class NightClub extends World {
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
+    this.eventConfig = eventConfig;
     this.role = eventConfig.role;
     this.permissions = eventConfig.permissions;
     // TODO: load, not in constructor
-    spaceProperties = new SpaceProperties();
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -387,7 +385,7 @@ export class NightClub extends World {
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
     // media streaming stuff
-    this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings);
+    this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings, this.eventConfig);
 
     // stop movement when focus is lost
     this.canvas.onblur = () => {
@@ -1012,11 +1010,11 @@ export class NightClub extends World {
       }
       worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
       // enter a world
-      worldManager.VRSPACE.sendCommand("Enter", {world:spaceProperties.spaceName});
+      worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
       // start session
       worldManager.VRSPACE.sendCommand("Session");
       // add chatroom id to the client, and start streaming
-      welcome.client.token = spaceProperties.mediaSoup.chatRoom;
+      welcome.client.token = this.eventConfig.event_slug;
       worldManager.pubSub(welcome.client);
 
       connected = true;
@@ -1165,7 +1163,7 @@ export class NightClub extends World {
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
     }
 
-    this.hifi.connectToHiFiAudioAPIServer(spaceProperties.hiFi.token, spaceProperties.hiFi.server).then(() => {
+    this.hifi.connectToHiFiAudioAPIServer(this.eventConfig.highFidelity.token, this.eventConfig.highFidelity.url).then(() => {
       console.log('HiFi connected');
       var outputStream = this.hifi.getOutputAudioMediaStream();
       var outputElement = document.getElementById('audioOutput');
@@ -1336,9 +1334,10 @@ class HoloAvatar extends VideoAvatar {
 
 class MediaSoup extends MediaStreams {
 
-  constructor(scene, htmlElementName, userSettings) {
+  constructor(scene, htmlElementName, userSettings, eventConfig) {
     super(scene, htmlElementName);
     this.userSettings = userSettings;
+    this.eventConfig = eventConfig;
   }
 
   addANewVideoElement(track, isLocal, peerId= false) {
@@ -1388,7 +1387,7 @@ class MediaSoup extends MediaStreams {
       roomId: roomId,
       peerId: worldManager.VRSPACE.me.id,
       displayName: worldManager.VRSPACE.me.name,
-      baseUrl: "wss://mediasoup.soundstage.fm", // FIXME use property
+      baseUrl: this.eventConfig.mediaSoup['url'], // FIXME use property
       // modes: VIDEO_ONLY, AUDIO_ONLY, AUDIO_AND_VIDEO
       mode: mediasoup.MODES.VIDEO_ONLY,
       useSimulcast: false,
@@ -1704,23 +1703,6 @@ class StageControls {
         }
         break;
 
-    }
-  }
-}
-
-class SpaceProperties {
-  constructor () {
-    this.id = 'dev';
-    this.spaceName = 'dev';
-    this.mediaSoup = {
-      baseUrl:'wss://mediasoup.soundstage.fm',
-      chatRoom: 'p6afwjkb'
-    }
-    this.hiFi = {
-      server: 'api-pro.highfidelity.com',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJmMzRlZmViZC00YWRjLTRlZTMtOWNkNS0yOGE3OTcwOThhZmQiLCJzcGFjZV9pZCI6ImIxNzgxYTMxLTQ0YzYtNDcwYy05NzA5LTJhM2FmMmY2ZTNhNyIsInN0YWNrIjoiYXVkaW9uZXQtbWl4ZXItYXBpLXByby0wMiJ9.WZ3stcSSONH6QwHJUn04ZZ_8Ts_q0svRgpHlkg9VUOE'
-      // server: 'api-soundstage.highfidelity.com',
-      // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiI5MzM3OWIxOC05N2VmLTQ5NmMtYjFkYS05NDBmNGY3M2Y4OGUiLCJzcGFjZV9pZCI6IjQyOGQ0ZTY5LTlhOWItNDc2Mi1hNTU2LTk1NDliN2JkN2MxNiIsInN0YWNrIjoiYXVkaW9uZXQtbWl4ZXItYXBpLXNvdW5kc3RhZ2UwMSJ9.0k4DzPOe4gzS-k8I21SKis1LTL2ev8zp63cOfzhjkqk'
     }
   }
 }
