@@ -237,7 +237,6 @@ export default class RoomClient extends EventEmitter {
     // @type {Object} with:
     // - {MediaDeviceInfo} [device]
     // - {String} [resolution] - 'qvga' / 'vga' / 'hd'.
-    console.log('mediasoup res ', resolution);
     this._webcam = {
       device: null,
       resolution: resolution,
@@ -946,7 +945,6 @@ export default class RoomClient extends EventEmitter {
       if (!device) throw new Error("no webcam devices");
 
       logger.debug("enableWebcam() | calling getUserMedia()");
-      console.log('gum video constraints', VIDEO_CONSTRAINS[resolution])
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           deviceId: { ideal: device.deviceId },
