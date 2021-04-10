@@ -1010,11 +1010,11 @@ export class NightClub extends World {
       }
       worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
       // enter a world
-      worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_id});
+      worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug.replace(/-/g,'')});
       // start session
       worldManager.VRSPACE.sendCommand("Session");
       // add chatroom id to the client, and start streaming
-      welcome.client.token = this.eventConfig.event_id;
+      welcome.client.token = this.eventConfig.event_slug.replace(/-/g,'');
       worldManager.pubSub(welcome.client);
 
       connected = true;
