@@ -4,20 +4,30 @@ import Logger from "./Logger";
 import { EventEmitter } from "eventemitter3";
 
 const VIDEO_CONSTRAINS = {
-  qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
-  vga: { width: { ideal: 640 }, height: { ideal: 480 } },
-  hd: { width: { ideal: 1280 }, height: { ideal: 720 } },
+  qvga: { height: { ideal: 240 } },
+  vga: { height: { ideal: 480 } },
+  hd: { height: { ideal: 720 } },
+  uhd: { height: { ideal: 1080 } },
 };
 
 const PC_PROPRIETARY_CONSTRAINTS = {
-  optional: [{ googDscp: true }],
+  optional: [
+    { googHighStartBitrate: 0 },
+    { googPayloadPadding: true },
+    { googScreencastMinBitrate: 100 },
+    { googCpuOveruseDetection: true },
+    { googCpuOveruseEncodeUsage: true },
+    { googCpuUnderuseThreshold: 55 },
+    { googCpuOveruseThreshold: 85 },
+    { googDscp: true },
+  ],
 };
 
 // Used for simulcast webcam video.
 const WEBCAM_SIMULCAST_ENCODINGS = [
-  { scaleResolutionDownBy: 4, maxBitrate: 500000 },
-  { scaleResolutionDownBy: 2, maxBitrate: 1000000 },
-  { scaleResolutionDownBy: 1, maxBitrate: 5000000 },
+  // { scaleResolutionDownBy: 4, maxBitrate: 500000 },
+  // { scaleResolutionDownBy: 2, maxBitrate: 1000000 },
+  { scaleResolutionDownBy: 1, maxBitrate: 9000000 },
 ];
 
 // Used for VP9 webcam video.
@@ -113,6 +123,7 @@ export default class RoomClient extends EventEmitter {
     datachannel = false,
     // set mode of operation.
     mode = MODES.AUDIO_AND_VIDEO,
+    resolution = 'vga'
   }) {
     super();
     logger.debug(
@@ -226,9 +237,10 @@ export default class RoomClient extends EventEmitter {
     // @type {Object} with:
     // - {MediaDeviceInfo} [device]
     // - {String} [resolution] - 'qvga' / 'vga' / 'hd'.
+    console.log('mediasoup res ', resolution);
     this._webcam = {
       device: null,
-      resolution: "hd",
+      resolution: resolution,
     };
 
     // Set custom SVC scalability mode.
@@ -934,7 +946,7 @@ export default class RoomClient extends EventEmitter {
       if (!device) throw new Error("no webcam devices");
 
       logger.debug("enableWebcam() | calling getUserMedia()");
-
+      console.log('gum video constraints', VIDEO_CONSTRAINS[resolution])
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           deviceId: { ideal: device.deviceId },

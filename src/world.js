@@ -1391,15 +1391,10 @@ class MediaSoup extends MediaStreams {
       baseUrl: "wss://mediasoup.soundstage.fm", // FIXME use property
       // modes: VIDEO_ONLY, AUDIO_ONLY, AUDIO_AND_VIDEO
       mode: mediasoup.MODES.VIDEO_ONLY,
-      useSimulcast: true,
+      useSimulcast: false,
       forceH264: false,
+      resolution: this.role === 'artist' ? 'uhd' : 'vga'
     });
-    if ( this.userSettings ) {
-      roomClient._webcam = {
-        resolution: "vga",
-        device: { deviceId: this.userSettings.selectedVideoDeviceId }
-      }
-    }
     await roomClient.join();
     // Listen for events on 'PRODUCER's. Local tracks.
     roomClient.on(mediasoup.EVENTS.PRODUCER.NEW_PRODUCER, (producer) => {
