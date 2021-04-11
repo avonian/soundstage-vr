@@ -1664,6 +1664,7 @@ class StageControls {
     this.videos = Videos;
     this.userSettings = userSettings;
     this.world = world;
+    this.userBeingCasted = false;
   }
   init () {
     if (this.callback) {
@@ -1685,24 +1686,41 @@ class StageControls {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
     this.executeAndSend(castUserEvent);
   }
+  fetchPeerVideoElement(peerid) {
+    let videos = document.querySelectorAll('video')
+    for(var video of videos) {
+      if(video.getAttribute('peerid') === peerid) {
+        return video;
+      }
+    }
+    return false;
+  }
   async execute( event ) {
     if(!this.userSettings.enableVisuals) {
       return;
     }
+    /* If a user was being casted continue playing the video element since initializeDisplays will have paused it when disposing previous textures */
+    let resumeUserPlayback = this.userBeingCasted;
 
     switch(event.action) {
       case 'playVideo':
         this.world.initializeDisplays(Videos[event.videoIndex].url, [event.target]);
+        this.userBeingCasted = false;
         break;
       case "castUser":
-        let videos = document.querySelectorAll('video')
-        for(var video of videos) {
-          if(video.getAttribute('peerid') === event.userId) {
-            this.world.initializeDisplays(video, [event.target])
-          }
+        let video = this.fetchPeerVideoElement(event.userId);
+        if(video) {
+          this.world.initializeDisplays(video, [event.target]);
+          this.userBeingCasted = event.userId;
         }
         break;
+    }
 
+    if(resumeUserPlayback) {
+      let video = this.fetchPeerVideoElement(resumeUserPlayback);
+      if(video) {
+        video.play();
+      }
     }
   }
 }
