@@ -1178,6 +1178,9 @@ export class NightClub extends World {
   }
 
   async changePlaybackDevice(playbackDeviceId) {
+    if(!playbackDeviceId) {
+      return;
+    }
     console.log('playbackDeviceSet to', playbackDeviceId);
     document.getElementById('audioOutput').setSinkId(playbackDeviceId);
   }
