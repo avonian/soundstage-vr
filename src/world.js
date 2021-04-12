@@ -1,18 +1,9 @@
 import { World, VideoAvatar, WorldManager, MediaStreams, VRSPACEUI } from './babylon/vrspace-ui.js';
 import mediasoup from './mediasoup'
 
-// in this space, 0.5 is minimum size that phisically makes sense
-var videoAvatarSize = 0.25;
-// distance from the floor
-var avatarHeight = 0.25;
-
 var camera1;
 var camera3;
 var activeCameraType = '1p'; // initial camera - 1st person
-
-// position of video preview in FPS mode
-// null defaults relative to eyes, 30cm front, 5cm below
-var fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
 
 // network stuff
 var publishing = false;
@@ -53,9 +44,17 @@ export class NightClub extends World {
     this.eventConfig = eventConfig;
     this.role = eventConfig.role;
     this.permissions = eventConfig.permissions;
+    // in this space, 0.5 is minimum size that phisically makes sense
+    this.videoAvatarSize = 0.25;
+    // distance from the floor
+    this.avatarHeight = 0.25;
+    // movement implementation
     this.movement = new Movement(this);
     // mesh to share movement
     this.movementTracker = null;
+    // position of video preview in FPS mode
+    // null defaults relative to eyes, 30cm front, 5cm below
+    this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -142,7 +141,7 @@ export class NightClub extends World {
 
     // First person camera:
 
-    let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, videoAvatarSize*2+avatarHeight, -7);
+    let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, this.videoAvatarSize*2+this.avatarHeight, -7);
     camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     camera1.maxZ = 100000;
@@ -153,8 +152,8 @@ export class NightClub extends World {
     camera1.applyGravity = true;
     camera1.speed = 0.07;
     //in this space, 0.5 is minimum size that phisically makes sense, thus avatarSize*2:
-    camera1.ellipsoid = new BABYLON.Vector3(videoAvatarSize, videoAvatarSize*2, videoAvatarSize);
-    camera1.ellipsoidOffset = new BABYLON.Vector3(0, videoAvatarSize + avatarHeight, 0);
+    camera1.ellipsoid = new BABYLON.Vector3(this.videoAvatarSize, this.videoAvatarSize*2, this.videoAvatarSize);
+    camera1.ellipsoidOffset = new BABYLON.Vector3(0, this.videoAvatarSize + this.avatarHeight, 0);
     camera1.checkCollisions = true;
 
     camera1.keysDown = [83]; // S
@@ -263,14 +262,14 @@ export class NightClub extends World {
       // set position/target from current camera/avatar
       camera1.rotation.y = 1.5*Math.PI-camera3.alpha;
       //camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y;
-      camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y-avatarHeight;
+      camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y-this.avatarHeight;
       this.camera = camera1;
       if ( worldManager ) {
         worldManager.trackMesh(null);
       }
     } else if ( '3p' === cameraType ) {
       //camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y;
-      camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y+avatarHeight;
+      camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y+this.avatarHeight;
       // set position/target from current camera/avatar
       camera3.alpha = 1.5*Math.PI-camera1.rotation.y;
       this.camera = camera3;
@@ -297,7 +296,7 @@ export class NightClub extends World {
 
     if ( '1p' === cameraType && this.video ) {
       // hide video avatar by attaching it to the camera at an invisible position
-      this.video.attachToCamera(fpsWebcamPreviewPos);
+      this.video.attachToCamera(this.fpsWebcamPreviewPos);
     }
 
     console.log("Active camera:");
@@ -471,7 +470,9 @@ export class NightClub extends World {
   // custom video/audio streaming support methods
   async showVideo(altImage) {
     let avatarOptions = {
-      radius: videoAvatarSize,
+      radius: this.videoAvatarSize,
+      avatarHeight: this.avatarHeight,
+      videoAvatarSize: this.videoAvatarSize
     };
     if ( altImage ) {
       avatarOptions.altImage = altImage;
@@ -492,7 +493,7 @@ export class NightClub extends World {
       this.movementTracker.ellipsoid = this.video.mesh.ellipsoid;
       this.video.movementTracker = this.movementTracker;
 
-      this.video.attachToCamera(fpsWebcamPreviewPos);
+      this.video.attachToCamera(this.fpsWebcamPreviewPos);
       if ( '1p' !== activeCameraType ) {
         this.video.detachFromCamera();
       }
@@ -549,7 +550,9 @@ export class NightClub extends World {
 
     worldManager = new WorldManager(this, fps);
     worldManager.customOptions = {
-      radius: videoAvatarSize,
+      radius: this.videoAvatarSize,
+      avatarHeight: this.avatarHeight,
+      videoAvatarSize: this.videoAvatarSize,
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
@@ -650,7 +653,7 @@ export class NightClub extends World {
 
   loadEmojis( callback ) {
     // emojis
-    this.emojis = new Emojis(this.scene, camera1.position, callback );
+    this.emojis = new Emojis(this, camera1.position, callback );
     this.emojis.init();
   }
 
@@ -1195,14 +1198,14 @@ class Movement {
     //console.log("speed: "+camera3.speed+" dist: "+distance+" time: "+delta);
     var gravity = new BABYLON.Vector3(0,this.world.scene.gravity.y,0);
     // height correction:
-    var origin = avatar.position.subtract( new BABYLON.Vector3(0,-videoAvatarSize,0));
+    var origin = avatar.position.subtract( new BABYLON.Vector3(0,-this.world.videoAvatarSize,0));
     var ray = new BABYLON.Ray(origin, this.DOWN, 10);
     var hit = this.world.scene.pickWithRay(ray, (mesh) => mesh !== avatar && mesh.name !== 'particleSource' && mesh.name !== 'VideoAvatarBackground' );
     //console.log(avatar.position.y+" "+hit.pickedPoint.y+" "+hit.pickedMesh.id);
     // this puts avatar right on top of whatever is below it - a bumpy ride:
-    //avatar.position.y = hit.pickedPoint.y+videoAvatarSize;
+    //avatar.position.y = hit.pickedPoint.y+this.world.videoAvatarSize;
     // so we conditionally increase gravity to make it smooth:
-    if (hit.pickedPoint.y+videoAvatarSize < avatar.position.y - 0.2 - avatarHeight) {
+    if (hit.pickedPoint.y+this.world.videoAvatarSize < avatar.position.y - 0.2 - this.world.avatarHeight) {
       if ( ! this.movingUpward ) {
         // if not flying, increase the gravity so the avatar falls down
         // CHECKME: this value is tailored to stairs
@@ -1271,8 +1274,8 @@ class Movement {
 class HoloAvatar extends VideoAvatar {
   show() {
     super.show();
-    this.mesh.ellipsoid = new BABYLON.Vector3(this.radius, this.radius+avatarHeight, this.radius);
-    this.mesh.position = new BABYLON.Vector3( 0, this.radius+avatarHeight, 0);
+    this.mesh.ellipsoid = new BABYLON.Vector3(this.radius, this.radius+this.avatarHeight, this.radius);
+    this.mesh.position = new BABYLON.Vector3( 0, this.radius+this.avatarHeight, 0);
     this.mesh.material.backFaceCulling = false;
 
     if ( trackAvatarRotation ) {
@@ -1515,8 +1518,9 @@ class Emoji {
   }
 }
 class Emojis {
-  constructor(scene, position, callback) {
-    this.scene = scene;
+  constructor(world, position, callback) {
+    this.world = world;
+    this.scene = world.scene;
     this.position = position;
     this.callback = callback;
     this.baseUrl = "/assets/emojis/";
@@ -1587,7 +1591,7 @@ class Emojis {
     }
     var emoji = this.emojis[index];
 
-    var mesh = BABYLON.MeshBuilder.CreateDisc("Emoji:"+emoji.file, {radius:videoAvatarSize}, this.scene);
+    var mesh = BABYLON.MeshBuilder.CreateDisc("Emoji:"+emoji.file, {radius:this.world.videoAvatarSize}, this.scene);
     mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
     mesh.position = new BABYLON.Vector3( this.position.x, this.position.y, this.position.z);
     mesh.material = new BABYLON.StandardMaterial("Emoji:"+emoji.file, this.scene);
@@ -1610,7 +1614,7 @@ class Emojis {
     var forward = camera1.getForwardRay(distance).direction.add(this.position);
     var yStart = this.position.y;
     if ( this.avatar ) {
-      yStart = this.position.y+avatarHeight+videoAvatarSize;
+      yStart = this.position.y+this.world.avatarHeight+this.world.videoAvatarSize;
       // forward vector of other avatars
       console.log(this.avatar.rotation.y);
       mesh.forward.scale(distance).rotateByQuaternionToRef(BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y, this.avatar.rotation.y), forward);
