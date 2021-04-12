@@ -11,13 +11,6 @@ var connected = false;
 var worldManager = null;
 var trackAvatarRotation = true;
 
-var tableMaterial;
-var tableTexture;
-var tableMesh;
-var windowMaterial;
-var windowTexture;
-var windowMesh;
-
 let Videos = [
   { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -55,6 +48,13 @@ export class NightClub extends World {
     // position of video preview in FPS mode
     // null defaults relative to eyes, 30cm front, 5cm below
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
+    // things to dispose of
+    this.tableMaterial = null;
+    this.tableTexture = null;
+    this.tableMesh = null;
+    this.windowMaterial = null;
+    this.windowTexture = null;
+    this.windowMesh = null;
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -402,62 +402,62 @@ export class NightClub extends World {
     }
 
     if(displays.indexOf('DJTableVideo') !== -1) {
-      if(tableMaterial) {
-        tableMaterial.dispose();
+      if(this.tableMaterial) {
+        this.tableMaterial.dispose();
       }
-      if(tableTexture) {
-        tableTexture.dispose();
+      if(this.tableTexture) {
+        this.tableTexture.dispose();
       }
-      tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+      this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
+      this.tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
         loop: true
       });
-      tableMaterial.diffuseTexture = tableTexture;
-      tableMaterial.diffuseTexture.vScale = 0.50;
-      tableMaterial.diffuseTexture.vOffset = -0.75;
-      tableMaterial.emissiveTexture = tableTexture;
+      this.tableMaterial.diffuseTexture = this.tableTexture;
+      this.tableMaterial.diffuseTexture.vScale = 0.50;
+      this.tableMaterial.diffuseTexture.vOffset = -0.75;
+      this.tableMaterial.emissiveTexture = this.tableTexture;
 
-      tableMesh = this.scene.getMeshByName("DJTableVideo")
-      tableMesh.material = tableMaterial;
-      console.log('tableMesh', tableMesh);
+      this.tableMesh = this.scene.getMeshByName("DJTableVideo")
+      this.tableMesh.material = this.tableMaterial;
+      console.log('tableMesh', this.tableMesh);
       this.displays.push({
         name: "DJTableVideo",
-        mesh: tableMesh,
-        texture: tableTexture
+        mesh: this.tableMesh,
+        texture: this.tableTexture
       });
     }
 
     if(displays.indexOf('WindowVideo') !== -1) {
 
-      if(windowMaterial) {
-        windowMaterial.dispose();
+      if(this.windowMaterial) {
+        this.windowMaterial.dispose();
       }
-      if(windowTexture) {
-        windowTexture.dispose();
+      if(this.windowTexture) {
+        this.windowTexture.dispose();
       }
 
-      windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+      this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
+      this.windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
         loop: true
       });
-      windowMaterial.diffuseTexture = windowTexture;
-      windowMaterial.diffuseTexture.vScale = 0.65;
-      windowMaterial.diffuseTexture.uScale = -1;
-      windowMaterial.diffuseTexture.vOffset = 0.17;
-      windowMaterial.emissiveTexture = windowTexture;
-      windowMesh = this.scene.getMeshByName("WindowVideo")
-      windowMesh.material = windowMaterial;
-      console.log('windowMesh', windowMesh);
+      this.windowMaterial.diffuseTexture = this.windowTexture;
+      this.windowMaterial.diffuseTexture.vScale = 0.65;
+      this.windowMaterial.diffuseTexture.uScale = -1;
+      this.windowMaterial.diffuseTexture.vOffset = 0.17;
+      this.windowMaterial.emissiveTexture = this.windowTexture;
+      this.windowMesh = this.scene.getMeshByName("WindowVideo")
+      this.windowMesh.material = this.windowMaterial;
+      console.log('windowMesh', this.windowMesh);
       this.displays.push({
         name: "Window",
-        mesh: windowMesh,
-        texture: windowTexture
+        mesh: this.windowMesh,
+        texture: this.windowTexture
       });
 
       this.scene.getMeshByName("LogoText").visibility = 0;
