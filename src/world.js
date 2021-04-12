@@ -14,29 +14,6 @@ var activeCameraType = '1p'; // initial camera - 1st person
 // null defaults relative to eyes, 30cm front, 5cm below
 var fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
 
-// movement stuff
-var movingDirections = 0;
-var movingToTarget = false;
-var movementTarget = null;
-var movementDirection = new BABYLON.Vector3(0,0,0);
-var movingLeft = false;
-var movingRight = false;
-var movingForward = false;
-var movingBackward = false;
-var movingUpward = false;
-var movingDownward = false;
-var leftVector = new BABYLON.Vector3(1, 0, 0);
-var rightVector = new BABYLON.Vector3(-1, 0, 0);
-var forwardVector = new BABYLON.Vector3(0, 0, -1);
-var backwardVector = new BABYLON.Vector3(0, 0, 1);
-var upwardVector = new BABYLON.Vector3(0, .5, 0);
-var downwardVector = new BABYLON.Vector3(0, 0, 0); // gravity takes care of moving down
-var timestamp = 0;
-var movementStart = 0;
-var movementTimeout = 5000;
-var DOWN = new BABYLON.Vector3(0,-1,0);
-var movementTracker;
-
 // network stuff
 var publishing = false;
 var connected = false;
@@ -76,7 +53,9 @@ export class NightClub extends World {
     this.eventConfig = eventConfig;
     this.role = eventConfig.role;
     this.permissions = eventConfig.permissions;
-    // TODO: load, not in constructor
+    this.movement = new Movement(this);
+    // mesh to share movement
+    this.movementTracker = null;
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -261,7 +240,7 @@ export class NightClub extends World {
         // possible but looks weird:
         //this.video.mesh.rotation.x = 0.5*Math.PI - camera3.beta;
       }
-      movementTracker.rotation.y = rotY;
+      this.movementTracker.rotation.y = rotY;
       // and now also apply rotation to 1st person camera
       camera1.rotation.z = 0;
       camera1.rotation.y = rotY;
@@ -296,7 +275,7 @@ export class NightClub extends World {
       camera3.alpha = 1.5*Math.PI-camera1.rotation.y;
       this.camera = camera3;
       if ( worldManager && this.video ) {
-        worldManager.trackMesh(movementTracker);
+        worldManager.trackMesh(this.movementTracker);
         this.startTrackingRotation();
       }
 
@@ -307,7 +286,7 @@ export class NightClub extends World {
       }
       this.camera = this.cameraFree;
       if ( worldManager && this.video ) {
-        worldManager.trackMesh(movementTracker);
+        worldManager.trackMesh(this.movementTracker);
       }
     } else {
       console.log('Unsupported camera type: '+cameraType);
@@ -378,20 +357,15 @@ export class NightClub extends World {
     /* Initialize video loop on DJ table */
     this.initializeDisplays();
 
-    // install keyboard event handler - moving avatar around
-    this.scene.onKeyboardObservable.add((kbInfo) => this.handleKeyboard(kbInfo) );
-    this.scene.registerBeforeRender(() => this.moveAvatar());
+    this.movement.start();
     this.scene.registerBeforeRender(() => this.spatializeAudio());
-
-    // install pointer event handler - moving avatar to
-    this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
     // media streaming stuff
     this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings, this.eventConfig);
 
     // stop movement when focus is lost
     this.canvas.onblur = () => {
-      if ( movingDirections > 0 && ! movingToTarget ) {
+      if ( this.movingDirections > 0 && ! this.movingToTarget ) {
         this.stopMovement();
       }
     }
@@ -513,9 +487,10 @@ export class NightClub extends World {
       }
 
       // tracking movement of this mesh allows to send different position and/or orientation
-      movementTracker = BABYLON.MeshBuilder.CreateDisc("MovementTracker", {radius:this.radius}, this.scene);
-      movementTracker.setEnabled(false); // never displayed
-      movementTracker.ellipsoid = this.video.mesh.ellipsoid;
+      this.movementTracker = BABYLON.MeshBuilder.CreateDisc("MovementTracker", {radius:this.radius}, this.scene);
+      this.movementTracker.setEnabled(false); // never displayed
+      this.movementTracker.ellipsoid = this.video.mesh.ellipsoid;
+      this.video.movementTracker = this.movementTracker;
 
       this.video.attachToCamera(fpsWebcamPreviewPos);
       if ( '1p' !== activeCameraType ) {
@@ -561,398 +536,6 @@ export class NightClub extends World {
     if ( connected ) {
       this.mediaStreams.publishAudio(false);
     }
-  }
-
-  cameraRotation(camera, field, max, seconds) {
-    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
-    var vAnim = new BABYLON.Animation("CameraRotation:"+field, "rotation."+field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-    var vKeys = [];
-    vKeys.push({frame:0, value: camera.rotation[field]});
-    vKeys.push({frame:seconds, value: max});
-    vAnim.setKeys(vKeys);
-    cameraRot.addTargetedAnimation(vAnim, camera);
-
-    cameraRot.onAnimationGroupEndObservable.add(() => {
-      console.log("Camera rotation ended");
-      cameraRot.dispose();
-    });
-    cameraRot.play(false);
-    return cameraRot;
-  }
-
-  arcRotation(camera, field, max, seconds) {
-    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
-    var vAnim = new BABYLON.Animation("CameraRotation:"+field, field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-    var vKeys = [];
-    vKeys.push({frame:0, value: camera[field]});
-    vKeys.push({frame:seconds, value: max});
-    vAnim.setKeys(vKeys);
-    cameraRot.addTargetedAnimation(vAnim, camera);
-
-    cameraRot.onAnimationGroupEndObservable.add(() => {
-      console.log("Camera rotation ended");
-      cameraRot.dispose();
-    });
-    cameraRot.play(false);
-    return cameraRot;
-  }
-
-  // keyboard event handler - camera rotation control, 3rd person movement
-  handleUniCamKeys(kbInfo) {
-    switch (kbInfo.type) {
-      case BABYLON.KeyboardEventTypes.KEYDOWN:
-        //console.log("KEY DOWN: ", kbInfo.event.key);
-        switch (kbInfo.event.key) {
-          case "ArrowLeft":
-            if ( ! this.rotAround ) {
-              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2, 5);
-            }
-            break;
-          case "ArrowRight":
-            if ( ! this.rotAround ) {
-              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2, 5);
-            }
-            break;
-          case "ArrowUp":
-            if ( ! this.rotVertical ) {
-              this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2.1, 3);
-            }
-            break;
-          case "ArrowDown":
-            if ( ! this.rotVertical ) {
-              this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2.1, 3);
-            }
-            break;
-          default:
-            // this can be used as text input eventually
-            break;
-        }
-        break;
-      case BABYLON.KeyboardEventTypes.KEYUP:
-        //console.log("KEY UP: ", kbInfo.event.keyCode);
-        switch (kbInfo.event.key) {
-          case "ArrowLeft":
-          case "ArrowRight":
-            if ( this.rotAround) {
-              console.log("RotAround stop");
-              this.rotAround.stop();
-              delete this.rotAround;
-            }
-            break;
-          case "ArrowUp":
-          case "ArrowDown":
-            if ( this.rotVertical ) {
-              console.log("RotVertical stop");
-              this.rotVertical.stop();
-              delete this.rotVertical;
-            }
-            break;
-          default:
-            // this can be used as text input eventually
-            break;
-        }
-        break;
-    }
-  }
-
-  handleArcCamKeys(kbInfo) {
-    switch (kbInfo.type) {
-      case BABYLON.KeyboardEventTypes.KEYDOWN:
-        //console.log("KEY DOWN: ", kbInfo.event.key, " directions: "+movingDirections);
-        switch (kbInfo.event.key) {
-          case "Shift":
-            this.shiftPressed = true;
-            break;
-          case "ArrowLeft":
-            if ( ! this.rotAround ) {
-              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha+Math.PI*2, 3);
-            }
-            break;
-          case "a":
-          case "A":
-            if ( ! movingLeft ) {
-              this.addDirection(leftVector);
-              movingLeft = true;
-            }
-            break;
-          case "ArrowRight":
-            if ( ! this.rotAround ) {
-              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);
-            }
-            break;
-          case "d":
-          case "D":
-            if ( ! movingRight ) {
-              this.addDirection(rightVector);
-              movingRight = true;
-            }
-            break;
-          case "ArrowUp":
-            if ( ! this.shiftPressed ) {
-              if ( ! this.rotVertical ) {
-                this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
-                //this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
-              }
-            } else {
-              if ( ! this.camRadius ) {
-                this.camRadius = this.arcRotation(camera3, 'radius', 0, 3);
-              }
-            }
-            break;
-          case "w":
-          case "W":
-            if ( ! movingForward ) {
-              this.addDirection(forwardVector);
-              movingForward = true;
-            }
-            break;
-          case "ArrowDown":
-            if ( ! this.shiftPressed ) {
-              if ( ! this.rotVertical ) {
-                this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
-                //this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
-              }
-            } else {
-              if ( ! this.camRadius ) {
-                this.camRadius = this.arcRotation(camera3, 'radius', 5, 3);
-              }
-            }
-            break;
-          case "s":
-          case "S":
-            if ( ! movingBackward ) {
-              this.addDirection(backwardVector);
-              movingBackward = true;
-            }
-            break;
-          case "PageUp":
-          case " ":
-            if ( movingDownward ) {
-              movingDownward = false;
-              this.stopDirection(downwardVector);
-            }
-            if ( ! movingUpward ) {
-              this.addDirection(upwardVector);
-              movingUpward = true;
-            }
-            break;
-          default:
-            // this can be used as text input eventually
-            break;
-        }
-        break;
-      case BABYLON.KeyboardEventTypes.KEYUP:
-        //console.log("KEY UP: ", kbInfo.event.keyCode, " directions: "+movingDirections);
-        switch (kbInfo.event.key) {
-          case "Shift":
-            this.shiftPressed = false;
-            if ( this.camRadius ) {
-              this.camRadius.stop();
-              delete this.camRadius;
-            }
-            break;
-          case "ArrowLeft":
-            if ( this.rotAround ) {
-              console.log("RotAround stop");
-              this.rotAround.stop();
-              delete this.rotAround;
-            }
-            break;
-          case "a":
-          case "A":
-            if ( movingLeft ) {
-              movingLeft = false;
-              this.stopDirection(leftVector);
-            }
-            break;
-          case "ArrowRight":
-            if ( this.rotAround) {
-              console.log("RotAround stop");
-              this.rotAround.stop();
-              delete this.rotAround;
-            }
-            break;
-          case "d":
-          case "D":
-            if ( movingRight ) {
-              movingRight = false;
-              this.stopDirection(rightVector);
-            }
-            break;
-          case "ArrowUp":
-            if ( this.rotVertical ) {
-              console.log("RotVertical stop");
-              this.rotVertical.stop();
-              delete this.rotVertical;
-            }
-            if ( this.camRadius ) {
-              this.camRadius.stop();
-              delete this.camRadius;
-            }
-            break;
-          case "w":
-          case "W":
-            if ( movingForward ) {
-              movingForward = false;
-              this.stopDirection(forwardVector);
-            }
-            break;
-          case "ArrowDown":
-            if ( this.rotVertical ) {
-              console.log("RotVertical stop");
-              this.rotVertical.stop();
-              delete this.rotVertical;
-            }
-            if ( this.camRadius ) {
-              this.camRadius.stop();
-              delete this.camRadius;
-            }
-            break;
-          case "s":
-          case "S":
-            if ( movingBackward ) {
-              movingBackward = false;
-              this.stopDirection(backwardVector);
-            }
-            break;
-          case "PageUp":
-          case " ":
-            if ( movingUpward ) {
-              movingUpward = false;
-              this.stopDirection(upwardVector);
-              this.addDirection(downwardVector);
-              movingDownward = true;
-            }
-            break;
-          default:
-            // this can be used as text input eventually
-            break;
-        }
-        break;
-    }
-
-  }
-  handleKeyboard(kbInfo) {
-    if ( activeCameraType === '1p' ) {
-      this.handleUniCamKeys(kbInfo);
-    } else if ( activeCameraType === '3p' ) {
-      this.handleArcCamKeys(kbInfo);
-    }
-  }
-
-  addDirection(vector) {
-    if ( movingToTarget ) {
-      this.stopMovement();
-    }
-    movementDirection.addInPlace(vector);
-    movingDirections++;
-  }
-  stopDirection(vector) {
-    movementDirection.subtractInPlace(vector);
-    movingDirections--;
-    if ( movingDirections == 0 ) {
-      this.stopMovement();
-    }
-  }
-  stopMovement() {
-    timestamp = 0;
-    movingDirections = 0;
-    movingLeft = movingRight = movingForward = movingBackward = movingUpward = movingDownward = false;
-    movingToTarget = false;
-    movementTarget = null;
-    movementDirection = new BABYLON.Vector3(0,0,0);
-    this.xDist = null;
-    this.zDist = null;
-  }
-  moveAvatar() {
-    if ( activeCameraType != '3p' || (movingDirections == 0 && !movingToTarget)) {
-      return;
-    }
-    if ( timestamp == 0 ) {
-      timestamp = Date.now();
-      movementStart = Date.now();
-      return;
-    } else if ( movingToTarget && movementStart + movementTimeout < timestamp ) {
-      // could not reach the destination, stop
-      console.log("Stopping movement due to timeout");
-      this.stopMovement();
-      return;
-    }
-    var old = timestamp;
-    timestamp = Date.now();
-    var delta = (timestamp - old)/100; // CHECKME this was supposed to be 1000!
-    var distance = camera3.speed * delta;
-    //console.log("speed: "+camera3.speed+" dist: "+distance+" time: "+delta);
-    var gravity = new BABYLON.Vector3(0,this.scene.gravity.y,0);
-    // height correction:
-    var origin = this.video.mesh.position.subtract( new BABYLON.Vector3(0,-videoAvatarSize,0));
-    var ray = new BABYLON.Ray(origin, DOWN, 10);
-    var hit = this.scene.pickWithRay(ray, (mesh) => mesh !== this.video.mesh && mesh.name !== 'particleSource' && mesh.name !== 'VideoAvatarBackground' );
-    //console.log(this.video.mesh.position.y+" "+hit.pickedPoint.y+" "+hit.pickedMesh.id);
-    // this puts avatar right on top of whatever is below it - a bumpy ride:
-    //this.video.mesh.position.y = hit.pickedPoint.y+videoAvatarSize;
-    // so we conditionally increase gravity to make it smooth:
-    if (hit.pickedPoint.y+videoAvatarSize < this.video.mesh.position.y - 0.2 - avatarHeight) {
-      if ( ! movingUpward ) {
-        // if not flying, increase the gravity so the avatar falls down
-        // CHECKME: this value is tailored to stairs
-        //console.log("Gravity changes: "+this.video.mesh.position.y+" "+hit.pickedPoint.y+" "+hit.pickedMesh.id);
-        gravity.y = -1;
-        // TODO: instead of gravity modification we could use downwardVector
-      }
-    } else if ( movingDownward ) {
-      // fallen to the floor, stop moving down
-      movingDownward = false;
-      this.stopDirection(downwardVector);
-    }
-    // we finally have desired movement direction
-    var direction = movementDirection.add(gravity).normalize().scale(distance);
-    if ( movingDirections > 0 ) {
-      var angle = -1.5*Math.PI-camera3.alpha;
-      var rotation = BABYLON.Quaternion.RotationAxis( BABYLON.Axis.Y, angle);
-      direction.rotateByQuaternionToRef( rotation, direction );
-      this.video.mesh.moveWithCollisions(direction);
-    } else if ( movingToTarget ) {
-      // on click, moving without gravity
-      var xDist = Math.abs(this.video.mesh.position.x - movementTarget.x);
-      var zDist = Math.abs(this.video.mesh.position.z - movementTarget.z);
-      if ( xDist < 0.2 && zDist < 0.2) {
-        console.log("Arrived to destination: "+this.video.mesh.position);
-        this.stopMovement();
-      } else if ( this.xDist && this.zDist && xDist > this.xDist && zDist > this.zDist ) {
-        console.log("Missed destination: "+this.video.mesh.position+" by "+xDist+","+zDist);
-        this.stopMovement();
-      } else {
-        this.video.mesh.moveWithCollisions(direction);
-        this.xDist = xDist;
-        this.zDist = zDist;
-      }
-    }
-    movementTracker.position = this.video.mesh.position;
-  }
-
-  // mouse event handler - move avatar to point
-  handleClick(pointerInfo) {
-    if ( activeCameraType != '3p' || movingDirections > 0 ) {
-      return;
-    }
-    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP ) {
-      //console.log(pointerInfo);
-      // LMB: 0, RMB: 2
-      if ( pointerInfo.event.button == 0 ) {
-        this.moveToTarget(pointerInfo.pickInfo.pickedPoint);
-      }
-    }
-  }
-
-  moveToTarget(point) {
-    if ( movingDirections > 0 ) {
-      return;
-    }
-    movementTarget = new BABYLON.Vector3(point.x, point.y, point.z);
-    movementDirection = movementTarget.subtract(this.video.mesh.position);
-    console.log("Moving from "+this.video.mesh.position+" to "+movementTarget+" direction "+movementDirection);
-    movingToTarget = true;
   }
 
   connect(name, fps, audioDeviceId, playbackDeviceId, callback) {
@@ -1250,6 +833,441 @@ export class NightClub extends World {
 
 }
 
+
+class Movement {
+  constructor( world ) {
+    this.world = world;
+    // movement state variables
+    this.movingDirections = 0;
+    this.movingToTarget = false;
+    this.movementTarget = null;
+    this.movementDirection = new BABYLON.Vector3(0,0,0);
+    this.movingLeft = false;
+    this.movingRight = false;
+    this.movingForward = false;
+    this.movingBackward = false;
+    this.movingUpward = false;
+    this.movingDownward = false;
+    this.timestamp = 0;
+    this.movementStart = 0;
+    // movement constants
+    this.leftVector = new BABYLON.Vector3(1, 0, 0);
+    this.rightVector = new BABYLON.Vector3(-1, 0, 0);
+    this.forwardVector = new BABYLON.Vector3(0, 0, -1);
+    this.backwardVector = new BABYLON.Vector3(0, 0, 1);
+    this.upwardVector = new BABYLON.Vector3(0, .5, 0);
+    this.downwardVector = new BABYLON.Vector3(0, 0, 0); // gravity takes care of moving down
+    this.movementTimeout = 5000;
+    this.DOWN = new BABYLON.Vector3(0,-1,0);    
+  }
+  
+  start() {
+    // 3rd person movement handler
+    this.world.scene.registerBeforeRender(() => this.moveAvatar());    
+    // install pointer event handler - moving avatar to
+    this.world.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
+    // install keyboard event handler - moving avatar around
+    this.world.scene.onKeyboardObservable.add((kbInfo) => this.handleKeyboard(kbInfo) );
+  }
+  
+  cameraRotation(camera, field, max, seconds) {
+    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
+    var vAnim = new BABYLON.Animation("CameraRotation:"+field, "rotation."+field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var vKeys = [];
+    vKeys.push({frame:0, value: camera.rotation[field]});
+    vKeys.push({frame:seconds, value: max});
+    vAnim.setKeys(vKeys);
+    cameraRot.addTargetedAnimation(vAnim, camera);
+
+    cameraRot.onAnimationGroupEndObservable.add(() => {
+      console.log("Camera rotation ended");
+      cameraRot.dispose();
+    });
+    cameraRot.play(false);
+    return cameraRot;
+  }
+
+  arcRotation(camera, field, max, seconds) {
+    var cameraRot = new BABYLON.AnimationGroup("CameraRotation "+field);
+    var vAnim = new BABYLON.Animation("CameraRotation:"+field, field, 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var vKeys = [];
+    vKeys.push({frame:0, value: camera[field]});
+    vKeys.push({frame:seconds, value: max});
+    vAnim.setKeys(vKeys);
+    cameraRot.addTargetedAnimation(vAnim, camera);
+
+    cameraRot.onAnimationGroupEndObservable.add(() => {
+      console.log("Camera rotation ended");
+      cameraRot.dispose();
+    });
+    cameraRot.play(false);
+    return cameraRot;
+  }
+
+  // keyboard event handler - camera rotation control, 3rd person movement
+  handleUniCamKeys(kbInfo) {
+    switch (kbInfo.type) {
+      case BABYLON.KeyboardEventTypes.KEYDOWN:
+        //console.log("KEY DOWN: ", kbInfo.event.key);
+        switch (kbInfo.event.key) {
+          case "ArrowLeft":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2, 5);
+            }
+            break;
+          case "ArrowRight":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2, 5);
+            }
+            break;
+          case "ArrowUp":
+            if ( ! this.rotVertical ) {
+              this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2.1, 3);
+            }
+            break;
+          case "ArrowDown":
+            if ( ! this.rotVertical ) {
+              this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2.1, 3);
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+      case BABYLON.KeyboardEventTypes.KEYUP:
+        //console.log("KEY UP: ", kbInfo.event.keyCode);
+        switch (kbInfo.event.key) {
+          case "ArrowLeft":
+          case "ArrowRight":
+            if ( this.rotAround) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;
+            }
+            break;
+          case "ArrowUp":
+          case "ArrowDown":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+    }
+  }
+
+  handleArcCamKeys(kbInfo) {
+    switch (kbInfo.type) {
+      case BABYLON.KeyboardEventTypes.KEYDOWN:
+        //console.log("KEY DOWN: ", kbInfo.event.key, " directions: "+this.movingDirections);
+        switch (kbInfo.event.key) {
+          case "Shift":
+            this.shiftPressed = true;
+            break;
+          case "ArrowLeft":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha+Math.PI*2, 3);
+            }
+            break;
+          case "a":
+          case "A":
+            if ( ! this.movingLeft ) {
+              this.addDirection(this.leftVector);
+              this.movingLeft = true;
+            }
+            break;
+          case "ArrowRight":
+            if ( ! this.rotAround ) {
+              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);
+            }
+            break;
+          case "d":
+          case "D":
+            if ( ! this.movingRight ) {
+              this.addDirection(this.rightVector);
+              this.movingRight = true;
+            }
+            break;
+          case "ArrowUp":
+            if ( ! this.shiftPressed ) {
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
+                //this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
+              }
+            } else {
+              if ( ! this.camRadius ) {
+                this.camRadius = this.arcRotation(camera3, 'radius', 0, 3);
+              }
+            }
+            break;
+          case "w":
+          case "W":
+            if ( ! this.movingForward ) {
+              this.addDirection(this.forwardVector);
+              this.movingForward = true;
+            }
+            break;
+          case "ArrowDown":
+            if ( ! this.shiftPressed ) {
+              if ( ! this.rotVertical ) {
+                this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
+                //this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
+              }
+            } else {
+              if ( ! this.camRadius ) {
+                this.camRadius = this.arcRotation(camera3, 'radius', 5, 3);
+              }
+            }
+            break;
+          case "s":
+          case "S":
+            if ( ! this.movingBackward ) {
+              this.addDirection(this.backwardVector);
+              this.movingBackward = true;
+            }
+            break;
+          case "PageUp":
+          case " ":
+            if ( this.movingDownward ) {
+              this.movingDownward = false;
+              this.stopDirection(this.downwardVector);
+            }
+            if ( ! this.movingUpward ) {
+              this.addDirection(this.upwardVector);
+              this.movingUpward = true;
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+      case BABYLON.KeyboardEventTypes.KEYUP:
+        //console.log("KEY UP: ", kbInfo.event.keyCode, " directions: "+this.movingDirections);
+        switch (kbInfo.event.key) {
+          case "Shift":
+            this.shiftPressed = false;
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
+          case "ArrowLeft":
+            if ( this.rotAround ) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;
+            }
+            break;
+          case "a":
+          case "A":
+            if ( this.movingLeft ) {
+              this.movingLeft = false;
+              this.stopDirection(this.leftVector);
+            }
+            break;
+          case "ArrowRight":
+            if ( this.rotAround) {
+              console.log("RotAround stop");
+              this.rotAround.stop();
+              delete this.rotAround;
+            }
+            break;
+          case "d":
+          case "D":
+            if ( this.movingRight ) {
+              this.movingRight = false;
+              this.stopDirection(this.rightVector);
+            }
+            break;
+          case "ArrowUp":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;
+            }
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
+          case "w":
+          case "W":
+            if ( this.movingForward ) {
+              this.movingForward = false;
+              this.stopDirection(this.forwardVector);
+            }
+            break;
+          case "ArrowDown":
+            if ( this.rotVertical ) {
+              console.log("RotVertical stop");
+              this.rotVertical.stop();
+              delete this.rotVertical;
+            }
+            if ( this.camRadius ) {
+              this.camRadius.stop();
+              delete this.camRadius;
+            }
+            break;
+          case "s":
+          case "S":
+            if ( this.movingBackward ) {
+              this.movingBackward = false;
+              this.stopDirection(this.backwardVector);
+            }
+            break;
+          case "PageUp":
+          case " ":
+            if ( this.movingUpward ) {
+              this.movingUpward = false;
+              this.stopDirection(this.upwardVector);
+              this.addDirection(this.downwardVector);
+              this.movingDownward = true;
+            }
+            break;
+          default:
+            // this can be used as text input eventually
+            break;
+        }
+        break;
+    }
+
+  }
+  handleKeyboard(kbInfo) {
+    if ( activeCameraType === '1p' ) {
+      this.handleUniCamKeys(kbInfo);
+    } else if ( activeCameraType === '3p' ) {
+      this.handleArcCamKeys(kbInfo);
+    }
+  }
+
+  addDirection(vector) {
+    if ( this.movingToTarget ) {
+      this.stopMovement();
+    }
+    this.movementDirection.addInPlace(vector);
+    this.movingDirections++;
+  }
+  stopDirection(vector) {
+    this.movementDirection.subtractInPlace(vector);
+    this.movingDirections--;
+    if ( this.movingDirections == 0 ) {
+      this.stopMovement();
+    }
+  }
+  
+  stopMovement() {
+    this.timestamp = 0;
+    this.movingDirections = 0;
+    this.movingLeft = this.movingRight = this.movingForward = this.movingBackward = this.movingUpward = this.movingDownward = false;
+    this.movingToTarget = false;
+    this.movementTarget = null;
+    this.movementDirection = new BABYLON.Vector3(0,0,0);
+    this.xDist = null;
+    this.zDist = null;
+  }
+  
+  moveAvatar() {
+    if ( activeCameraType != '3p' || (this.movingDirections == 0 && !this.movingToTarget)) {
+      return;
+    }
+    if ( this.timestamp == 0 ) {
+      this.timestamp = Date.now();
+      this.movementStart = Date.now();
+      return;
+    } else if ( this.movingToTarget && this.movementStart + this.movementTimeout < this.timestamp ) {
+      // could not reach the destination, stop
+      console.log("Stopping movement due to timeout");
+      this.stopMovement();
+      return;
+    }
+    var avatar = this.world.video.mesh;
+    var old = this.timestamp;
+    this.timestamp = Date.now();
+    var delta = (this.timestamp - old)/100; // CHECKME this was supposed to be 1000!
+    var distance = camera3.speed * delta;
+    //console.log("speed: "+camera3.speed+" dist: "+distance+" time: "+delta);
+    var gravity = new BABYLON.Vector3(0,this.world.scene.gravity.y,0);
+    // height correction:
+    var origin = avatar.position.subtract( new BABYLON.Vector3(0,-videoAvatarSize,0));
+    var ray = new BABYLON.Ray(origin, this.DOWN, 10);
+    var hit = this.world.scene.pickWithRay(ray, (mesh) => mesh !== avatar && mesh.name !== 'particleSource' && mesh.name !== 'VideoAvatarBackground' );
+    //console.log(avatar.position.y+" "+hit.pickedPoint.y+" "+hit.pickedMesh.id);
+    // this puts avatar right on top of whatever is below it - a bumpy ride:
+    //avatar.position.y = hit.pickedPoint.y+videoAvatarSize;
+    // so we conditionally increase gravity to make it smooth:
+    if (hit.pickedPoint.y+videoAvatarSize < avatar.position.y - 0.2 - avatarHeight) {
+      if ( ! this.movingUpward ) {
+        // if not flying, increase the gravity so the avatar falls down
+        // CHECKME: this value is tailored to stairs
+        //console.log("Gravity changes: "+avatar.position.y+" "+hit.pickedPoint.y+" "+hit.pickedMesh.id);
+        gravity.y = -1;
+        // TODO: instead of gravity modification we could use this.downwardVector
+      }
+    } else if ( this.movingDownward ) {
+      // fallen to the floor, stop moving down
+      this.movingDownward = false;
+      this.stopDirection(this.downwardVector);
+    }
+    // we finally have desired movement direction
+    var direction = this.movementDirection.add(gravity).normalize().scale(distance);
+    if ( this.movingDirections > 0 ) {
+      var angle = -1.5*Math.PI-camera3.alpha;
+      var rotation = BABYLON.Quaternion.RotationAxis( BABYLON.Axis.Y, angle);
+      direction.rotateByQuaternionToRef( rotation, direction );
+      avatar.moveWithCollisions(direction);
+    } else if ( this.movingToTarget ) {
+      // on click, moving without gravity
+      var xDist = Math.abs(avatar.position.x - this.movementTarget.x);
+      var zDist = Math.abs(avatar.position.z - this.movementTarget.z);
+      if ( xDist < 0.2 && zDist < 0.2) {
+        console.log("Arrived to destination: "+avatar.position);
+        this.stopMovement();
+      } else if ( this.xDist && this.zDist && xDist > this.xDist && zDist > this.zDist ) {
+        console.log("Missed destination: "+avatar.position+" by "+xDist+","+zDist);
+        this.stopMovement();
+      } else {
+        avatar.moveWithCollisions(direction);
+        this.xDist = xDist;
+        this.zDist = zDist;
+      }
+    }
+    this.world.movementTracker.position = avatar.position;
+  }
+
+  // mouse event handler - move avatar to point
+  handleClick(pointerInfo) {
+    if ( activeCameraType != '3p' || this.movingDirections > 0 ) {
+      return;
+    }
+    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP ) {
+      //console.log(pointerInfo);
+      // LMB: 0, RMB: 2
+      if ( pointerInfo.event.button == 0 ) {
+        this.moveToTarget(pointerInfo.pickInfo.pickedPoint);
+      }
+    }
+  }
+
+  moveToTarget(point) {
+    if ( this.movingDirections > 0 ) {
+      return;
+    }
+    var avatar = this.world.video.mesh;
+    this.movementTarget = new BABYLON.Vector3(point.x, point.y, point.z);
+    this.movementDirection = this.movementTarget.subtract(avatar.position);
+    console.log("Moving from "+avatar.position+" to "+this.movementTarget+" direction "+this.movementDirection);
+    this.movingToTarget = true;
+  }
+
+}
+
 class HoloAvatar extends VideoAvatar {
   show() {
     super.show();
@@ -1287,7 +1305,7 @@ class HoloAvatar extends VideoAvatar {
 
   detachFromCamera() {
     super.detachFromCamera();
-    movementTracker.position = this.mesh.position;
+    this.movementTracker.position = this.mesh.position;
     if ( trackAvatarRotation ) {
       this.mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
     }
