@@ -117,6 +117,8 @@ export class NightClub extends World {
     var hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", this.scene);
     hdrTexture.gammaSpace = false;
     this.scene.environmentTexture = hdrTexture;
+    this.scene.autoClearDepthAndStencil = false; // Perf optimization; works if the scene is inside skybox (non-transparent)
+
     let defaultPipeline = new BABYLON.DefaultRenderingPipeline(
       "Soundstage",
       false, // breaks particles displaying when set to true
