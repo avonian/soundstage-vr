@@ -8,7 +8,6 @@ var activeCameraType = '1p'; // initial camera - 1st person
 // network stuff
 var publishing = false;
 var connected = false;
-var worldManager = null;
 var trackAvatarRotation = true;
 
 let Videos = [
@@ -43,6 +42,8 @@ export class NightClub extends World {
     this.avatarHeight = 0.25;
     // movement implementation
     this.movement = new Movement(this);
+    // world manager
+    this.worldManager = null;
     // mesh to share movement
     this.movementTracker = null;
     // position of video preview in FPS mode
@@ -264,8 +265,8 @@ export class NightClub extends World {
       //camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y;
       camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y-this.avatarHeight;
       this.camera = camera1;
-      if ( worldManager ) {
-        worldManager.trackMesh(null);
+      if ( this.worldManager ) {
+        this.worldManager.trackMesh(null);
       }
     } else if ( '3p' === cameraType ) {
       //camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y;
@@ -273,8 +274,8 @@ export class NightClub extends World {
       // set position/target from current camera/avatar
       camera3.alpha = 1.5*Math.PI-camera1.rotation.y;
       this.camera = camera3;
-      if ( worldManager && this.video ) {
-        worldManager.trackMesh(this.movementTracker);
+      if ( this.worldManager && this.video ) {
+        this.worldManager.trackMesh(this.movementTracker);
         this.startTrackingRotation();
       }
 
@@ -284,8 +285,8 @@ export class NightClub extends World {
         this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
       }
       this.camera = this.cameraFree;
-      if ( worldManager && this.video ) {
-        worldManager.trackMesh(this.movementTracker);
+      if ( this.worldManager && this.video ) {
+        this.worldManager.trackMesh(this.movementTracker);
       }
     } else {
       console.log('Unsupported camera type: '+cameraType);
@@ -380,7 +381,7 @@ export class NightClub extends World {
       return;
     }
     trackAvatarRotation = enable;
-    worldManager.mediaStreams.clients.forEach( (client) => {
+    this.worldManager.mediaStreams.clients.forEach( (client) => {
       client.video.applyRotation(trackAvatarRotation);
     });
     this.video.applyRotation(trackAvatarRotation);
@@ -548,8 +549,8 @@ export class NightClub extends World {
 
     this.connectHiFi(audioDeviceId, playbackDeviceId);
 
-    worldManager = new WorldManager(this, fps);
-    worldManager.customOptions = {
+    this.worldManager = new WorldManager(this, fps);
+    this.worldManager.customOptions = {
       radius: this.videoAvatarSize,
       avatarHeight: this.avatarHeight,
       videoAvatarSize: this.videoAvatarSize,
@@ -562,27 +563,28 @@ export class NightClub extends World {
         }
       }
     };
-    worldManager.avatarFactory = this.createAvatar;
+    this.worldManager.avatarFactory = (obj) => this.createAvatar(obj);
     // Use this for testing purposes, to randomize avatar movement:
-    //worldManager.avatarFactory = this.randomizeAvatar;
-    worldManager.mediaStreams = this.mediaStreams;
+    //this.worldManager.avatarFactory = this.randomizeAvatar;
+    this.worldManager.mediaStreams = this.mediaStreams;
+    this.mediaStreams.worldManager = this.worldManager;
 
-    //worldManager.trackRotation = trackAvatarRotation; // track rotation to show avatar's direction
+    //this.worldManager.trackRotation = trackAvatarRotation; // track rotation to show avatar's direction
 
-    worldManager.debug = false; // client debug
-    worldManager.VRSPACE.debug = false; // network debug
+    this.worldManager.debug = false; // client debug
+    this.worldManager.VRSPACE.debug = false; // network debug
 
-    worldManager.VRSPACE.addErrorListener( (error) => {
+    this.worldManager.VRSPACE.addErrorListener( (error) => {
       console.log("SERVER ERROR: "+error );
     });
 
     // TODO refactor this into WorldManager promisses
     var enter = (welcome) => {
       // first remove welcome listner, to prevent responding to 2nd welcome
-      worldManager.VRSPACE.removeWelcomeListener(enter);
+      this.worldManager.VRSPACE.removeWelcomeListener(enter);
       // name MUST be unique, using own ID ensures it
       if ( ! name || "N/A" === name ) {
-        name = "u"+worldManager.VRSPACE.me.id;
+        name = "u"+this.worldManager.VRSPACE.me.id;
         // also write it to own avatar
         this.video.altText = name;
         // force displayText again if web cams are off since otherwise it shows 'N/A'
@@ -591,31 +593,31 @@ export class NightClub extends World {
         }
       }
       // set own properties
-      worldManager.VRSPACE.sendMy("name", name );
-      worldManager.VRSPACE.sendMy("mesh", "video");
+      this.worldManager.VRSPACE.sendMy("name", name );
+      this.worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
+        this.worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
       }
-      worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
+      this.worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
       // enter a world
-      worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
+      this.worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
       // start session
-      worldManager.VRSPACE.sendCommand("Session");
+      this.worldManager.VRSPACE.sendCommand("Session");
       // add chatroom id to the client, and start streaming
       welcome.client.token = this.eventConfig.event_slug;
-      worldManager.pubSub(welcome.client);
+      this.worldManager.pubSub(welcome.client);
 
       connected = true;
       if ( callback ) {
         callback(welcome);
       }
     }
-    worldManager.VRSPACE.addWelcomeListener(enter);
-    worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
+    this.worldManager.VRSPACE.addWelcomeListener(enter);
+    this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
 
   createAvatar(obj) {
-    let avatar = new HoloAvatar( worldManager.scene, null, worldManager.customOptions );
+    let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
     // obj is the client object sent by the server
     if ( obj.properties ) {
       if ( obj.properties.altImage ) {
@@ -635,7 +637,7 @@ export class NightClub extends World {
     var randomizer = new Worker('/babylon/randomizer.js');
     randomizer.addEventListener('message', (e) => {
       var changes = {position: e.data};
-      worldManager.VRSPACE.processEvent( {Client:obj.id}, changes );
+      this.worldManager.VRSPACE.processEvent( {Client:obj.id}, changes );
       // OR this:
       //Object.assign(obj,changes);
       //obj.notifyListeners(changes);
@@ -1369,7 +1371,7 @@ class MediaSoup extends MediaStreams {
   addANewVideoElement(track, isLocal, peerId= false) {
     if (isLocal) {
       document.querySelector("#localVideo").srcObject = new MediaStream([track]);
-      document.querySelector("#localVideo").setAttribute('peerId', worldManager.VRSPACE.me.id);
+      document.querySelector("#localVideo").setAttribute('peerId', this.worldManager.VRSPACE.me.id);
     } else {
 
       let videoElement = document.querySelector(`video[peerid='${peerId}']`);
@@ -1411,8 +1413,8 @@ class MediaSoup extends MediaStreams {
     // Initializing connection to the server.
     let roomClient = new mediasoup.RoomClient({
       roomId: roomId,
-      peerId: worldManager.VRSPACE.me.id,
-      displayName: worldManager.VRSPACE.me.name,
+      peerId: this.worldManager.VRSPACE.me.id,
+      displayName: this.worldManager.VRSPACE.me.name,
       baseUrl: this.eventConfig.mediaSoup['url'], // FIXME use property
       // modes: VIDEO_ONLY, AUDIO_ONLY, AUDIO_AND_VIDEO
       mode: mediasoup.MODES.VIDEO_ONLY,
@@ -1574,13 +1576,13 @@ class Emojis {
     }
   }
   copy() {
-    var ret = new Emojis(this.scene);
+    var ret = new Emojis(this.world);
     ret.emojis = this.emojis;
     return ret;
   }
   play( icon ) {
     this.execute(icon);
-    worldManager.VRSPACE.sendMy('emojiEvent',{emoji:icon});
+    this.world.worldManager.VRSPACE.sendMy('emojiEvent',{emoji:icon});
   }
   execute( icon ) {
     //console.log("Playing "+icon);
@@ -1700,7 +1702,7 @@ class StageControls {
   }
   executeAndSend(event) {
     this.execute(event);
-    worldManager.VRSPACE.sendMy('properties', {stageEvent: event});
+    this.world.worldManager.VRSPACE.sendMy('properties', {stageEvent: event});
   }
   play( videoIndex ) {
     let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
