@@ -1,10 +1,6 @@
 import { World, VideoAvatar, WorldManager, MediaStreams, VRSPACEUI } from './babylon/vrspace-ui.js';
 import mediasoup from './mediasoup'
 
-var camera1;
-var camera3;
-var activeCameraType = '1p'; // initial camera - 1st person
-
 let Videos = [
   { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -31,6 +27,10 @@ export class NightClub extends World {
     this.eventConfig = eventConfig;
     this.role = eventConfig.role;
     this.permissions = eventConfig.permissions;
+    // cameras
+    this.camera1 = null;
+    this.camera3 = null;
+    this.activeCameraType = '1p'; // initial camera - 1st person
     // in this space, 0.5 is minimum size that phisically makes sense
     this.videoAvatarSize = 0.25;
     // distance from the floor
@@ -143,62 +143,56 @@ export class NightClub extends World {
     // First person camera:
 
     let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, this.videoAvatarSize*2+this.avatarHeight, -7);
-    camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
+    this.camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
-    camera1.maxZ = 100000;
-    camera1.minZ = 0;
-    camera1.setTarget(new BABYLON.Vector3(0,3,0));
-    // not required, world.init() does that
-    //camera1.attachControl(canvas, true);
-    camera1.applyGravity = true;
-    camera1.speed = 0.07;
+    this.camera1.maxZ = 100000;
+    this.camera1.minZ = 0;
+    this.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+    this.camera1.applyGravity = true;
+    this.camera1.speed = 0.07;
     //in this space, 0.5 is minimum size that phisically makes sense, thus avatarSize*2:
-    camera1.ellipsoid = new BABYLON.Vector3(this.videoAvatarSize, this.videoAvatarSize*2, this.videoAvatarSize);
-    camera1.ellipsoidOffset = new BABYLON.Vector3(0, this.videoAvatarSize + this.avatarHeight, 0);
-    camera1.checkCollisions = true;
+    this.camera1.ellipsoid = new BABYLON.Vector3(this.videoAvatarSize, this.videoAvatarSize*2, this.videoAvatarSize);
+    this.camera1.ellipsoidOffset = new BABYLON.Vector3(0, this.videoAvatarSize + this.avatarHeight, 0);
+    this.camera1.checkCollisions = true;
 
-    camera1.keysDown = [83]; // S
-    camera1.keysLeft = [65]; // A
-    camera1.keysRight = [68]; // D
-    camera1.keysUp = [87]; // W
-    //camera1.keysDown = [40, 83]; // down, S
-    //camera1.keysLeft = [37, 65]; // left, A
-    //camera1.keysRight = [39, 68]; // right, D
-    //camera1.keysUp = [38, 87]; // up, W
-    camera1.keysUpward = [36, 33, 32]; // home, pgup, space
+    this.camera1.keysDown = [83]; // S
+    this.camera1.keysLeft = [65]; // A
+    this.camera1.keysRight = [68]; // D
+    this.camera1.keysUp = [87]; // W
+    this.camera1.keysUpward = [36, 33, 32]; // home, pgup, space
     console.log("1st Person Camera:")
-    console.log(camera1);
+    console.log(this.camera1);
 
     // Third person camera:
     // always looks at 1st person camera (avatar) - target is 1st ps camera position
     // alpha rotation depends on 1st ps camera rotation
-    camera3 = new BABYLON.ArcRotateCamera("Third Person Camera", 0, 1.5*Math.PI-camera1.rotation.y, 1, camera1.position, this.scene);
-    camera3.maxZ = 1000;
-    camera3.minZ = 0;
-    camera3.wheelPrecision = 100;
-    camera3.checkCollisions = true; //CHECKME: check or not?
+    this.camera3 = new BABYLON.ArcRotateCamera("Third Person Camera", 0, 1.5*Math.PI-this.camera1.rotation.y, 1, this.camera1.position, this.scene);
+    this.camera3.maxZ = 1000;
+    this.camera3.minZ = 0;
+    this.camera3.wheelPrecision = 100;
+    this.camera3.checkCollisions = true; //CHECKME: check or not?
 
     // disable keys, movement with mouse only
-    camera3.keysDown = [];
-    camera3.keysLeft = [];
-    camera3.keysRight = [];
-    camera3.keysUp = [];
-    camera3.keysUpward = [36, 33, 32]; // home, pgup, space
+    this.camera3.keysDown = [];
+    this.camera3.keysLeft = [];
+    this.camera3.keysRight = [];
+    this.camera3.keysUp = [];
+    this.camera3.keysUpward = [36, 33, 32]; // home, pgup, space
 
     // this disables looking at own avatar from below:
-    //camera3.upperBetaLimit = 1.5; // little less than Math.PI/2;
+    //this.camera3.upperBetaLimit = 1.5; // little less than Math.PI/2;
     // allows for about 45 deg angle from below:
-    // camera3.upperBetaLimit = 2.2;
-    camera3.lowerRadiusLimit = 0.5; // at least 0.5 m behind avatar
-    camera3.upperRadiusLimit = 5; // a maximum of 5 m behind avatar
-    camera3.speed = 0.3;
+    // this.camera3.upperBetaLimit = 2.2;
+    this.camera3.lowerRadiusLimit = 0.5; // at least 0.5 m behind avatar
+    this.camera3.upperRadiusLimit = 5; // a maximum of 5 m behind avatar
+    this.camera3.speed = 0.3;
 
     // disable panning, as it moves avatar/camera1:
-    camera3.panningSensibility = 0;
-    camera3.inputs.attached.pointers.buttons = [1,2]; // disable LMB(0)
+    this.camera3.panningSensibility = 0;
+    this.camera3.inputs.attached.pointers.buttons = [1,2]; // disable LMB(0)
 
     console.log("3rd Person Camera:")
-    console.log(camera3);
+    console.log(this.camera3);
 
     // Free person camera:
     this.cameraFree = new BABYLON.UniversalCamera("Free Camera", new BABYLON.Vector3(11, 1.3, -7), this.scene);
@@ -220,7 +214,7 @@ export class NightClub extends World {
     console.log(this.cameraFree);
 
     // default controlling camera:
-    this.camera = camera1;
+    this.camera = this.camera1;
   }
   // end world init methods
 
@@ -233,25 +227,25 @@ export class NightClub extends World {
 
   startTrackingRotation() {
     this.applyRotationToMesh = () => {
-      var rotY = 1.5*Math.PI-camera3.alpha;
+      var rotY = 1.5*Math.PI-this.camera3.alpha;
       if ( this.trackAvatarRotation ) {
         // convert alpha and beta to mesh rotation.y and rotation.x
         this.video.mesh.rotation.y = rotY;
         // possible but looks weird:
-        //this.video.mesh.rotation.x = 0.5*Math.PI - camera3.beta;
+        //this.video.mesh.rotation.x = 0.5*Math.PI - this.camera3.beta;
       }
       this.movementTracker.rotation.y = rotY;
       // and now also apply rotation to 1st person camera
-      camera1.rotation.z = 0;
-      camera1.rotation.y = rotY;
-      camera1.rotation.x = 0;
+      this.camera1.rotation.z = 0;
+      this.camera1.rotation.y = rotY;
+      this.camera1.rotation.x = 0;
     }
     this.scene.registerBeforeRender( this.applyRotationToMesh );
   }
 
   // changing camera types, utilized from HTML UI
   activateCamera(cameraType) {
-    if ( cameraType == activeCameraType ) {
+    if ( cameraType == this.activeCameraType ) {
       return;
     }
     this.camera.detachControl();
@@ -261,19 +255,18 @@ export class NightClub extends World {
     this.stopTrackingRotation();
     if ( '1p' === cameraType ) {
       // set position/target from current camera/avatar
-      camera1.rotation.y = 1.5*Math.PI-camera3.alpha;
-      //camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y;
-      camera1.position.y += camera1.ellipsoid.y*2 - this.video.radius - camera1.ellipsoidOffset.y-this.avatarHeight;
-      this.camera = camera1;
+      this.camera1.rotation.y = 1.5*Math.PI-this.camera3.alpha;
+      //this.camera1.position.y += this.camera1.ellipsoid.y*2 - this.video.radius - this.camera1.ellipsoidOffset.y;
+      this.camera1.position.y += this.camera1.ellipsoid.y*2 - this.video.radius - this.camera1.ellipsoidOffset.y-this.avatarHeight;
+      this.camera = this.camera1;
       if ( this.worldManager ) {
         this.worldManager.trackMesh(null);
       }
     } else if ( '3p' === cameraType ) {
-      //camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y;
-      camera1.position.y += this.video.radius-camera1.ellipsoid.y*2+camera1.ellipsoidOffset.y+this.avatarHeight;
+      this.camera1.position.y += this.video.radius-this.camera1.ellipsoid.y*2+this.camera1.ellipsoidOffset.y+this.avatarHeight;
       // set position/target from current camera/avatar
-      camera3.alpha = 1.5*Math.PI-camera1.rotation.y;
-      this.camera = camera3;
+      this.camera3.alpha = 1.5*Math.PI-this.camera1.rotation.y;
+      this.camera = this.camera3;
       if ( this.worldManager && this.video ) {
         this.worldManager.trackMesh(this.movementTracker);
         this.startTrackingRotation();
@@ -281,7 +274,7 @@ export class NightClub extends World {
 
     } else if ( 'free' === cameraType ) {
       if ( this.trackAvatarRotation ) {
-        this.video.mesh.rotation.y = .5*Math.PI-camera3.alpha;
+        this.video.mesh.rotation.y = .5*Math.PI-this.camera3.alpha;
         this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
       }
       this.camera = this.cameraFree;
@@ -302,7 +295,7 @@ export class NightClub extends World {
 
     console.log("Active camera:");
     console.log(this.camera);
-    activeCameraType = cameraType;
+    this.activeCameraType = cameraType;
   }
 
   playCameraAnimation(animation) {
@@ -390,7 +383,7 @@ export class NightClub extends World {
     } else {
       this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
     }
-    if ( '3p' === activeCameraType ) {
+    if ( '3p' === this.activeCameraType ) {
       this.stopTrackingRotation();
       this.startTrackingRotation();
     }
@@ -482,7 +475,7 @@ export class NightClub extends World {
     if ( ! this.video ) {
       this.video = new HoloAvatar( this.scene, null, avatarOptions);
       this.video.autoAttach = false;
-      this.video.camera = camera1;
+      this.video.camera = this.camera1;
       this.video.autoStart = false;
       this.video.show();
       if ( this.trackAvatarRotation ) {
@@ -496,7 +489,7 @@ export class NightClub extends World {
       this.video.movementTracker = this.movementTracker;
 
       this.video.attachToCamera(this.fpsWebcamPreviewPos);
-      if ( '1p' !== activeCameraType ) {
+      if ( '1p' !== this.activeCameraType ) {
         this.video.detachFromCamera();
       }
     }
@@ -600,7 +593,7 @@ export class NightClub extends World {
       if ( this.video.altImage ) {
         this.worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
       }
-      this.worldManager.VRSPACE.sendMy("position:", {x:camera1.position.x, y:0, z:camera1.position.z});
+      this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
       this.worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
       // start session
@@ -657,13 +650,13 @@ export class NightClub extends World {
 
   loadEmojis( callback ) {
     // emojis
-    this.emojis = new Emojis(this, camera1.position, callback );
+    this.emojis = new Emojis(this, this.camera1.position, callback );
     this.emojis.init();
   }
 
   initStageControls( callback ) {
     // stage controls
-    this.stageControls = new StageControls(this.displays, camera1.position, callback, this.userSettings, this );
+    this.stageControls = new StageControls(this.displays, this.camera1.position, callback, this.userSettings, this );
     this.stageControls.init();
   }
 
@@ -797,14 +790,14 @@ export class NightClub extends World {
           z: 4.359327756668091
         }
       }
-    } else if ( activeCameraType === '1p' ) {
-      this.audioData( pos, camera1 );
-    } else if ( activeCameraType === '3p' ) {
-      var rotY = 1.5*Math.PI-camera3.alpha;
+    } else if ( this.activeCameraType === '1p' ) {
+      this.audioData( pos, this.camera1 );
+    } else if ( this.activeCameraType === '3p' ) {
+      var rotY = 1.5*Math.PI-this.camera3.alpha;
       // we can track position of either cam1 or cam3
       // tracking cam1 because that's where avatar is
-      this.audioData( pos, camera1, {x:0, y:rotY, z:0});
-    } else if ( activeCameraType === 'free' ) {
+      this.audioData( pos, this.camera1, {x:0, y:rotY, z:0});
+    } else if ( this.activeCameraType === 'free' ) {
       if ( this.freeCamSpatialAudio || (document.querySelector('#freeCamSpatialAudio') && document.querySelector('#freeCamSpatialAudio').value === 'true')) {
         // we can track cameraFree as we track camera1, but soon as camera moves away from the avatar,
         // sound becomes confusing
@@ -812,7 +805,7 @@ export class NightClub extends World {
         this.audioData( pos, this.cameraFree );
       } else {
         // otherwise sound tracks avatar position (1st person camera)
-        this.audioData( pos, camera1 );
+        this.audioData( pos, this.camera1 );
       }
     } else {
       console.log("ERROR: no active camera, can't spatialize audio");
@@ -919,22 +912,22 @@ class Movement {
         switch (kbInfo.event.key) {
           case "ArrowLeft":
             if ( ! this.rotAround ) {
-              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y-Math.PI*2, 5);
+              this.rotAround = this.cameraRotation(this.world.camera1, 'y', this.world.camera1.rotation.y-Math.PI*2, 5);
             }
             break;
           case "ArrowRight":
             if ( ! this.rotAround ) {
-              this.rotAround = this.cameraRotation(camera1, 'y', camera1.rotation.y+Math.PI*2, 5);
+              this.rotAround = this.cameraRotation(this.world.camera1, 'y', this.world.camera1.rotation.y+Math.PI*2, 5);
             }
             break;
           case "ArrowUp":
             if ( ! this.rotVertical ) {
-              this.rotVertical = this.cameraRotation(camera1, 'x', -Math.PI/2.1, 3);
+              this.rotVertical = this.cameraRotation(this.world.camera1, 'x', -Math.PI/2.1, 3);
             }
             break;
           case "ArrowDown":
             if ( ! this.rotVertical ) {
-              this.rotVertical = this.cameraRotation(camera1, 'x', Math.PI/2.1, 3);
+              this.rotVertical = this.cameraRotation(this.world.camera1, 'x', Math.PI/2.1, 3);
             }
             break;
           default:
@@ -979,7 +972,7 @@ class Movement {
             break;
           case "ArrowLeft":
             if ( ! this.rotAround ) {
-              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha+Math.PI*2, 3);
+              this.rotAround = this.arcRotation(this.world.camera3, 'alpha', this.world.camera3.alpha+Math.PI*2, 3);
             }
             break;
           case "a":
@@ -991,7 +984,7 @@ class Movement {
             break;
           case "ArrowRight":
             if ( ! this.rotAround ) {
-              this.rotAround = this.arcRotation(camera3, 'alpha', camera3.alpha-Math.PI*2, 3);
+              this.rotAround = this.arcRotation(this.world.camera3, 'alpha', this.world.camera3.alpha-Math.PI*2, 3);
             }
             break;
           case "d":
@@ -1004,12 +997,11 @@ class Movement {
           case "ArrowUp":
             if ( ! this.shiftPressed ) {
               if ( ! this.rotVertical ) {
-                this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
-                //this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
+                this.rotVertical = this.arcRotation(this.world.camera3, 'beta', 0, 2-this.world.camera3.beta/Math.PI);
               }
             } else {
               if ( ! this.camRadius ) {
-                this.camRadius = this.arcRotation(camera3, 'radius', 0, 3);
+                this.camRadius = this.arcRotation(this.world.camera3, 'radius', 0, 3);
               }
             }
             break;
@@ -1023,12 +1015,11 @@ class Movement {
           case "ArrowDown":
             if ( ! this.shiftPressed ) {
               if ( ! this.rotVertical ) {
-                this.rotVertical = this.arcRotation(camera3, 'beta', Math.PI/2, 2-camera3.beta/Math.PI);
-                //this.rotVertical = this.arcRotation(camera3, 'beta', 0, 2-camera3.beta/Math.PI);
+                this.rotVertical = this.arcRotation(this.world.camera3, 'beta', Math.PI/2, 2-this.world.camera3.beta/Math.PI);
               }
             } else {
               if ( ! this.camRadius ) {
-                this.camRadius = this.arcRotation(camera3, 'radius', 5, 3);
+                this.camRadius = this.arcRotation(this.world.camera3, 'radius', 5, 3);
               }
             }
             break;
@@ -1147,9 +1138,9 @@ class Movement {
 
   }
   handleKeyboard(kbInfo) {
-    if ( activeCameraType === '1p' ) {
+    if ( this.world.activeCameraType === '1p' ) {
       this.handleUniCamKeys(kbInfo);
-    } else if ( activeCameraType === '3p' ) {
+    } else if ( this.world.activeCameraType === '3p' ) {
       this.handleArcCamKeys(kbInfo);
     }
   }
@@ -1181,7 +1172,7 @@ class Movement {
   }
   
   moveAvatar() {
-    if ( activeCameraType != '3p' || (this.movingDirections == 0 && !this.movingToTarget)) {
+    if ( this.world.activeCameraType != '3p' || (this.movingDirections == 0 && !this.movingToTarget)) {
       return;
     }
     if ( this.timestamp == 0 ) {
@@ -1198,8 +1189,8 @@ class Movement {
     var old = this.timestamp;
     this.timestamp = Date.now();
     var delta = (this.timestamp - old)/100; // CHECKME this was supposed to be 1000!
-    var distance = camera3.speed * delta;
-    //console.log("speed: "+camera3.speed+" dist: "+distance+" time: "+delta);
+    var distance = this.world.camera3.speed * delta;
+    //console.log("speed: "+this.world.camera3.speed+" dist: "+distance+" time: "+delta);
     var gravity = new BABYLON.Vector3(0,this.world.scene.gravity.y,0);
     // height correction:
     var origin = avatar.position.subtract( new BABYLON.Vector3(0,-this.world.videoAvatarSize,0));
@@ -1225,7 +1216,7 @@ class Movement {
     // we finally have desired movement direction
     var direction = this.movementDirection.add(gravity).normalize().scale(distance);
     if ( this.movingDirections > 0 ) {
-      var angle = -1.5*Math.PI-camera3.alpha;
+      var angle = -1.5*Math.PI-this.world.camera3.alpha;
       var rotation = BABYLON.Quaternion.RotationAxis( BABYLON.Axis.Y, angle);
       direction.rotateByQuaternionToRef( rotation, direction );
       avatar.moveWithCollisions(direction);
@@ -1250,7 +1241,7 @@ class Movement {
 
   // mouse event handler - move avatar to point
   handleClick(pointerInfo) {
-    if ( activeCameraType != '3p' || this.movingDirections > 0 ) {
+    if ( this.world.activeCameraType != '3p' || this.movingDirections > 0 ) {
       return;
     }
     if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP ) {
@@ -1615,7 +1606,7 @@ class Emojis {
 
     // forward vector of own avatar (1st person camera)
     var distance = 2;
-    var forward = camera1.getForwardRay(distance).direction.add(this.position);
+    var forward = this.world.camera1.getForwardRay(distance).direction.add(this.position);
     var yStart = this.position.y;
     if ( this.avatar ) {
       yStart = this.position.y+this.world.avatarHeight+this.world.videoAvatarSize;
