@@ -5,11 +5,6 @@ var camera1;
 var camera3;
 var activeCameraType = '1p'; // initial camera - 1st person
 
-// network stuff
-var publishing = false;
-var connected = false;
-var trackAvatarRotation = true;
-
 let Videos = [
   { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
   { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -46,6 +41,11 @@ export class NightClub extends World {
     this.worldManager = null;
     // mesh to share movement
     this.movementTracker = null;
+    // avatar rotation/billboard mode
+    this.trackAvatarRotation = true;
+    // network stuff
+    this.publishing = false;
+    this.connected = false;
     // position of video preview in FPS mode
     // null defaults relative to eyes, 30cm front, 5cm below
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
@@ -234,7 +234,7 @@ export class NightClub extends World {
   startTrackingRotation() {
     this.applyRotationToMesh = () => {
       var rotY = 1.5*Math.PI-camera3.alpha;
-      if ( trackAvatarRotation ) {
+      if ( this.trackAvatarRotation ) {
         // convert alpha and beta to mesh rotation.y and rotation.x
         this.video.mesh.rotation.y = rotY;
         // possible but looks weird:
@@ -280,7 +280,7 @@ export class NightClub extends World {
       }
 
     } else if ( 'free' === cameraType ) {
-      if ( trackAvatarRotation ) {
+      if ( this.trackAvatarRotation ) {
         this.video.mesh.rotation.y = .5*Math.PI-camera3.alpha;
         this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
       }
@@ -377,15 +377,15 @@ export class NightClub extends World {
 
 
   trackAvatarRotations(enable) {
-    if ( trackAvatarRotation == enable ) {
+    if ( this.trackAvatarRotation == enable ) {
       return;
     }
-    trackAvatarRotation = enable;
+    this.trackAvatarRotation = enable;
     this.worldManager.mediaStreams.clients.forEach( (client) => {
-      client.video.applyRotation(trackAvatarRotation);
+      client.video.applyRotation(this.trackAvatarRotation);
     });
-    this.video.applyRotation(trackAvatarRotation);
-    if ( trackAvatarRotation ) {
+    this.video.applyRotation(this.trackAvatarRotation);
+    if ( this.trackAvatarRotation ) {
       this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
     } else {
       this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
@@ -473,7 +473,8 @@ export class NightClub extends World {
     let avatarOptions = {
       radius: this.videoAvatarSize,
       avatarHeight: this.avatarHeight,
-      videoAvatarSize: this.videoAvatarSize
+      videoAvatarSize: this.videoAvatarSize,
+      trackAvatarRotation: this.trackAvatarRotation
     };
     if ( altImage ) {
       avatarOptions.altImage = altImage;
@@ -484,7 +485,7 @@ export class NightClub extends World {
       this.video.camera = camera1;
       this.video.autoStart = false;
       this.video.show();
-      if ( trackAvatarRotation ) {
+      if ( this.trackAvatarRotation ) {
         this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
       }
 
@@ -504,10 +505,10 @@ export class NightClub extends World {
   startVideo(device) {
     this.video.device = device;
     this.video.displayVideo(device);
-    publishing = true;
+    this.publishing = true;
     this.mediaStreams.videoSource = device;
     this.mediaStreams.startVideo = true;
-    if ( connected ) {
+    if ( this.connected ) {
       this.mediaStreams.publishVideo(true);
     }
   }
@@ -516,10 +517,10 @@ export class NightClub extends World {
     if ( this.video ) {
       this.video.displayAlt();
     }
-    publishing = false;
+    this.publishing = false;
     this.mediaStreams.videoSource = false;
     this.mediaStreams.startVideo = false;
-    if ( connected ) {
+    if ( this.connected ) {
       this.mediaStreams.publishVideo(false);
     }
   }
@@ -527,7 +528,7 @@ export class NightClub extends World {
   startAudio(device) {
     this.mediaStreams.audioSource = device;
     this.mediaStreams.startAudio = true;
-    if ( connected ) {
+    if ( this.connected ) {
       this.mediaStreams.publishAudio(true);
     }
   }
@@ -535,7 +536,7 @@ export class NightClub extends World {
   stopAudio() {
     this.mediaStreams.audioSource = false;
     this.mediaStreams.startAudio = false;
-    if ( connected ) {
+    if ( this.connected ) {
       this.mediaStreams.publishAudio(false);
     }
   }
@@ -543,7 +544,7 @@ export class NightClub extends World {
   connect(name, fps, audioDeviceId, playbackDeviceId, callback) {
     // change text on video avatar:
     this.video.altText = name;
-    if ( ! publishing ) {
+    if ( ! this.publishing ) {
       this.video.displayAlt();
     }
 
@@ -554,6 +555,7 @@ export class NightClub extends World {
       radius: this.videoAvatarSize,
       avatarHeight: this.avatarHeight,
       videoAvatarSize: this.videoAvatarSize,
+      trackAvatarRotation: this.trackAvatarRotation,
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
@@ -569,7 +571,7 @@ export class NightClub extends World {
     this.worldManager.mediaStreams = this.mediaStreams;
     this.mediaStreams.worldManager = this.worldManager;
 
-    //this.worldManager.trackRotation = trackAvatarRotation; // track rotation to show avatar's direction
+    //this.worldManager.trackRotation = this.trackAvatarRotation; // track rotation to show avatar's direction
 
     this.worldManager.debug = false; // client debug
     this.worldManager.VRSPACE.debug = false; // network debug
@@ -607,7 +609,7 @@ export class NightClub extends World {
       welcome.client.token = this.eventConfig.event_slug;
       this.worldManager.pubSub(welcome.client);
 
-      connected = true;
+      this.connected = true;
       if ( callback ) {
         callback(welcome);
       }
@@ -777,7 +779,7 @@ export class NightClub extends World {
 
   // see https://experiments.highfidelity.com/space-inspector/
   spatializeAudio() {
-    if ( ! connected ) {
+    if ( ! this.connected ) {
       return;
     }
     //console.log(changes);
@@ -1280,7 +1282,7 @@ class HoloAvatar extends VideoAvatar {
     this.mesh.position = new BABYLON.Vector3( 0, this.radius+this.avatarHeight, 0);
     this.mesh.material.backFaceCulling = false;
 
-    if ( trackAvatarRotation ) {
+    if ( this.trackAvatarRotation ) {
       this.mesh.rotation = new BABYLON.Vector3(0,Math.PI,0);
       this.mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
     }
@@ -1311,7 +1313,7 @@ class HoloAvatar extends VideoAvatar {
   detachFromCamera() {
     super.detachFromCamera();
     this.movementTracker.position = this.mesh.position;
-    if ( trackAvatarRotation ) {
+    if ( this.trackAvatarRotation ) {
       this.mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
     }
   }
