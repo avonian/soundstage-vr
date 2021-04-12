@@ -25,6 +25,8 @@ export class VRSpaceUI {
     this.indicator = null;
     /** @private */ 
     this.initialized = false;
+    /** @private */
+    this.optimizingScene = false;
   }
 
   /** Preloads vrspace.org logo and portal for later use 
@@ -324,6 +326,23 @@ export class VRSpaceUI {
     group.play(false);
   }
   
+  /** Optimize the scene for better frame rate */
+  optimizeScene(scene) {
+    if ( ! this.optimizingScene ) {
+      this.optimizingScene = true;
+      console.log("Running scene optimizer...")
+      BABYLON.SceneOptimizer.OptimizeAsync(scene, 
+        //BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
+        BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
+        () => {
+          this.optimizingScene = false;
+          console.log("Scene optimized");
+        }, () => {
+          this.optimizingScene = false;
+          console.log("Scene optimization unsuccessfull");
+      });
+    }
+  }
 
 }
 
@@ -1414,6 +1433,8 @@ export class VRHelper {
             case BABYLON.WebXRState.EXITING_XR:
               console.log( "Exiting VR" );
               this.stopTracking();
+              this.world.camera.position = this.camera().position.clone();
+              this.world.camera.rotation = this.camera().rotation.clone();
               // doesn't do anything
               //camera.position.y = xrHelper.baseExperience.camera.position.y + 3; //camera.ellipsoid.y*2;
               this.world.collisions(this.world.collisionsEnabled);
@@ -1480,6 +1501,8 @@ export class VRHelper {
       });
       
     }
+    
+    console.log("VRHelper initialized", this.vrHelper);
   }
   
   afterTeleportation() {
@@ -1503,7 +1526,9 @@ export class VRHelper {
     return this.vrHelper.input.xrCamera;
   }
   addFloorMesh(mesh) {
-    if ( this.vrHelper && this.vrHelper.teleportation) {
+    if ( this.vrHelper && this.vrHelper.teleportation && mesh) {
+      // do not add a floor twice
+      this.vrHelper.teleportation.removeFloorMesh(mesh);
       this.vrHelper.teleportation.addFloorMesh(mesh);
     }
   }
@@ -1671,7 +1696,7 @@ export class World {
   }
   
   /**
-  Disposes of all lights, and objects returned by createCamera, createShadows, createSkybox
+  Disposes of all objects returned by createLights, createCamera, createShadows, createSkybox
    */
   async dispose() {
     if ( this.camera ) {
@@ -1691,17 +1716,16 @@ export class World {
       this.shadowGenerator.dispose();
       this.shadowGenerator = null;    
     }
-    if ( this.scene && this.scene.lights ) {
-      this.scene.lights.forEach( (l) => {
-        l.dispose();
-      });
-    }
   }
-  
+
   /** Creates a VRHelper if needed, and initializes it with the current world.
   Normally called after world is loaded.
+  @param vrHelper optional existing vrHelper
    */
-  initXR() {
+  initXR(vrHelper) {
+    if ( vrHelper ) {
+      this.vrHelper = vrHelper;
+    }
     if ( ! this.vrHelper ) {
       this.vrHelper = new VRHelper();
     }
@@ -1791,6 +1815,8 @@ export class World {
   
   /** Load the world, then execute given callback passing self as argument.
   Loads an AssetContainer, and adds it to the scene. Takes care of loading progress.
+  Calls loadingStart, loaded, loadingStop, collisions, optimizeScene - each may be overridden.
+  @param callback to execute after the content has loaded
    */
   load(callback) {
     this.loadingStart(this.name);
@@ -1809,13 +1835,14 @@ export class World {
         container.addAllToScene();
       
         this.loaded( this.file, mesh );
-
+        
         // do something with the scene
         VRSPACEUI.log("World loaded");
         this.loadingStop(this.name);
         //floor = new FloorRibbon(scene);
         //floor.showUI();
         this.collisions(this.collisionsEnabled);
+        this.optimizeScene();
         if ( callback ) {
           callback(this);
         }
@@ -1828,13 +1855,19 @@ export class World {
   }
   
   /**
-  Called after assets are loaded. By default only calls initXR().
+  Called after assets are loaded. By default calls initXR().
   Subclasses typically override this with some spatial manipulations, e.g. scaling the world.
+  Subclasses may, but are not required, call super.loaded()
   @param file world file that has loaded
   @param mesh root mesh of the world
    */
   loaded( file, mesh ) {
     this.initXR();
+  }
+  
+  /**  Optimize the scene */
+  optimizeScene() {
+    VRSPACEUI.optimizeScene(this.scene);    
   }
   
   /** Register render loop. */

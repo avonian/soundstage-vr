@@ -1,3 +1,4 @@
+import { VRSPACEUI } from './vrspace-ui.js';
 /**
 GLTF 3D Avatar.
 Once GLTF file is loaded, skeleton is inspected for existing arms, legs and head that can be animated.
@@ -182,6 +183,7 @@ export class Avatar {
       // Adds all elements to the scene
       container.addAllToScene();
       this.castShadows( this.shadowGenerator );
+      VRSPACEUI.optimizeScene(this.scene);
 
       // try to place feet on the ground
       // CHECKME is this really guaranteed to work in every time?
@@ -203,6 +205,7 @@ export class Avatar {
         this.processBones(this.skeleton.bones);
         this.log( "Head position: "+this.headPos());
         this.initialHeadPos = this.headPos();
+        this.resize();
 
         //this.log(this.body);
         this.bonesProcessed.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
@@ -427,7 +430,7 @@ export class Avatar {
     var target = new BABYLON.Vector3( t.x, t.y, t.z ).subtract(this.rootMesh.position);
     target.rotateByQuaternionToRef(BABYLON.Quaternion.Inverse(this.rootMesh.rotationQuaternion),target);
 
-    var targetVector = target.subtract(this.headPos()).subtract(this.rootMesh.position);
+    var targetVector = target.subtract(this.headPos()).add(this.rootMesh.position);
     if ( this.headAxisFix == -1 ) {
       // FIX: neck and head opposite orientation
       // businessman, robot, adventurer, unreal male
@@ -1324,8 +1327,8 @@ export class Avatar {
   }
 
   /**
-  Adds all avatar meshes to given ShadowGenerator.
-  @param shadowGenerator
+  Adds or remove all avatar meshes to given ShadowGenerator.
+  @param shadowGenerator removes shadows if null
    */
   castShadows( shadowGenerator ) {
     if ( this.character && this.character.meshes ) {

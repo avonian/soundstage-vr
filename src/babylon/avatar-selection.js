@@ -1,4 +1,4 @@
-import { VRSPACEUI, World, Buttons, LoadProgressIndicator, LogoRoom, Portal, WorldManager, VideoAvatar } from './vrspace-ui.js';
+import { VRSPACEUI, World, Buttons, LogoRoom, Portal, WorldManager, VideoAvatar } from './vrspace-ui.js';
 import { Avatar } from './avatar.js';
 
 var trackTime = Date.now();
@@ -30,17 +30,17 @@ export class AvatarSelection extends World {
   }
   async createLights() {
     // Add lights to the scene
-    var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), this.scene);
-    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(1, 3, -3), this.scene);
-    return light2;
+    this.hemisphere = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), this.scene);
+    var point = new BABYLON.PointLight("light2", new BABYLON.Vector3(1, 3, -3), this.scene);
+    return point;
   }
   async createShadows() {
     // Shadows
     this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.light);
     this.shadowGenerator.useExponentialShadowMap = true;
     // slower:
-    //shadowGenerator.useBlurExponentialShadowMap = true;
-    //shadowGenerator.blurKernel = 32;
+    //this.shadowGenerator.useBlurExponentialShadowMap = true;
+    //this.shadowGenerator.blurKernel = 32;
     // hair is usually semi-transparent, this allows it to cast shadow:
     this.shadowGenerator.transparencyShadow = true;
   }
@@ -210,6 +210,10 @@ export class AvatarSelection extends World {
     this.indicator.animate();
     console.log("Loading character from "+dir.name);
     var loaded = new Avatar(scene, dir, this.shadowGenerator);
+    // resize the character to real-world height
+    if ( this.inXR) {
+      userHeight = this.vrHelper.camera().realWorldHeight;
+    }
     loaded.userHeight = userHeight;
     loaded.animateArms = false;
     //loaded.debug = true;
@@ -272,7 +276,7 @@ export class AvatarSelection extends World {
       if ( this.inXR ) {
         this.tracking = false;
         userHeight = this.vrHelper.camera().realWorldHeight;
-        console.log("Resizing to "+userHeight)
+        console.log("Resizing to "+userHeight);
         this.character.userHeight = userHeight;
         this.character.standUp(); // CHECKME: move to resize()?
         this.character.resize();
@@ -353,8 +357,6 @@ export class AvatarSelection extends World {
     import(portal.worldUrl()+'/world.js').then((world)=>{
       var afterLoad = (world) => {
         console.log(world);
-        world.vrHelper = this.vrHelper;
-        world.initXR();
         
         // TODO refactor this to WorldManager
         var worldManager = new WorldManager(world);
@@ -362,7 +364,9 @@ export class AvatarSelection extends World {
         //worldManager.VRSPACE.debug = true; // network debug
         if ( this.inXR ) {
           console.log("Tracking, "+this.inXR);
-          worldManager.trackCamera(this.vrHelper.camera()); 
+          worldManager.trackCamera(this.vrHelper.camera());
+          // floors that exist only after load
+          this.vrHelper.addFloors();
         }
         var enter = () => {
           worldManager.VRSPACE.removeWelcomeListener(enter);
@@ -386,15 +390,19 @@ export class AvatarSelection extends World {
       // TODO: new camera may be of type that doesn't support gamepad
       var gamepad = this.camera.inputs.attached.gamepad.gamepad;
 
-      this.vrHelper.stopTracking();
-      this.camera.detachControl(this.canvas);
-      this.dispose();
       world.WORLD.init(this.engine, portal.name, this.scene, afterLoad, portal.worldUrl()+"/").then((newScene)=>{
-        console.log(world);
+        this.vrHelper.stopTracking();
+        this.camera.detachControl(this.canvas);
+
+        console.log("Loaded ", world);
         this.vrHelper.clearFloors();
+        world.WORLD.initXR(this.vrHelper);
+        
         // TODO install world's xr device tracker
         if ( this.inXR ) {
+          // for some reason, this sets Y to 0:
           this.vrHelper.camera().setTransformationFromNonVRCamera(world.WORLD.camera);
+          this.vrHelper.camera().position.y = world.WORLD.camera.position.y;
         } else {
           console.log('New world camera:');
           console.log(world.WORLD.camera);
@@ -409,6 +417,7 @@ export class AvatarSelection extends World {
           // CHECKME: why?
           this.scene.activeCamera = world.WORLD.camera;
         }
+        this.dispose();
         
       });
     })
@@ -416,6 +425,7 @@ export class AvatarSelection extends World {
 
   dispose() {
     super.dispose();
+    this.hemisphere.dispose();
     this.removePortals();
     this.room.dispose(); // AKA ground
     // TODO properly dispose of avatar
