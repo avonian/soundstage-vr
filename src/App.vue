@@ -48,7 +48,7 @@
                              role="dialog"
                              aria-modal="true"
                              aria-labelledby="modal-headline">
-                            <div v-if="videoDevices.length === 0" class="text-gray-300">
+                            <div class="text-white">
                                 <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="laptop"
                                      class="svg-inline--fa fa-laptop w-20 fa-w-20 text-gray-400 mx-auto" role="img"
                                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
@@ -76,7 +76,7 @@
             <div class="min-h-screen" v-if="entered">
 
                 <div class="fixed w-64 h-48 right-12 top-12 rounded-lg"
-                     v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p'">
+                     v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0">
                     <div class="absolute top-0 right-0 bg-indigo-500 mt-2 mr-2 px-3 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer"
                          @click="castSelf" v-show="showStageControls">CAST
                     </div>
@@ -182,7 +182,7 @@
                                                     <span class="w-12 text-center">{{ userSettings.stereoGainBoost }}%</span>
                                                 </div>
                                             </div>
-                                            <div class="col-span-2">
+                                            <div class="col-span-2" v-show="playbackDevices.length > 0">
                                                 <label for="audioDevice"
                                                        class="block text-sm font-medium leading-5 text-white">
                                                     Playback Device (Speakers/Headsets)
@@ -380,7 +380,7 @@
                         <a
                                 href="#"
                                 class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-6"
-                                @click="cameraOnOff" v-if="userSettings.enableWebcamFeeds">
+                                @click="cameraOnOff" v-if="userSettings.enableWebcamFeeds && videoDevices.length > 0">
                             <svg width="30" height="30" aria-hidden="true" focusable="false" data-prefix="fas"
                                  data-icon="webcam" class="svg-inline--fa fa-webcam fa-w-14" role="img"
                                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" v-if="webcamEnabled">
@@ -445,172 +445,109 @@
                                  role="dialog"
                                  aria-modal="true"
                                  aria-labelledby="modal-headline">
-                                <div v-if="videoDevices.length === 0" class="text-gray-300">
-                                    <svg aria-hidden="true" focusable="false" data-prefix="fal" data-icon="webcam"
-                                         class="svg-inline--fa fa-webcam fa-w-14 w-20 m-auto text-gray-400" role="img"
-                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                                        <path fill="currentColor"
-                                              d="M401 438.6l-49.19-30.75C409.88 367.39 448 300.19 448 224 448 100.29 347.71 0 224 0S0 100.29 0 224c0 76.19 38.12 143.39 96.23 183.85L47 438.6a32 32 0 0 0-15 27.14V480a32 32 0 0 0 32 32h320a32 32 0 0 0 32-32v-14.26a32 32 0 0 0-15-27.14zM32 224c0-106 86-192 192-192s192 86 192 192-86 192-192 192S32 330 32 224zm352 256H64v-14.26L127.62 426a221.84 221.84 0 0 0 192.76 0L384 465.74zm0-256a160 160 0 1 0-160 160 160 160 0 0 0 160-160zm-288 0a128 128 0 1 1 128 128A128.14 128.14 0 0 1 96 224zm144-80a16 16 0 0 0-16-16 96.1 96.1 0 0 0-96 96 16 16 0 0 0 32 0 64.07 64.07 0 0 1 64-64 16 16 0 0 0 16-16z"></path>
-                                    </svg>
-                                    <h3 class="text-3xl font-medium mt-6 w-full text-center mb-6">
-                                        Please connect a Webcam
+                                <div v-if="!browserSupported" class="text-white">
+                                    <h3 class="text-3xl font-medium mt-3 w-full text-center mb-6">
+                                        Unsupported browser
                                     </h3>
                                     <p class="text-lg mb-4 leading-relaxed">
-                                        This VR experience requires the user of a Webcam.
+                                        We are still working to improve cross-browser support.
                                     </p>
                                     <p class="text-lg mb-4 leading-relaxed">
-                                        If you do not see the permissions dialog <a class="cursor-pointer text-magenta"
-                                                                                    @click="requestDevicePermissions">click
-                                        here</a> to try again (or reload this page).
+                                        To ensure an adequate experience we ask that you please reconnect with one of the following web browsers:
                                     </p>
+                                    <ul class="text-lg list-disc mt-3 mb-4 ml-8 leading-relaxed">
+                                        <li class="mt-3 font-medium"> Google Chrome</li>
+                                        <li class="mt-3 font-medium"> Microsoft Edge</li>
+                                        <li class="mt-3 font-medium"> Brave</li>
+                                    </ul>
                                     <p class="text-lg mb-4 leading-relaxed">
-                                        If your webcam is already connected, you may need to grant SoundStage permission to
-                                        use it.
+                                        We apologize for the inconvenience.
                                     </p>
-                                    <div class="text-regular mb-4 leading-relaxed text-white bg-indigo-900 py-3 px-5 rounded-lg">
-                                        <b>Important:</b> We are presently in a beta state and highly recommend using Google
-                                        Chrome. If you are stuck on this screen and can't get past it, please try again
-                                        using Google Chrome.
-                                    </div>
                                 </div>
-                                <template v-else>
-                                    <form v-if="!disclaimerAccepted">
-                                        <div id="disclaimer">
-                                            <h3 class="text-2xl leading-6 font-medium text-white text-center">Welcome to
-                                                SoundStage VR</h3>
-                                            <p class="mt-3 leading-relaxed">We are excited to share our vision for virtual
-                                                concerts with the world, and are glad that you're able to join us for this
-                                                special event.</p>
-                                            <p class="mt-3 leading-relaxed">A quick disclaimer just to set expectations:
-                                            <ul class="list-disc mt-3 ml-8 leading-relaxed">
-                                                <li class="mt-3"> This experience has not been tested on browsers other than
-                                                    Google Chrome - if possible, use Google Chrome.
-                                                </li>
-                                                <li class="mt-3"> We highly recommend using a mouse since we have not yet
-                                                    optimized for trackpads.
-                                                </li>
-                                                <li class="mt-3"> If it runs slow, try adjusting some of the visual settings
-                                                    (by clicking on the
-                                                    <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20"
-                                                         class="inline-block" fill="none" viewBox="0 0 24 24"
-                                                         stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                              stroke-width="2"
-                                                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                              stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    </svg>
-                                                    icon in the bottom-left corner).
-                                                </li>
-                                            </ul>
-                                            </p>
-                                            <p class="mt-3 leading-relaxed">
-                                                With that out of the way, welcome to the party!
-                                            </p>
-                                        </div>
-                                        <div class="mt-5 sm:mt-6">
-                                        <span class="flex w-full rounded-md shadow-sm sm:col-start-2">
-                                          <button type="button"
-                                                  class="cursor-pointer gradient-ultra inline-flex justify-center w-full rounded-md px-4 py-2 text-base leading-6 font-medium text-white shadow-sm focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                                  @click="disclaimerAccepted = true">
-                                            Continue
-                                          </button>
-                                        </span>
-                                            <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:col-start-1"
-                                                  v-if="entered">
-                                          <button type="button"
-                                                  class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                                  @click="cancel">
-                                            Cancel
-                                          </button>
-                                        </span>
-                                        </div>
-                                    </form>
-                                    <form v-else>
-                                        <div>
-                                            <h3 class="text-lg leading-6 font-medium text-white">
-                                                {{ entered ? 'Device Settings' : 'Before connecting, please select your devices:'}}
-                                            </h3>
-                                        </div>
-                                        <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4">
-                                            <div class="col-span-2">
-                                                <label for="audioDevice"
-                                                       class="block text-sm font-medium leading-5 text-white">
-                                                    Audio Input Device (Microphone)
-                                                </label>
-                                                <div class="mt-1 flex rounded-md shadow-sm">
-                                                    <select id="audioDevice"
-                                                            class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
-                                                            v-model="userSettings.selectedAudioDeviceId"
-                                                            v-if="audioDevices.length > 0">
-                                                        <option v-for="device in audioDevices" :key="device"
-                                                                :value='device.deviceId'
-                                                                :selected="device.deviceId === userSettings.selectedAudioDeviceId">
-                                                            {{ device.label }}
-                                                        </option>
-                                                    </select>
-                                                    <span class="text-gray-400" v-else>No audio input devices found</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-span-2">
-                                                <label for="audioDevice"
-                                                       class="block text-sm font-medium leading-5 text-white">
-                                                    Playback Device (Speakers/Headsets)
-                                                </label>
-                                                <div class="mt-1 flex rounded-md shadow-sm">
-                                                    <select id="playbackDevice"
-                                                            class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
-                                                            v-model="userSettings.selectedPlaybackDeviceId"
-                                                            v-if="playbackDevices.length > 0">
-                                                        <option v-for="device in playbackDevices" :key="device"
-                                                                :value='device.deviceId'
-                                                                :selected="device.deviceId === userSettings.selectedPlaybackDeviceId">
-                                                            {{ device.label }}
-                                                        </option>
-                                                    </select>
-                                                    <span class="text-gray-400" v-else>No playback devices found</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-span-2">
-                                                <label for="audioDevice"
-                                                       class="block text-sm font-medium leading-5 text-white">
-                                                    Video Device
-                                                </label>
-                                                <div class="mt-1 flex rounded-md shadow-sm">
-                                                    <select id="videoDevice"
-                                                            class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
-                                                            v-model="userSettings.selectedVideoDeviceId"
-                                                            v-if="videoDevices.length > 0">
-                                                        <option v-for="device in videoDevices" :key="device"
-                                                                :value='device.deviceId'
-                                                                :selected="device.deviceId === userSettings.selectedVideoDeviceId">
-                                                            {{ device.label }}
-                                                        </option>
-                                                    </select>
-                                                    <span class="text-gray-400" v-else>No video devices found</span>
-                                                </div>
+                                <form v-else>
+                                    <div>
+                                        <h3 class="text-lg leading-6 font-medium text-white">
+                                            {{ entered ? 'Device Settings' : 'Before connecting, please select your devices:'}}
+                                        </h3>
+                                    </div>
+                                    <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4">
+                                        <div class="col-span-2">
+                                            <label for="audioDevice"
+                                                   class="block text-sm font-medium leading-5 text-white">
+                                                Audio Input Device (Microphone)
+                                            </label>
+                                            <div class="mt-1 flex rounded-md shadow-sm">
+                                                <select id="audioDevice"
+                                                        class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
+                                                        v-model="userSettings.selectedAudioDeviceId"
+                                                        v-if="audioDevices.length > 0">
+                                                    <option v-for="device in audioDevices" :key="device"
+                                                            :value='device.deviceId'
+                                                            :selected="device.deviceId === userSettings.selectedAudioDeviceId">
+                                                        {{ device.label }}
+                                                    </option>
+                                                </select>
+                                                <span class="text-gray-400" v-else>No audio input devices found</span>
                                             </div>
                                         </div>
-                                        <div class="mt-5 sm:mt-6"
-                                             :class="entered ? 'sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense' : ''">
-                                        <span class="flex w-full rounded-md shadow-sm sm:col-start-2">
-                                          <button type="button"
-                                                  class="cursor-pointer gradient-ultra inline-flex justify-center w-full rounded-md px-4 py-2 text-base leading-6 font-medium text-white shadow-sm focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                                  @click="apply">
-                                            {{ entered ? 'Apply' : 'Connect' }}
-                                          </button>
-                                        </span>
-                                            <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:col-start-1"
-                                                  v-if="entered">
-                                          <button type="button"
-                                                  class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                                  @click="cancel">
-                                            Cancel
-                                          </button>
-                                        </span>
+                                        <div class="col-span-2" v-show="playbackDevices.length > 0">
+                                            <label for="audioDevice"
+                                                   class="block text-sm font-medium leading-5 text-white">
+                                                Playback Device (Speakers/Headsets)
+                                            </label>
+                                            <div class="mt-1 flex rounded-md shadow-sm">
+                                                <select id="playbackDevice"
+                                                        class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
+                                                        v-model="userSettings.selectedPlaybackDeviceId"
+                                                        v-if="playbackDevices.length > 0">
+                                                    <option v-for="device in playbackDevices" :key="device"
+                                                            :value='device.deviceId'
+                                                            :selected="device.deviceId === userSettings.selectedPlaybackDeviceId">
+                                                        {{ device.label }}
+                                                    </option>
+                                                </select>
+                                                <span class="text-gray-400" v-else>No playback devices found</span>
+                                            </div>
                                         </div>
-                                    </form>
-                                </template>
+                                        <div class="col-span-2">
+                                            <label for="audioDevice"
+                                                   class="block text-sm font-medium leading-5 text-white">
+                                                Video Device
+                                            </label>
+                                            <div class="mt-1 flex rounded-md shadow-sm">
+                                                <select id="videoDevice"
+                                                        class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
+                                                        v-model="userSettings.selectedVideoDeviceId"
+                                                        v-if="videoDevices.length > 0">
+                                                    <option v-for="device in videoDevices" :key="device"
+                                                            :value='device.deviceId'
+                                                            :selected="device.deviceId === userSettings.selectedVideoDeviceId">
+                                                        {{ device.label }}
+                                                    </option>
+                                                </select>
+                                                <span class="text-gray-400" v-else>No video devices found</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-5 sm:mt-6"
+                                         :class="entered ? 'sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense' : ''">
+                                    <span class="flex w-full rounded-md shadow-sm sm:col-start-2">
+                                      <button type="button"
+                                              class="cursor-pointer gradient-ultra inline-flex justify-center w-full rounded-md px-4 py-2 text-base leading-6 font-medium text-white shadow-sm focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                              @click="apply">
+                                        {{ entered ? 'Apply' : 'Connect' }}
+                                      </button>
+                                    </span>
+                                        <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:col-start-1"
+                                              v-if="entered">
+                                      <button type="button"
+                                              class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                              @click="cancel">
+                                        Cancel
+                                      </button>
+                                    </span>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -629,6 +566,7 @@
 <script>
   import Nightclub from './world.js'
   import InvalidEvent from './components/InvalidEvent';
+  import browser from 'browser-detect';
 
   // variables required to use babylon.js:
   var canvas
@@ -689,6 +627,7 @@
     },
     data () {
       return {
+        browserSupported: true,
         invalidAccess: false,
         eventConfig: false,
         audioDevices: [],
@@ -720,7 +659,6 @@
         userSettings: null,
         cachedUserSettings: null,
         alreadyVisited: false,
-        disclaimerAccepted: false,
         castingUserId: '',
         castingUser: false,
         showingVideos: false
@@ -736,6 +674,12 @@
       }
     },
     mounted: async function () {
+
+      /* Check browser */
+      if(browser().name !== 'chrome') {
+        this.browserSupported = false;
+        return;
+      }
 
       /* Set event configuration */
       await this.initConfig();
@@ -761,7 +705,6 @@
       /* Retrieve values from local storage */
       if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
         this.alreadyVisited = true;
-        this.disclaimerAccepted = true;
       } else {
         this.alreadyVisited = await localStorage.getItem('alreadyVisited')
       }
@@ -816,14 +759,6 @@
         } else {
           this.invalidAccess = true;
         }
-      },
-      async requestDevicePermissions () {
-        await navigator.mediaDevices.getUserMedia({
-          audio: true
-        })
-        await navigator.mediaDevices.getUserMedia({
-          video: true
-        })
       },
       apply: async function () {
         if (!this.entered) {
@@ -1105,11 +1040,25 @@
         world.trackAvatarRotations(this.userSettings.trackRotation)
       },
       pollForDevices: async function () {
-        try {
           let audioDevices = []
           let playbackDevices = []
           let videoDevices = []
-          await this.requestDevicePermissions()
+
+          try {
+            await navigator.mediaDevices.getUserMedia({
+              audio: true
+            });
+          } catch (err) {
+            this.audioDevices = []
+          }
+          try {
+            await navigator.mediaDevices.getUserMedia({
+              video: true
+            });
+          } catch (err) {
+            this.audioDevices = []
+          }
+
           var devices = await navigator.mediaDevices.enumerateDevices()
           for (var idx = 0; idx < devices.length; ++idx) {
             if (devices[idx].kind === 'videoinput') {
@@ -1123,20 +1072,15 @@
           this.audioDevices = audioDevices
           this.playbackDevices = playbackDevices
           this.videoDevices = videoDevices
-          if (!this.userSettings.selectedAudioDeviceId) {
+          if (!this.userSettings.selectedAudioDeviceId && this.audioDevices.length > 0) {
             this.userSettings.selectedAudioDeviceId = this.audioDevices[0].deviceId
           }
-          if (!this.userSettings.selectedPlaybackDeviceId) {
+          if (!this.userSettings.selectedPlaybackDeviceId && this.playbackDevices.length > 0) {
             this.userSettings.selectedPlaybackDeviceId = this.playbackDevices[0].deviceId
           }
-          if (!this.userSettings.selectedVideoDeviceId) {
+          if (!this.userSettings.selectedVideoDeviceId && this.videoDevices.length > 0) {
             this.userSettings.selectedVideoDeviceId = this.videoDevices[0].deviceId
           }
-        } catch (err) {
-          this.audioDevices = []
-          this.playbackDevices = []
-          this.videoDevices = []
-        }
       },
       /* For audio diagnostics purposes */
       recordPerformance (seconds) {
