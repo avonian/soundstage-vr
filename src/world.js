@@ -1,21 +1,6 @@
 import { World, VideoAvatar, WorldManager, MediaStreams, VRSPACEUI } from './babylon/vrspace-ui.js';
 import mediasoup from './mediasoup'
 
-let Videos = [
-  { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
-  { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
-  { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
-  { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-  { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
-  { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
-  { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
-  { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-  { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-  { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/neon-laser-beams.mp4' },
-  { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-  { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
-  { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
-]
 // deals with everything inside 3D world
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
@@ -56,6 +41,22 @@ export class NightClub extends World {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
+    this.videos = [
+      { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
+      { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
+      { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
+      { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
+      { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
+      { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
+      { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
+      { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
+      { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
+      { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/neon-laser-beams.mp4' },
+      { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
+      { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
+      { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
+    ]
+    
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -403,7 +404,7 @@ export class NightClub extends World {
         this.tableTexture.dispose();
       }
       this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+      this.tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -434,7 +435,7 @@ export class NightClub extends World {
       }
 
       this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [Videos[0].url], this.scene, true, true, null, {
+      this.windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -1683,7 +1684,7 @@ class StageControls {
   constructor (displays, position, callback, userSettings, world) {
     this.displays = displays;
     this.callback = callback;
-    this.videos = Videos;
+    this.videos = world.videos;
     this.userSettings = userSettings;
     this.world = world;
     this.userBeingCasted = false;
@@ -1726,7 +1727,7 @@ class StageControls {
 
     switch(event.action) {
       case 'playVideo':
-        this.world.initializeDisplays(Videos[event.videoIndex].url, [event.target]);
+        this.world.initializeDisplays(this.videos[event.videoIndex].url, [event.target]);
         this.userBeingCasted = false;
         break;
       case "castUser":
