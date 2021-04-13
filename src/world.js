@@ -61,7 +61,7 @@ export class NightClub extends World {
       { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
       { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
     ]
-    
+    document.addEventListener('keydown', this.HDRControl.bind(this));
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -102,6 +102,9 @@ export class NightClub extends World {
     var hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", this.scene);
     hdrTexture.gammaSpace = false;
     this.scene.environmentTexture = hdrTexture;
+    this.scene.fogEnabled = true;
+    this.scene.fogDensity = 0;
+    this.scene.fogMode = 2;
     this.scene.autoClearDepthAndStencil = false; // Perf optimization; works if the scene is inside skybox (non-transparent)
 
     let defaultPipeline = new BABYLON.DefaultRenderingPipeline(
@@ -837,6 +840,167 @@ export class NightClub extends World {
     return radians * 180/Math.PI;
   }
 
+// FOR TESTING, WILL BE REMOVED
+  HDRControl(event) {
+    if(event.key === "1") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 1;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "2") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 1.4;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "3") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/night.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 1.5;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "4") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/room.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 0.4;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "5") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/parking.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 0.4;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "6") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/country.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 0.8;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "7") {
+      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/Studio_Softbox_2Umbrellas_cube_specular.env", this.scene);
+      this.scene.environmentTexture = hdrTexture;
+      this.scene.environmentIntensity = 0.4;
+      console.log("hdrTexture: " + hdrTexture);
+    }
+    if(event.key === "8") {
+      this.scene.fogEnabled = false;
+    }
+    if(event.key === "9") {
+      let myFogColor = new BABYLON.Color4(1,0,1,0.5);
+      this.scene.fogEnabled = true;
+      this.scene.fogMode = 2;
+      this.scene.fogColor = myFogColor;
+      this.scene.fogDensity = 0;
+      console.log("this.scene.fogEnabled: " + this.scene.fogEnabled);
+    }
+    if(event.key === "0") {
+      let myFogColor = new BABYLON.Color4(0,0,1,0.5);
+      this.scene.fogEnabled = true;
+      this.scene.fogMode = 2;
+      this.scene.fogColor = myFogColor;
+      this.scene.fogDensity = 0;
+      console.log("this.scene.fogEnabled: " + this.scene.fogEnabled);
+    }
+    if(event.key === "-") {
+      this.scene.environmentIntensity -= 0.01;
+      console.log("this.scene.environmentIntensity: " + this.scene.environmentIntensity);
+    }
+    if(event.key === "=") {
+      this.scene.environmentIntensity += 0.01;
+      console.log("this.scene.environmentIntensity: " + this.scene.environmentIntensity);
+    }
+    if(event.key === "/") {
+      this.scene.fogDensity += 0.001;
+      console.log("this.scene.fogDensity: " + this.scene.fogDensity);
+    }
+    if(event.key === "*") {
+      this.scene.fogDensity -= 0.001;
+      console.log("this.scene.fogDensity: " + this.scene.fogDensity);
+    }
+    if(event.key === "p") {
+      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+      tempPipe.imageProcessingEnabled = true;
+      tempPipe.imageProcessing.toneMappingEnabled = true;
+      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+    }
+    if(event.key === "o") {
+      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+      tempPipe.imageProcessingEnabled = true;
+      tempPipe.imageProcessing.toneMappingEnabled = true;
+      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
+    }
+    if(event.key === "i") {
+      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+      tempPipe.imageProcessingEnabled = false;
+
+    }
+    if(event.key === "l") {
+      let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
+      tempMesh.material.emissiveColor = BABYLON.Color3.Green();
+      console.log("Emissive Green");
+    }
+    if(event.key === "k") {
+      let mat = new BABYLON.StandardMaterial("mat", this.scene);
+      mat.disableLighting = true;
+      mat.backFaceCulling = false;
+      let noiseTexture = new BABYLON.NoiseProceduralTexture("perlin", 512, this.scene);
+      noiseTexture.octaves = 3;
+      noiseTexture.persistence = 0.9;
+      mat.emissiveTexture = noiseTexture;
+      mat.emissiveColor = BABYLON.Color3.Black();
+      let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Blue_15390");
+      tempMesh.material = mat;
+      console.log("FLOOR");
+    }
+    if(event.key === "h") {
+      let tempMesh = this.scene.getMeshByName("Plane.1");
+      this.scene.registerBeforeRender(function () {
+        tempMesh.material.albedoTexture.uOffset +=0.003;
+        tempMesh.material.emissiveTexture.uOffset +=0.003;
+        console.log("Slide Show");
+      });
+    }
+
+    if(event.key === "m") {
+      var stream = navigator.getUserMedia({ audio:true, video:true },
+        function( localMediaStream ){
+          let sound = new BABYLON.Sound("Music", localMediaStream,
+            this.scene, null, { streaming: true, autoplay: true, loop:true, volume:1 });
+        },
+        function(){ console.log("failed mic for visualizer"); }
+      );
+      var myAnalyser = new BABYLON.Analyser(this.scene);
+      BABYLON.Engine.audioEngine.connectToAnalyser(myAnalyser);
+      myAnalyser.FFT_SIZE = 256;
+      myAnalyser.SMOOTHING = 0.9;
+      console.log(myAnalyser);
+      myAnalyser.DEBUGCANVASSIZE.width = 160;
+      myAnalyser.DEBUGCANVASSIZE.height = 100;
+      myAnalyser.DEBUGCANVASPOS.x = 40;
+      myAnalyser.DEBUGCANVASPOS.y = 30;
+      myAnalyser.drawDebugCanvas();
+      var fft;
+      let tempMesh = this.scene.getMeshByName("Plane.2");
+      let tempMesh2 = this.scene.getMeshByName("Table.001_Table.004_Base_2_15346");
+      let callback = function(){
+        fft = myAnalyser.getByteFrequencyData();
+        var scale = fft[20] / 100;
+        //console.log(scale);
+        tempMesh.scaling.x = scale;
+        tempMesh.scaling.y = scale;
+        tempMesh.scaling.z = scale;
+//tempMesh2.scaling.x = scale;
+        tempMesh2.scaling.y = scale*1.4;
+// tempMesh2.scaling.z = scale;
+      };
+      this.scene.registerBeforeRender(callback);
+
+    }
+
+  }
+  
 }
 
 export default NightClub;

@@ -293,35 +293,42 @@
 
                 <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
 
-                <div v-show="showControls">
+                <div v-show="showControls" class="stage">
                     <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0" v-if="showStageControls">
-                        <a class="cursor-pointer glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 mr-6 z-20"
+                        <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                            :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'" :bind="visual"
                            v-for="(video, i) of videos" @click="activateVideo(i)" :key="video">
                             {{ video.label }}
                         </a>
                     </div>
-                    <div class="flex items-stretch justify-end pl-12 pt-24 absolute left-0 top-0" v-if="showStageControls">
-                        <a class="cursor-pointer glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 mr-6"
+                    <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0" v-if="showStageControls">
+                        <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                            :class="showingVideos ? 'gradient-ultra' : 'bg-gray-500'"
                            @click="showingVideos = !showingVideos">
                             Casting Panel
                         </a>
-                        <select class="bg-white text-black mr-6 rounded-md" id="freeCamSpatialAudio">
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="freeCamSpatialAudio">
                             <option value="true" selected>Freecam sound tracking</option>
                             <option value="false">Avatar sound tracking</option>
                         </select>
-                        <select class="bg-white text-black mr-6 rounded-md" id="easing">
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="easing">
                             <option value="">No easing</option>
                             <option value="PowerEase">Power Ease</option>
                             <option value="CubicEase">Cubic Ease</option>
                             <option value="SineEase">Sine Ease</option>
                         </select>
-                        <a class="cursor-pointer glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 mr-6 bg-indigo-500"
+                        <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
                            @click="cameraMode = cameraModes[2]; world.playCameraAnimation(i);"
                            v-for="i in [0,1,2,3,4,5,6,7,8,9]" :key="i">
                             A{{ i+1 }}
                         </a>
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="moodSet" @change="changeMood">
+                            <option :value=null>None</option>
+                            <option :value="moodSet" v-for="moodSet of Object.keys(moodSets)" :key="moodSet">{{ moodSet }}</option>
+                        </select>
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="cubeTexture" @change="changeCubeTexture">
+                            <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
+                        </select>
                     </div>
                 </div>
 
@@ -661,7 +668,9 @@
         alreadyVisited: false,
         castingUserId: '',
         castingUser: false,
-        showingVideos: false
+        showingVideos: false,
+        cubeTextures: [],
+        moodSets: []
       }
     },
     computed: {
@@ -894,6 +903,8 @@
 
             world.initStageControls((config) => {
               this.videos = config.videos
+              this.moodSets = this.world.stageControls.moodSets;
+              this.cubeTextures = this.world.stageControls.cubeTextures;
             })
 
             world.connect(
@@ -1139,6 +1150,15 @@
           this.activeVideo = null
           world.stageControls.cast(`${userId}`)
         }
+      },
+      changeMood () {
+        let stageEvent = { action: 'changeMood', moodSet: document.querySelector('#moodSet').value };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      changeCubeTexture () {
+        document.querySelector('#moodSet').selectedIndex = 0;
+        let stageEvent = { action: 'changeCubeTexture', cubeTexture: document.querySelector('#cubeTexture').value };
+        world.stageControls.executeAndSend(stageEvent);
       }
     }
   }
@@ -1154,4 +1174,5 @@
         opacity: 0.1;
         z-index: -1;
     }
+
 </style>
