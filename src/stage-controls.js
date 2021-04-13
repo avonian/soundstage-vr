@@ -151,8 +151,8 @@ export class StageControls {
       this.animateEnvironmentIntensity(this.cubeTextures[this.activeCubeTexture]['environmentIntensity'], 300, () => {
         this.animateFogDensity(0, 300)
       });
-
       this.pedestalColorAnimation.stop();
+      this.animatePedestalColor([this.pedestal.material.emissiveColor, BABYLON.Color3.White()], 600, 0);
       this.pedestal.material.emissiveColor = BABYLON.Color3.White();
       this.world.scene.pedestalColor = BABYLON.Color3.White();
     }
