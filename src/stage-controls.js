@@ -34,7 +34,7 @@ export class StageControls {
       },
       purple: {
         color: this.colors['purple'],
-        fogDensity: 0.03
+        fogDensity: 0.05
       },
       navyBlue: {
         color: this.colors['navyBlue'],
@@ -50,7 +50,7 @@ export class StageControls {
       },
       green: {
         color: this.colors['green'],
-        fogDensity: 0.03
+        fogDensity: 0.01
       },
       indigo: {
         color: this.colors['indigo'],
@@ -58,6 +58,12 @@ export class StageControls {
       }
     }
     this.moodSets = {
+      'Dim Lights': {
+        environmentIntensity: 0.14999999999999925,
+        pedestalColor: [this.colors['skyblue'], this.colors['magenta'], this.colors['green'], this.colors['indigo']],
+        pedestalTransitionInterval: 150,
+        pedestalWaitInterval: 800
+      },
       'Purple Haze': {
         environmentIntensity: 0.14999999999999925,
         fogSettings: this.fogSettings['purple'],
@@ -193,7 +199,9 @@ export class StageControls {
       }, moodSet.pedestalTransitionInterval * 2 * 100)
       this.activeMood = moodSetName;
       this.animateEnvironmentIntensity(moodSet.environmentIntensity, 300, () => {
-        this.animateFog(moodSet.fogSettings, 300);
+        if(moodSet.fogSettings) {
+          this.animateFog(moodSet.fogSettings, 300);
+        }
       });
       this.world.scene.pedestalColor = moodSet.pedestalColor;
 
