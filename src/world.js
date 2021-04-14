@@ -60,6 +60,7 @@ export class NightClub extends World {
       { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
       { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
       { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
+      { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
       { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
       { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
       { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
@@ -471,22 +472,6 @@ export class NightClub extends World {
       console.log("LogoText", this.scene.getMeshByName("LogoText"));
       this.scene.getMeshByName("LogoSign").visibility = 0;
       console.log("LogoSign", this.scene.getMeshByName("LogoSign"));
-
-      // Instrumentation tool
-      console.log('Total Meshes: ' + this.scene.meshes.length);
-      console.log('Total Materials: ' + this.scene.materials.length);
-      console.log('Total Textures: ' + this.scene.textures.length);
-      let sceneInstrumentation = new BABYLON.SceneInstrumentation(this.scene);
-      sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
-      sceneInstrumentation.captureFrameTime = true;
-      sceneInstrumentation.captureParticlesRenderTime = true;
-      console.log('Draw Calls: ' + sceneInstrumentation.drawCallsCounter.current);
-
-      this.scene.registerAfterRender(function () {
-        console.log("Draw Calls: " + sceneInstrumentation.drawCallsCounter.current);
-        // there will be much more more parameters
-      });
-      // End of Instrumentation tool
     }
   }
 

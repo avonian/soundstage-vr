@@ -359,6 +359,27 @@
                             <span v-else>Stop Recording</span>
                         </a>
 
+                        <div class="fixed left-12 bottom-32">
+                            <table border="0">
+                                <tr>
+                                    <td class="font-medium pr-2">Total Meshes</td>
+                                    <td id="info-total-meshes"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Materials</td>
+                                    <td id="info-total-materials"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Textures</td>
+                                    <td id="info-total-textures"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Draw Calls</td>
+                                    <td id="info-draw-calls"></td>
+                                </tr>
+                            </table>
+                        </div>
+
                     </div>
 
                     <div class="flex items-stretch justify-end pb-12 absolute right-12 bottom-0">
@@ -624,6 +645,7 @@
     { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
     { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
     { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
+    { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
     { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
     { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
     { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
@@ -916,6 +938,10 @@
                 this.preloadVideos()
               })
 
+            if(this.debugging) {
+              this.initInstrumentation();
+            }
+
           }).then((s) => {
             scene = s
             world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
@@ -1162,6 +1188,22 @@
         document.querySelector('#moodSet').selectedIndex = 0;
         let stageEvent = { action: 'changeCubeTexture', cubeTexture: document.querySelector('#cubeTexture').value };
         world.stageControls.executeAndSend(stageEvent);
+      },
+      initInstrumentation () {
+          // Instrumentation tool
+          document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
+          document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
+          document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
+          let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
+          sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
+          sceneInstrumentation.captureFrameTime = true;
+          sceneInstrumentation.captureParticlesRenderTime = true;
+          console.log('Draw Calls: ' + sceneInstrumentation.drawCallsCounter.current);
+
+          scene.registerAfterRender(function () {
+            document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
+            // there will be much more more parameters
+          });
       }
     }
   }
