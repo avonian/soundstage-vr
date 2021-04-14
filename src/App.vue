@@ -329,6 +329,9 @@
                         <select class="bg-white text-sm text-black mr-3 rounded-md" id="cubeTexture" @change="changeCubeTexture">
                             <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
                         </select>
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="changeFog">
+                            <option :value="setting" v-for="setting of Object.keys(fogSettings)" :key="setting">{{ setting }}</option>
+                        </select>
                     </div>
                 </div>
 
@@ -359,7 +362,7 @@
                             <span v-else>Stop Recording</span>
                         </a>
 
-                        <div class="fixed left-12 bottom-32">
+                        <div class="fixed left-12 bottom-32" v-show="debugging">
                             <table border="0">
                                 <tr>
                                     <td class="font-medium pr-2">Total Meshes</td>
@@ -695,7 +698,8 @@
         castingUser: false,
         showingVideos: false,
         cubeTextures: [],
-        moodSets: []
+        moodSets: [],
+        fogSettings: []
       }
     },
     computed: {
@@ -930,6 +934,7 @@
               this.videos = config.videos
               this.moodSets = this.world.stageControls.moodSets;
               this.cubeTextures = this.world.stageControls.cubeTextures;
+              this.fogSettings = this.world.stageControls.fogSettings;
             })
 
             world.connect(
@@ -1187,6 +1192,10 @@
       changeCubeTexture () {
         document.querySelector('#moodSet').selectedIndex = 0;
         let stageEvent = { action: 'changeCubeTexture', cubeTexture: document.querySelector('#cubeTexture').value };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      changeFog () {
+        let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
         world.stageControls.executeAndSend(stageEvent);
       },
       initInstrumentation () {

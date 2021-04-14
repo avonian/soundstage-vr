@@ -109,6 +109,7 @@ export class NightClub extends World {
     this.scene.environmentTexture = hdrTexture;
     this.scene.fogEnabled = true;
     this.scene.fogDensity = 0;
+    this.scene.fogColor = new BABYLON.Color3(0,0,0);
     this.scene.fogMode = 2;
     this.scene.autoClearDepthAndStencil = false; // Perf optimization; works if the scene is inside skybox (non-transparent)
 
