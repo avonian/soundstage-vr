@@ -612,19 +612,22 @@
 
   let Videos = [
     { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
+    { label: 'Intro', url: 'https://assets.soundstage.fm/vr/Intro.mp4' },
+    { label: 'Abyss', url: 'https://assets.soundstage.fm/vr/Abyss.mp4' },
+    { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
     { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
     { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
+    { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
     { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
     { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
+    { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/Neon.mp4' },
     { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
     { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
     { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-    { label: 'Spuke', url: 'https://assets.soundstage.fm/vr/Spuke.mp4' },
-    { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-    { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/neon-laser-beams.mp4' },
-    { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-    { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
     { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
+    { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
+    { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
+    { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
   ]
 
   export default {
