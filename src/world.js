@@ -577,6 +577,7 @@ export class NightClub extends World {
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
+        // THIS IS EVENT LISTENER FOR WORLD EVENTS
         console.log("Properties:", obj);
         if ( obj.properties.stageEvent ) {
           this.stageControls.execute(obj.properties.stageEvent);
@@ -640,6 +641,7 @@ export class NightClub extends World {
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
     // obj is the client object sent by the server
     if ( obj.properties ) {
+      // THIS TRIGGERS WHEN USERS LOG IN
       if ( obj.properties.altImage ) {
         avatar.altImage = obj.properties.altImage;
       }
