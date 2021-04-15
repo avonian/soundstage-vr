@@ -6,7 +6,7 @@ export class StageControls {
     this.userSettings = userSettings;
     this.world = world;
     this.userBeingCasted = false;
-    this.videoBeingPlayed = "https://assets.soundstage.fm/vr/Default.mp4";
+    this.videoBeingPlayed = false;
     this.pedestal = this.world.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
     this.pedestalColorAnimation = false;
     this.cubeTextures = {

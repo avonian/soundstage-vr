@@ -1045,6 +1045,10 @@ export class NightClub extends World {
     this.stageControls.activeCubeTexture = state.environmentTexture;
     this.stageControls.changeCubeTexture(state.environmentTexture);
 
+    if(state.videoBeingPlayed === false && state.userBeingCasted === false) {
+      state.videoBeingPlayed = 'https://assets.soundstage.fm/vr/Default.mp4';
+    }
+
     if(state.videoBeingPlayed) {
       this.stageControls.videoBeingPlayed = state.videoBeingPlayed;
       this.initializeDisplays(state.videoBeingPlayed, "WindowVideo");
