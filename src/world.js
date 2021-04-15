@@ -362,8 +362,10 @@ export class NightClub extends World {
     // screen is Cube.024_20 TransformNode, node43 mesh
     // its material is Material.001 - can be replaced with video texture
 
-    /* Initialize video loop on DJ table */
-    this.initializeDisplays();
+    /* Initialize video (only if there is no world state to avoid video race condition) */
+    if(!this.eventConfig['world_state']) {
+      this.initializeDisplays();
+    }
 
     this.movement.start();
     this.scene.registerBeforeRender(() => this.spatializeAudio());
@@ -468,7 +470,6 @@ export class NightClub extends World {
         mesh: this.windowMesh,
         texture: this.windowTexture
       });
-
       this.scene.getMeshByName("LogoText").visibility = 0;
       console.log("LogoText", this.scene.getMeshByName("LogoText"));
       this.scene.getMeshByName("LogoSign").visibility = 0;
@@ -639,7 +640,7 @@ export class NightClub extends World {
       // keep track of multiple states with multiple properties
       // at this point stage controls are not initialized yet
       if ( this.stageControls && obj.properties.stageEvent ) {
-        this.stageControls.execute(obj.properties.stageEvent);
+        // this.stageControls.execute(obj.properties.stageEvent);
       }
     }
     return avatar;
@@ -1008,7 +1009,72 @@ export class NightClub extends World {
     }
 
   }
-  
+
+  async saveState() {
+    if(!process.env.VUE_APP_API_URL) {
+      return;
+    }
+    let state = {
+      activeMood: this.stageControls.activeMood,
+      fogColor: this.scene.fogColor,
+      fogDensity: this.scene.fogDensity,
+      environmentIntensity: this.scene.environmentIntensity,
+      environmentTexture: this.stageControls.activeCubeTexture,
+      videoBeingPlayed: this.stageControls.videoBeingPlayed,
+      userBeingCasted: this.stageControls.userBeingCasted,
+      pedestalColor: this.stageControls.pedestal.material.emissiveColor
+    }
+
+    let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
+      .split('; ')
+      .find(row => row.startsWith('jwt='))
+      .split('=')[1] : false;
+    let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${this.eventConfig['event_slug']}/saveWorldState`, {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        'Accept': 'application/json',
+        "Authorization": `Bearer ${jwt}`
+      },
+      method: 'POST',
+      body: JSON.stringify(state)
+    });
+  }
+
+  loadState(state) {
+    this.stageControls.activeMood = state.activeMood;
+    this.stageControls.activeCubeTexture = state.environmentTexture;
+    this.stageControls.changeCubeTexture(state.environmentTexture);
+
+    if(state.videoBeingPlayed) {
+      this.stageControls.videoBeingPlayed = state.videoBeingPlayed;
+      this.initializeDisplays(state.videoBeingPlayed, "WindowVideo");
+      this.initializeDisplays(state.videoBeingPlayed, "DJTableVideo");
+    }
+
+    if(state.userBeingCasted) {
+      let video = this.fetchPeerVideoElement(event.userId);
+      if(video) {
+        this.stageControls.userBeingCasted = state.userBeingCasted;
+        this.initializeDisplays(video, "WindowVideo");
+        this.initializeDisplays(video, "DJTableVideo");
+      }
+    }
+
+    this.scene.fogColor = new BABYLON.Color3(state.fogColor['r'],state.fogColor['g'],state.fogColor['b']);
+    this.scene.fogDensity = state.fogDensity;
+    this.scene.environmentIntensity = state.environmentIntensity;
+
+    if(state.activeMood) {
+      let moodSet = this.stageControls.moodSets[state.activeMood];
+      this.stageControls.pedestal.material.emissiveColor = new BABYLON.Color3(state.pedestalColor['r'], state.pedestalColor['g'], state.pedestalColor['b']);
+      let pedestalColors = [this.stageControls.pedestal.material.emissiveColor, ...moodSet.pedestalColor];
+      this.stageControls.animatePedestalColor(pedestalColors, moodSet.pedestalTransitionInterval, moodSet.pedestalWaitInterval, true);
+      setTimeout(() => {
+        document.querySelector('#moodSet').value = state.activeMood;
+      }, 1000);
+    }
+  }
+
 }
 
 export default NightClub;

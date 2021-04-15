@@ -935,6 +935,13 @@
               this.moodSets = this.world.stageControls.moodSets;
               this.cubeTextures = this.world.stageControls.cubeTextures;
               this.fogSettings = this.world.stageControls.fogSettings;
+
+              if(this.eventConfig['world_state']) {
+                world.loadState(this.eventConfig['world_state']);
+              }
+              if(this.eventConfig['permissions']['stage_controls']) {
+                this.world.stageControls.startSaving();
+              }
             })
 
             world.connect(
