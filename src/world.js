@@ -963,12 +963,43 @@ export class NightClub extends World {
       console.log("FLOOR");
     }
     if(event.key === "h") {
-      let tempMesh = this.scene.getMeshByName("Plane.1");
+      let tempMesh = this.scene.getMeshByName("PosterClubS1");
       this.scene.registerBeforeRender(function () {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset +=0.003;
         console.log("Slide Show");
       });
+    }
+
+    if (event.key === "n") {
+      console.log(this.scene.lights);
+      let pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 7), this.scene);
+
+      pointLight.intensity = 10;
+     
+    }
+
+    if (event.key === "b") {
+   //   let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
+      let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(0, 2, 8), new BABYLON.Vector3(0, -1, 0),
+        BABYLON.Tools.ToRadians(45), 1, this.scene);
+      selectionLight.intensity = 500;
+   //   selectionLight.projectionTexture = proceduralTexture;
+      let alpha = 0;
+      let lPos = new BABYLON.Vector3(0, -1, 8);
+      selectionLight.setDirectionToTarget(lPos);
+   //   let hdrTexture = this.scene.environmentTexture;
+      this.scene.registerBeforeRender(function () {
+     //   hdrTexture.rotationY += alpha/100;
+        //selectionLight.position.x = Math.cos(alpha)*2;
+        selectionLight.position.z = Math.sin(alpha)*2;
+        lPos.x = Math.cos(alpha) * 8;
+        //lPos.z = Math.sin(alpha)*8;
+        selectionLight.setDirectionToTarget(lPos);
+        // proceduralTexture.vAng += alpha / 2;
+        alpha += 0.01;
+      });
+      
     }
 
     if(event.key === "m") {
@@ -990,7 +1021,7 @@ export class NightClub extends World {
       myAnalyser.DEBUGCANVASPOS.y = 30;
       myAnalyser.drawDebugCanvas();
       var fft;
-      let tempMesh = this.scene.getMeshByName("Plane.2");
+      let tempMesh = this.scene.getMeshByName("PosterClubR");
       let tempMesh2 = this.scene.getMeshByName("Table.001_Table.004_Base_2_15346");
       let callback = function(){
         fft = myAnalyser.getByteFrequencyData();

@@ -380,6 +380,38 @@
                                     <td class="font-medium pr-2">Draw Calls</td>
                                     <td id="info-draw-calls"></td>
                                 </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Scene Frame Time</td>
+                                    <td id="info-frame-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Active Meshes Eval Time</td>
+                                    <td id="info-eval-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Particles Render Time</td>
+                                    <td id="info-particles-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">GPU Frame Time</td>
+                                    <td id="info-gpuframe-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Shader Compilation Time</td>
+                                    <td id="info-shader-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Compiled Shaders</td>
+                                    <td id="info-compiled-shaders"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Frame Render Time</td>
+                                    <td id="info-render-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Camera Render Time</td>
+                                    <td id="info-camera-time"></td>
+                                </tr>
                             </table>
                         </div>
 
@@ -1200,17 +1232,32 @@
       },
       initInstrumentation () {
           // Instrumentation tool
-          document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
-          document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
-          document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
           let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
           sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
           sceneInstrumentation.captureFrameTime = true;
           sceneInstrumentation.captureParticlesRenderTime = true;
-          console.log('Draw Calls: ' + sceneInstrumentation.drawCallsCounter.current);
+          sceneInstrumentation.captureRenderTime = true;
+          sceneInstrumentation.captureCameraRenderTime  = true;
+          let engineInstrumentation = new BABYLON.EngineInstrumentation(engine);
+          engineInstrumentation.captureGPUFrameTime = true;
+          engineInstrumentation.captureShaderCompilationTime = true;
 
           scene.registerAfterRender(function () {
+            document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
+            document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
+            document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
             document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
+            document.querySelector('#info-frame-time').innerHTML = sceneInstrumentation.frameTimeCounter.current.toFixed(2);
+            document.querySelector('#info-eval-time').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.current.toFixed(2);
+            document.querySelector('#info-particles-time').innerHTML = sceneInstrumentation.particlesRenderTimeCounter.current.toFixed(2);
+            document.querySelector('#info-gpuframe-time').innerHTML = (engineInstrumentation.gpuFrameTimeCounter.average * 0.000001).toFixed(2);
+            document.querySelector('#info-shader-time').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.average.toFixed(2);
+            document.querySelector('#info-compiled-shaders').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.count;
+            document.querySelector('#info-render-time').innerHTML = sceneInstrumentation.renderTimeCounter.current.toFixed(2);
+              document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed(2);
+
+
+
             // there will be much more more parameters
           });
       }
