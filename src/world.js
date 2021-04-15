@@ -1011,7 +1011,7 @@ export class NightClub extends World {
   }
 
   async saveState() {
-    if(!process.env.VUE_APP_API_URL) {
+    if(!process.env.VUE_APP_API_URL || document.querySelector('#saveState').value === 'false') {
       return;
     }
     let state = {

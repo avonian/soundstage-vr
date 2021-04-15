@@ -332,6 +332,10 @@
                         <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="changeFog">
                             <option :value="setting" v-for="setting of Object.keys(fogSettings)" :key="setting">{{ setting }}</option>
                         </select>
+                        <select class="bg-white text-sm text-black mr-3 rounded-md" id="saveState">
+                            <option :value="true">Yes</option>
+                            <option :value="false" selected>No</option>
+                        </select>
                     </div>
                 </div>
 
