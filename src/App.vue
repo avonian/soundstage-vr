@@ -747,8 +747,8 @@
 
       /* Check browser */
       if(browser().name !== 'chrome') {
-        this.browserSupported = false;
-        return;
+        //this.browserSupported = false;
+        //return;
       }
 
       /* Set event configuration */

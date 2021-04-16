@@ -15,7 +15,9 @@ export class StageControls {
       room: { url: 'https://playground.babylonjs.com/textures/room.env', environmentIntensity: 0.4 },
       parking: { url: 'https://playground.babylonjs.com/textures/parking.env', environmentIntensity: 0.4 },
       country: { url: 'https://playground.babylonjs.com/textures/country.env', environmentIntensity: 0.8 },
-      studio: { url: 'https://playground.babylonjs.com/textures/Studio_Softbox_2Umbrellas_cube_specular.env', environmentIntensity: 0.4 }
+      studio: { url: 'https://playground.babylonjs.com/textures/Studio_Softbox_2Umbrellas_cube_specular.env', environmentIntensity: 0.4 },
+      milkyWay: { url: 'https://www.vrspace.org/content/skybox/eso_milkyway/milkyway', environmentIntensity: 1.5 },
+      galaxyCenter: { url: 'https://www.vrspace.org/content/skybox/nasa_gcenter/gcenter', environmentIntensity: 1.5 }      
     }
     this.colors = {
       black:  new BABYLON.Color3(0,0,0),
