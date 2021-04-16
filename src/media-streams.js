@@ -1,5 +1,5 @@
 import mediasoup from './mediasoup';
-import { MediaStreams } from './babylon/vrspace-ui.js';
+import { MediaStreams } from './vrspace-babylon.js';
 
 export class MediaSoup extends MediaStreams {
 

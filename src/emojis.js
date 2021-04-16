@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './babylon/vrspace-ui.js';
+import { VRSPACEUI } from './vrspace-babylon.js';
 
 export class Emoji {
   constructor( filename, baseUrl, scene ) {
