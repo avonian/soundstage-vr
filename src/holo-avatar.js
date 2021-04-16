@@ -1,4 +1,4 @@
-import { VideoAvatar } from './babylon/vrspace-ui.js';
+import { VideoAvatar } from './vrspace-babylon.js';
 
 export class HoloAvatar extends VideoAvatar {
   show() {
