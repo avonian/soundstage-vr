@@ -1,4 +1,4 @@
-import { World, WorldManager, VRSPACEUI } from './vrspace-babylon.js';
+import { World, WorldManager, VRSPACEUI, VRObject, VRSPACE } from './vrspace-babylon.js';
 import CinemaCamera from './cinema-camera';
 import StageControls from './stage-controls';
 import Emojis from './emojis';
@@ -46,6 +46,7 @@ export class NightClub extends World {
       castUser:null,
       castTarget:'WindowVideo'
     };
+    this.worldState = null;
     // things to dispose of
     this.tableMaterial = null;
     this.tableTexture = null;
@@ -371,7 +372,8 @@ export class NightClub extends World {
     // its material is Material.001 - can be replaced with video texture
 
     /* Initialize video loop on DJ table */
-    this.initializeDisplays();
+    // this is async now as shared state loads
+    //this.initializeDisplays();
 
     this.movement.start();
     this.scene.registerBeforeRender(() => this.spatializeAudio());
@@ -612,6 +614,7 @@ export class NightClub extends World {
           this.video.displayAlt();
         }
       }
+      
       // set own properties
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
@@ -623,6 +626,11 @@ export class NightClub extends World {
       this.worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
       // start session
       this.worldManager.VRSPACE.sendCommand("Session");
+
+      // SHARED STATE MANGLING
+      // custom scene listener, listening for shared state object
+      VRSPACE.addSceneListener((e) => this.findSharedState(e));
+      
       // add chatroom id to the client, and start streaming
       welcome.client.token = this.eventConfig.event_slug;
       this.worldManager.pubSub(welcome.client);
@@ -636,13 +644,42 @@ export class NightClub extends World {
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
   
-  shareProperties() {
-    var properties = {};
-    if ( this.video.altImage ) {
-      properties.altImage = this.video.altImage;
+  findSharedState(e) {
+    if ( e.added && e.added.properties && e.added.properties.name == 'worldState') {
+      this.worldState = e.added;
+      console.log('Shared world properties:', e.added.properties);
+      this.properties = e.added.properties;
+      this.initializeDisplays();
+      // CHECKME add listener here to track changes to state
     }
-    properties.worldState = this.properties;
-    this.worldManager.VRSPACE.sendMy("properties", properties);
+  }
+  // create shared state object if not exists
+  async createSharedState() {
+    var o = {
+        //permanent:true,
+        properties: {
+          name:'worldState',
+          WindowVideo:0, 
+          DJTableVideo:0, 
+          castUser:null,
+          castTarget:'WindowVideo'
+        }
+    };
+    return new Promise((resolve,reject) => {
+      VRSPACE.createSharedObject(o, (obj)=>{
+        console.log("Created shared object", obj);
+        this.worldState = obj;
+        resolve(obj);
+      });
+    });
+  }
+  
+  async shareProperties() {
+    if ( ! this.worldState ) {
+      await this.createSharedState();
+    }
+    this.worldState.properties = this.properties;
+    this.worldState.publish();
   }
 
   createAvatar(obj) {
@@ -652,16 +689,6 @@ export class NightClub extends World {
       // apply avatar alt image
       if ( obj.properties.altImage ) {
         avatar.altImage = obj.properties.altImage;
-      }
-      // manage world state
-      // TODO this is tracked as properties of master user 
-      // should be tracked in a separate object
-      if ( this.stageControls && obj.properties.worldState) {
-        console.log('DISPLAYS', obj.properties.worldState);
-        this.properties = obj.properties.worldState;
-        this.initializeDisplays();
-        // CAST USER can't be done here, user's video is not initialized yet
-        // use avatar's displayStream(mediaStream) instead
       }
     }
     if ( this.properties.castUser && this.properties.castTarget ) {
