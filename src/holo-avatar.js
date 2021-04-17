@@ -24,6 +24,13 @@ export class HoloAvatar extends VideoAvatar {
     this.startParticles(this.altText);
   }
 
+  displayStream(mediaStream) {
+    super.displayStream(mediaStream);
+    if ( this.streamCallback ) {
+      this.streamCallback(this);
+    }
+  }
+  
   applyRotation(enable) {
     console.log( this.altText +" applying rotation: "+enable);
     if ( enable ) {
