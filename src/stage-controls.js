@@ -66,7 +66,19 @@ export class StageControls {
       let video = this.fetchPeerVideoElement(resumeUserPlayback);
       if(video) {
         video.play();
+      } else {
+        console.log("WARNING - can't stream video of "+userId);
       }
+    }
+  }
+  playUserVideo(userId, target) {
+    let video = this.fetchPeerVideoElement(userId);
+    if(video) {
+      this.world.initializeDisplays(video, [target]);
+      this.userBeingCasted = userId;
+      console.log("streaming video of "+userId);
+    } else {
+      console.log("WARNING - can't stream video of "+userId);
     }
   }
 }

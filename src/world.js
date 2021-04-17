@@ -40,7 +40,12 @@ export class NightClub extends World {
     // null defaults relative to eyes, 30cm front, 5cm below
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
     // shared world properties
-    this.properties = {WindowVideo:0, DJTableVideo:0, castUser:null};
+    this.properties = {
+      WindowVideo:0, 
+      DJTableVideo:0, 
+      castUser:null,
+      castTarget:'WindowVideo'
+    };
     // things to dispose of
     this.tableMaterial = null;
     this.tableTexture = null;
@@ -566,7 +571,7 @@ export class NightClub extends World {
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
-        console.log("Properties:", obj);
+        console.log("Properties:", obj.properties);
       }
     };
     this.worldManager.avatarFactory = (obj) => this.createAvatar(obj);
@@ -635,16 +640,24 @@ export class NightClub extends World {
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
     // obj is the client object sent by the server
     if ( obj.properties ) {
+      // apply avatar alt image
       if ( obj.properties.altImage ) {
         avatar.altImage = obj.properties.altImage;
       }
-      // TODO this can process only one stage event
-      // keep track of multiple states with multiple properties
-      // at this point stage controls are not initialized yet
+      // manage world state
+      // TODO this is tracked as properties of master user 
+      // should be tracked in a separate object
       if ( this.stageControls && obj.properties.worldState) {
         console.log('DISPLAYS', obj.properties.worldState);
         this.properties = obj.properties.worldState;
         this.initializeDisplays();
+        // CAST USER can't be done here, user's video is not initialized yet
+        // use avatar's displayStream(mediaStream) instead
+      }
+    }
+    if ( this.properties.castUser && this.properties.castTarget ) {
+      avatar.streamCallback = () => {
+        this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
       }
     }
     return avatar;
