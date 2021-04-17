@@ -39,6 +39,8 @@ export class NightClub extends World {
     // position of video preview in FPS mode
     // null defaults relative to eyes, 30cm front, 5cm below
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
+    // shared world properties
+    this.properties = {WindowVideo:0, DJTableVideo:0, castUser:null};
     // things to dispose of
     this.tableMaterial = null;
     this.tableTexture = null;
@@ -46,6 +48,7 @@ export class NightClub extends World {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
+    // FIXME: we have this twice, once here and once more in App.vue
     this.videos = [
       { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
       { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
@@ -409,7 +412,10 @@ export class NightClub extends World {
         this.tableTexture.dispose();
       }
       this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
+      this.tableTexture = new BABYLON.VideoTexture("tableTexture", 
+        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url], 
+        this.scene, true, true, null, 
+        {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -440,7 +446,9 @@ export class NightClub extends World {
       }
 
       this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
+      this.windowTexture = new BABYLON.VideoTexture("windowTexture", 
+        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url], 
+        this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -559,9 +567,6 @@ export class NightClub extends World {
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
         console.log("Properties:", obj);
-        if ( obj.properties.stageEvent ) {
-          this.stageControls.execute(obj.properties.stageEvent);
-        }
       }
     };
     this.worldManager.avatarFactory = (obj) => this.createAvatar(obj);
@@ -597,7 +602,7 @@ export class NightClub extends World {
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        this.worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
+        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage});
       }
       this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
@@ -616,6 +621,15 @@ export class NightClub extends World {
     this.worldManager.VRSPACE.addWelcomeListener(enter);
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
+  
+  shareProperties() {
+    var properties = {};
+    if ( this.video.altImage ) {
+      properties.altImage = this.video.altImage;
+    }
+    properties.worldState = this.properties;
+    this.worldManager.VRSPACE.sendMy("properties", properties);
+  }
 
   createAvatar(obj) {
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
@@ -627,8 +641,10 @@ export class NightClub extends World {
       // TODO this can process only one stage event
       // keep track of multiple states with multiple properties
       // at this point stage controls are not initialized yet
-      if ( this.stageControls && obj.properties.stageEvent ) {
-        this.stageControls.execute(obj.properties.stageEvent);
+      if ( this.stageControls && obj.properties.worldState) {
+        console.log('DISPLAYS', obj.properties.worldState);
+        this.properties = obj.properties.worldState;
+        this.initializeDisplays();
       }
     }
     return avatar;
@@ -662,7 +678,7 @@ export class NightClub extends World {
 
   initStageControls( callback ) {
     // stage controls
-    this.stageControls = new StageControls(this.displays, this.camera1.position, callback, this.userSettings, this );
+    this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
     this.stageControls.init();
   }
 

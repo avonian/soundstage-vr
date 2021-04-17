@@ -1,5 +1,5 @@
 export class StageControls {
-  constructor (displays, position, callback, userSettings, world) {
+  constructor (displays, callback, userSettings, world) {
     this.displays = displays;
     this.callback = callback;
     this.videos = world.videos;
@@ -14,18 +14,23 @@ export class StageControls {
   }
   executeAndSend(event) {
     this.execute(event);
-    this.world.worldManager.VRSPACE.sendMy('properties', {stageEvent: event});
+    this.world.worldManager.VRSPACE.sendMy('stageEvent', event);
   }
   play( videoIndex ) {
     let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
+    this.world.properties.WindowVideo = videoIndex;
     this.executeAndSend(playTableEvent);
 
     let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
+    this.world.properties.DJTableVideo = videoIndex;
     this.executeAndSend(playWindowEvent);
+    this.world.shareProperties();
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
+    this.world.properties.castUser = userId;
     this.executeAndSend(castUserEvent);
+    this.world.shareProperties();
   }
   fetchPeerVideoElement(peerid) {
     let videos = document.querySelectorAll('video')
