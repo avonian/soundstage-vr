@@ -377,20 +377,38 @@
                                     <td id="info-total-textures"></td>
                                 </tr>
                                 <tr>
+                                    <td class="font-medium pr-2">Total Video Textures</td>
+                                    <td id="info-total-videotextures"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Animations</td>
+                                    <td id="info-total-animations"></td>
+                                </tr>
+                                <tr>
                                     <td class="font-medium pr-2">Draw Calls</td>
                                     <td id="info-draw-calls"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">Scene Frame Time</td>
                                     <td id="info-frame-time"></td>
+                                    <td id="info-frame-time-max"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Delta Time</td>
+                                    <td id="info-frame-delta-time"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">Active Meshes Eval Time</td>
                                     <td id="info-eval-time"></td>
+                                    <td id="info-eval-time-max"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">Particles Render Time</td>
                                     <td id="info-particles-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Inter Frame Time</td>
+                                    <td id="info-inter-frame"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">GPU Frame Time</td>
@@ -411,6 +429,14 @@
                                 <tr>
                                     <td class="font-medium pr-2">Camera Render Time</td>
                                     <td id="info-camera-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">RenderTargets Time</td>
+                                    <td id="info-targets-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">FPS </td>
+                                    <td id="info-fps-time"></td>
                                 </tr>
                             </table>
                         </div>
@@ -1231,34 +1257,58 @@
         world.stageControls.executeAndSend(stageEvent);
       },
       initInstrumentation () {
-          // Instrumentation tool
-          let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
+        // Instrumentation debugging tool
+        let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
           sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
           sceneInstrumentation.captureFrameTime = true;
           sceneInstrumentation.captureParticlesRenderTime = true;
           sceneInstrumentation.captureRenderTime = true;
-          sceneInstrumentation.captureCameraRenderTime  = true;
-          let engineInstrumentation = new BABYLON.EngineInstrumentation(engine);
+          sceneInstrumentation.captureCameraRenderTime = true;
+          sceneInstrumentation.captureRenderTargetsRenderTime = true;
+          sceneInstrumentation.captureInterFrameTime = true;
+
+        let engineInstrumentation = new BABYLON.EngineInstrumentation(engine);
           engineInstrumentation.captureGPUFrameTime = true;
           engineInstrumentation.captureShaderCompilationTime = true;
 
-          scene.registerAfterRender(function () {
-            document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
-            document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
-            document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
-            document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
-            document.querySelector('#info-frame-time').innerHTML = sceneInstrumentation.frameTimeCounter.current.toFixed(2);
-            document.querySelector('#info-eval-time').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.current.toFixed(2);
-            document.querySelector('#info-particles-time').innerHTML = sceneInstrumentation.particlesRenderTimeCounter.current.toFixed(2);
-            document.querySelector('#info-gpuframe-time').innerHTML = (engineInstrumentation.gpuFrameTimeCounter.average * 0.000001).toFixed(2);
-            document.querySelector('#info-shader-time').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.average.toFixed(2);
-            document.querySelector('#info-compiled-shaders').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.count;
-            document.querySelector('#info-render-time').innerHTML = sceneInstrumentation.renderTimeCounter.current.toFixed(2);
-              document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed(2);
+        function videoTextureCount() {
+          let videoTextureCounter = 0;
+          for (let i = 0; i < scene.textures.length; i++) {
+            if (scene.textures[i].video) {
+                videoTextureCounter++;
+            }
+          }
+          return videoTextureCounter;              
+        }
 
+        function checkDeltaTime() {
+          if (scene.deltaTime) {
+            return scene.deltaTime.toFixed();
+          }
+        }
 
-
-            // there will be much more more parameters
+         scene.registerAfterRender(function () {
+           document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
+           document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
+           document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
+           document.querySelector('#info-total-videotextures').innerHTML = videoTextureCount().toString();
+           document.querySelector('#info-total-animations').innerHTML = scene.animatables.length;
+           document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
+           document.querySelector('#info-frame-time').innerHTML = sceneInstrumentation.frameTimeCounter.current.toFixed();
+           document.querySelector('#info-frame-time-max').innerHTML = sceneInstrumentation.frameTimeCounter.lastSecAverage.toFixed(2);
+           document.querySelector('#info-frame-delta-time').innerHTML = checkDeltaTime();
+           document.querySelector('#info-eval-time').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.current.toFixed();
+           document.querySelector('#info-eval-time-max').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.lastSecAverage.toFixed(2);
+           document.querySelector('#info-particles-time').innerHTML = sceneInstrumentation.particlesRenderTimeCounter.current.toFixed(2);
+           document.querySelector('#info-inter-frame').innerHTML = sceneInstrumentation.interFrameTimeCounter.lastSecAverage.toFixed();
+           document.querySelector('#info-gpuframe-time').innerHTML = (engineInstrumentation.gpuFrameTimeCounter.average * 0.000001).toFixed(2);
+           document.querySelector('#info-shader-time').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.current.toFixed(2);
+           document.querySelector('#info-compiled-shaders').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.count;
+           document.querySelector('#info-render-time').innerHTML = sceneInstrumentation.renderTimeCounter.current.toFixed();
+           document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed();
+           document.querySelector('#info-targets-time').innerHTML = sceneInstrumentation.renderTargetsRenderTimeCounter.current.toFixed();
+           document.querySelector('#info-fps-time').innerHTML = engine.getFps().toFixed() + " fps";
+           // more parameters may be added or some of them may be removed
           });
       }
     }
