@@ -571,7 +571,7 @@ export class NightClub extends World {
       this.video.displayAlt();
     }
 
-    this.connectHiFi(audioDeviceId, playbackDeviceId);
+    this.connectHiFi(audioDeviceId, false, playbackDeviceId);
 
     this.worldManager = new WorldManager(this, fps);
     this.worldManager.customOptions = {
@@ -741,14 +741,14 @@ export class NightClub extends World {
     obj.emojis.execute(obj.emojiEvent.emoji);
   }
 
-  async getAudioStreamSettings(audioDeviceId) {
+  async getAudioStreamSettings(audioDeviceId, computerAudioStream) {
     window.audioStream = null;
-    window.performanceAudioSourceNode = null;
-    window.performancceAudioGainNode = null;
+    window.primaryAudioSourceNode = null;
+    window.audioGainNode = null;
     let stereo;
     let audioConstraints;
 
-    if(this.userSettings && this.userSettings.enableStereo) {
+    if(this.userSettings && (this.userSettings.enableStereo || computerAudioStream)) {
 
       window.audioContext = new AudioContext({
         sampleRate: 48000
@@ -756,7 +756,8 @@ export class NightClub extends World {
 
       let audioStreamDestination = await window.audioContext.createMediaStreamDestination();
 
-      window.performanceAudioSourceNode = window.audioContext.createMediaStreamSource(
+      /* Primary audio source */
+      window.primaryAudioSourceNode = window.audioContext.createMediaStreamSource(
         await navigator.mediaDevices.getUserMedia({
           audio: {
             deviceId: audioDeviceId,
@@ -771,14 +772,19 @@ export class NightClub extends World {
       );
 
       /* Gain node */
-      window.performanceAudioGainNode = window.audioContext.createGain();
-      window.performanceAudioSourceNode.connect(window.performanceAudioGainNode);
+      window.audioGainNode = window.audioContext.createGain();
+      window.primaryAudioSourceNode.connect(window.audioGainNode);
+      if(computerAudioStream) {
+        /* Computer audio source */
+        window.computerAudioSourceNode = window.audioContext.createMediaStreamSource(computerAudioStream);
+        window.computerAudioSourceNode.connect(window.audioGainNode);
+      }
 
       /* Connect to destination */
-      window.performanceAudioGainNode.connect(audioStreamDestination);
+      window.audioGainNode.connect(audioStreamDestination);
 
       /* Apply custom value */
-      window.performanceAudioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
+      window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
 
       window.audioStream = audioStreamDestination.stream;
 
@@ -796,7 +802,8 @@ export class NightClub extends World {
     return { audioStream: window.audioStream, stereo }
   }
 
-  async connectHiFi(audioDeviceId, playbackDeviceId) {
+  async connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId) {
+
     var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
@@ -805,7 +812,7 @@ export class NightClub extends World {
           console.log("HiFi state", state);
           if ( "Disconnected" === state && !interval) {
             console.log("Reconnecting to audio server");
-            interval = setInterval(() => this.connectHiFi(audioDeviceId, playbackDeviceId), 5000);
+            interval = setInterval(() => this.connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId), 5000);
           } else if ("Connected" === state && interval) {
             clearInterval(interval);
             interval = null;
@@ -814,7 +821,7 @@ export class NightClub extends World {
       });
     }
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
-      let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId);
+      let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
       console.log('stereo?', stereo);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
     }
@@ -1062,7 +1069,7 @@ export class NightClub extends World {
     }
 
   }
-  
+
 }
 
 export default NightClub;
