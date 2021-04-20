@@ -653,26 +653,26 @@
 
   const urlParams = new URLSearchParams(window.location.search)
 
-  let Videos = [
-    { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
-    { label: 'Intro', url: 'https://assets.soundstage.fm/vr/Intro.mp4' },
-    { label: 'Abyss', url: 'https://assets.soundstage.fm/vr/Abyss.mp4' },
-    { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
-    { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
-    { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
-    { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-    { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-    { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
-    { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/Neon.mp4' },
-    { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
-    { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
-    { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-    { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
-    { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
-    { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
-    { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
-    { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-  ]
+  const Videos = [
+    { "label": "Default", "url": "https://assets.soundstage.fm/vr/Default.mp4" },
+    { "label": "Intro", "url": "https://assets.soundstage.fm/vr/Intro.mp4" },
+    { "label": "Abyss", "url": "https://assets.soundstage.fm/vr/Abyss.mp4" },
+    { "label": "Beat Swiper", "url": "https://assets.soundstage.fm/vr/beat-swiper.mp4" },
+    { "label": "Blue Beams", "url": "https://assets.soundstage.fm/vr/Blue-Beams.mp4" },
+    { "label": "Disco", "url": "https://assets.soundstage.fm/vr/Disco-2.mp4" },
+    { "label": "Flamboyant Lines", "url": "https://assets.soundstage.fm/vr/flamboyant-lines.mp4" },
+    { "label": "Loop 1", "url": "https://assets.soundstage.fm/vr/Loop-1.mp4" },
+    { "label": "Megapixel", "url": "https://assets.soundstage.fm/vr/Megapixel.mp4" },
+    { "label": "Purple Tunnel", "url": "https://assets.soundstage.fm/vr/Purple-Tunnel.mp4" },
+    { "label": "Reactor", "url": "https://assets.soundstage.fm/vr/Reactor.mp4" },
+    { "label": "Waves", "url": "https://assets.soundstage.fm/vr/Retro-1.mp4" },
+    { "label": "Retro", "url": "https://assets.soundstage.fm/vr/Retro-2.mp4" },
+    { "label": "Ring Pulse", "url": "https://assets.soundstage.fm/vr/Ring-Pulse.mp4" },
+    { "label": "Split Sphere", "url": "https://assets.soundstage.fm/vr/split-sphere.mp4" },
+    { "label": "Tiler", "url": "https://assets.soundstage.fm/vr/Color-Tiler.mp4" },
+    { "label": "Trails", "url": "https://assets.soundstage.fm/vr/Cube-Trails.mp4" },
+    { "label": "Ultra", "url": "https://assets.soundstage.fm/vr/Ultra.mp4" }
+  ];
 
   export default {
     name: 'App',
@@ -740,13 +740,15 @@
 
       /* Set event configuration */
       await this.initConfig();
-      if(this.eventConfig) {
-        this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
-        if (this.eventConfig.permissions['stage_controls']) {
-          this.showStageControls = true;
-          this.cameraModes.push(['free', 'Free Cam'])
-        }
+      if(!this.eventConfig) {
+        return;
       }
+      this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
+      if (this.eventConfig.permissions['stage_controls']) {
+        this.showStageControls = true;
+        this.cameraModes.push(['free', 'Free Cam'])
+      }
+      this.videos = this.eventConfig.videos;
 
       this.deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'mobile' : 'other'
       if (this.deviceType === 'mobile') {
@@ -757,7 +759,7 @@
         return;
       }
       /* Preload default video only (just so it's ready on scene start) */
-      this.preloadVideos(true)
+      this.preloadVideos(this.eventConfig.videos, true)
 
       /* Retrieve values from local storage */
       if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
@@ -795,6 +797,9 @@
       async initConfig() {
         if(process.env.VUE_APP_DEMO_CONFIG) {
           this.eventConfig = JSON.parse(process.env.VUE_APP_DEMO_CONFIG);
+          if(!this.eventConfig.videos) {
+            this.eventConfig.videos = Videos;
+          }
           return;
         }
         let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
@@ -812,6 +817,9 @@
           let data = await response.json();
           if(data.success) {
             this.eventConfig = data['event_config'];
+            if(!this.eventConfig.videos) {
+              this.eventConfig.videos = Videos;
+            }
           } else {
             this.invalidAccess = true;
           }
@@ -829,7 +837,7 @@
           }
         }
       },
-      preloadVideos: async (loadDefault = false) => {
+      preloadVideos: async (videos, loadDefault = false) => {
 
         function preloadVideo (video) {
           return new Promise((resolve, reject) => {
@@ -854,7 +862,7 @@
           })
         }
 
-        for (let video of Videos) {
+        for (let video of videos) {
           if (loadDefault && video.label !== 'Default') {
             continue
           } else if (!loadDefault && video.label === 'Default') {
@@ -952,7 +960,6 @@
             })
 
             world.initStageControls((config) => {
-              this.videos = config.videos
               this.moodSets = this.world.stageControls.moodSets;
               this.cubeTextures = this.world.stageControls.cubeTextures;
               this.fogSettings = this.world.stageControls.fogSettings;
@@ -961,7 +968,7 @@
             world.connect(
               userName, fps, this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId, () => {
                 /* Preload remaining videos */
-                this.preloadVideos()
+                this.preloadVideos(this.eventConfig.videos)
               })
 
             if(this.debugging) {

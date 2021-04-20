@@ -54,27 +54,8 @@ export class NightClub extends World {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
+    this.videos = eventConfig.videos;
     // FIXME: we have this twice, once here and once more in App.vue
-    this.videos = [
-      { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
-      { label: 'Intro', url: 'https://assets.soundstage.fm/vr/Intro.mp4' },
-      { label: 'Abyss', url: 'https://assets.soundstage.fm/vr/Abyss.mp4' },
-      { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
-      { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
-      { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
-      { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-      { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-      { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
-      { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/Neon.mp4' },
-      { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
-      { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
-      { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-      { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
-      { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
-      { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
-      { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
-      { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-    ]
     document.addEventListener('keydown', this.HDRControl.bind(this));
   }
   // intialization methods override defaults that do nothing
@@ -429,7 +410,7 @@ export class NightClub extends World {
       }
       this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
       this.tableTexture = new BABYLON.VideoTexture("tableTexture", 
-        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url], 
+        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url],
         this.scene, true, true, null, 
         {
         autoUpdateTexture: true,
@@ -463,7 +444,7 @@ export class NightClub extends World {
 
       this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
       this.windowTexture = new BABYLON.VideoTexture("windowTexture", 
-        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url], 
+        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url],
         this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
