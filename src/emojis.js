@@ -145,10 +145,11 @@ export class Emojis {
 
     // of scale
     var animScale = VRSPACEUI.createAnimation(mesh, "scaling", 1);
+    console.log(animScale);
 
     // transparency animation
     var animTran = new BABYLON.AnimationGroup("tranAnim "+mesh.id);
-    var vAnim = new BABYLON.Animation("xAnim "+mesh.id, "visibility", 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var vAnim = new BABYLON.Animation("vAnim "+mesh.id, "visibility", 1, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
     var vKeys = [];
     vKeys.push({frame:0, value: 0.95});
     vKeys.push({frame:1, value: 0});
@@ -158,10 +159,12 @@ export class Emojis {
     // animation chain
     animPos.onAnimationGroupEndObservable.add(() => {
       console.log("Position animation ended, starting transparency animation");
+      console.log(this.scene.animatables);
       animTran.play(false);
     });
     animScale.onAnimationGroupEndObservable.add(() => {
-      //console.log("Scale animation ended");
+      console.log("Scale animation ended");
+      console.log(this.scene.animatables);
     });
     animTran.onAnimationGroupEndObservable.add(() => {
       console.log("Transparency animation ended");
@@ -174,7 +177,7 @@ export class Emojis {
 
     // start animations
     animPos.play(false);
-    VRSPACEUI.updateAnimation(animScale, new BABYLON.Vector3(.2,.2,.2), new BABYLON.Vector3(2.5,2.5,2.5));
+    VRSPACEUI.updateAnimation(animScale, new BABYLON.Vector3(.02,.02,.02), new BABYLON.Vector3(1.2,1.2,1.2));
   }
 }
 
