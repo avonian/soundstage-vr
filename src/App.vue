@@ -156,9 +156,27 @@
                                                 <div class="space-y-4">
                                                     <div class="relative flex items-start">
                                                         <div class="flex items-center h-5">
+                                                            <input id="useComputerSound" name="useComputerSound" type="checkbox"
+                                                                   class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                                   v-model="userSettings.useComputerSound"
+                                                                   @click="requestComputerSound"
+                                                            >
+                                                        </div>
+                                                        <div class="ml-3 text-sm">
+                                                            <label for="useComputerSound" class="font-medium text-white">Share computer sound</label>
+                                                            <p class="text-white">Use this if you are playing music from a DAW or DJ'ing software.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-span-2" v-if="canBroadcast">
+                                                <div class="space-y-4">
+                                                    <div class="relative flex items-start">
+                                                        <div class="flex items-center h-5">
                                                             <input id="enableStereo" name="enableStereo" type="checkbox"
                                                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                                                                   v-model="userSettings.enableStereo">
+                                                                   v-model="userSettings.enableStereo"
+                                                            >
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <label for="enableStereo" class="font-medium text-white">Broadcast
@@ -501,7 +519,7 @@
                                             {{ entered ? 'Device Settings' : 'Before connecting, please select your devices:'}}
                                         </h3>
                                     </div>
-                                    <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4">
+                                    <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4" v-if="userSettings">
                                         <div class="col-span-2">
                                             <label for="audioDevice"
                                                    class="block text-sm font-medium leading-5 text-white">
@@ -629,7 +647,8 @@
     selectedPlaybackDeviceId: null,
     selectedVideoDeviceId: null,
     trackRotation: true,
-    schema: 0.1
+    schema: 0.1,
+    useComputerSound: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -756,6 +775,8 @@
       }
       /* Always start stereo flag false just in case */
       userSettings.enableStereo = false
+      userSettings.useComputerSound = false
+      userSettings.computerAudioStream = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
@@ -999,6 +1020,12 @@
         if (this.cachedUserSettings.selectedVideoDeviceId !== this.userSettings.selectedVideoDeviceId) {
           needsRefresh = true
         }
+        if (this.cachedUserSettings.useComputerSound !== this.userSettings.useComputerSound) {
+          needsAudioRenegotiation = true
+          if(this.userSettings.useComputerSound === false) {
+            this.userSettings.computerAudioStream = false;
+          }
+        }
 
         if (needsRefresh) {
           var confirmed = confirm('To apply these changes we need to restart the application, do you want to continue?')
@@ -1008,8 +1035,8 @@
             window.location.reload()
           }
         } else {
-          /* Always save enableStereo false to localStorage */
-          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false } }))
+          /* Always save enableStereo false and useComputerSound false to localStorage */
+          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false, computerAudioStream: false, useComputerSound: false } }))
           console.log('saved', await localStorage.getItem('userSettings'))
           userSettings = JSON.parse(JSON.stringify(this.userSettings))
           this.cachedUserSettings = JSON.parse(JSON.stringify(this.userSettings))
@@ -1017,7 +1044,7 @@
 
           /* Reconnect to hifi after everythings settled */
           if (needsAudioRenegotiation) {
-            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId)
+            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId)
           }
 
           this.showSettings = false
@@ -1062,7 +1089,7 @@
           this.micEnabled = false
         } else {
           // await world.hifi.setInputAudioMuted(false);
-          world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId)
+          world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream ,this.userSettings.selectedPlaybackDeviceId)
           this.micEnabled = true
         }
       },
@@ -1083,6 +1110,26 @@
         this.userSettings.trackRotation = !this.userSettings.trackRotation
         this.cachedUserSettings = this.userSettings
         world.trackAvatarRotations(this.userSettings.trackRotation)
+      },
+      async requestComputerSound() {
+        if(!document.querySelector('#useComputerSound').checked) {
+          return;
+        }
+        try {
+          this.userSettings.computerAudioStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              sampleRate: 44100
+            }
+          });
+          this.userSettings.useComputerSound = true;
+          this.userSettings.enableStereo = true;
+        } catch (err) {
+          this.userSettings.computerAudioStream = false
+          this.userSettings.useComputerSound = false;
+        }
       },
       pollForDevices: async function () {
           let audioDevices = []
