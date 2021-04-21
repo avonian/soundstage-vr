@@ -1204,7 +1204,7 @@ export class NightClub extends World {
     if(!this.saveInterval) {
       this.saveInterval = setInterval(() => {
         this.saveState()
-      }, 10000);
+      }, 1000);
     }
   }
 
