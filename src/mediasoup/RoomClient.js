@@ -3,9 +3,9 @@ import * as mediasoupClient from "mediasoup-client";
 import Logger from "./Logger";
 import { EventEmitter } from "eventemitter3";
 
-const VIDEO_CONSTRAINS = {
-  qvga: { height: { ideal: 240 } },
-  vga: { height: { ideal: 480 } },
+const VIDEO_CONSTRAINTS = {
+  qvga: { height: { ideal: 240 }, frameRate: { idea: 5, max: 15 } },
+  vga: { height: { ideal: 480 }, frameRate: { idea: 5, max: 15 } },
   hd: { height: { ideal: 720 } },
   uhd: { height: { ideal: 1080 } },
 };
@@ -948,7 +948,7 @@ export default class RoomClient extends EventEmitter {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           deviceId: { ideal: device.deviceId },
-          ...VIDEO_CONSTRAINS[resolution],
+          ...VIDEO_CONSTRAINTS[resolution],
         },
       });
 
@@ -1104,7 +1104,7 @@ export default class RoomClient extends EventEmitter {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           deviceId: { exact: this._webcam.device.deviceId },
-          ...VIDEO_CONSTRAINS[this._webcam.resolution],
+          ...VIDEO_CONSTRAINTS[this._webcam.resolution],
         },
       });
 

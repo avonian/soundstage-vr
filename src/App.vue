@@ -156,9 +156,27 @@
                                                 <div class="space-y-4">
                                                     <div class="relative flex items-start">
                                                         <div class="flex items-center h-5">
+                                                            <input id="useComputerSound" name="useComputerSound" type="checkbox"
+                                                                   class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                                   v-model="userSettings.useComputerSound"
+                                                                   @click="requestComputerSound"
+                                                            >
+                                                        </div>
+                                                        <div class="ml-3 text-sm">
+                                                            <label for="useComputerSound" class="font-medium text-white">Share computer sound</label>
+                                                            <p class="text-white">Use this if you are playing music from a DAW or DJ'ing software.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-span-2" v-if="canBroadcast">
+                                                <div class="space-y-4">
+                                                    <div class="relative flex items-start">
+                                                        <div class="flex items-center h-5">
                                                             <input id="enableStereo" name="enableStereo" type="checkbox"
                                                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                                                                   v-model="userSettings.enableStereo">
+                                                                   v-model="userSettings.enableStereo"
+                                                            >
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <label for="enableStereo" class="font-medium text-white">Broadcast
@@ -381,12 +399,98 @@
                                     <td id="info-total-textures"></td>
                                 </tr>
                                 <tr>
+                                    <td class="font-medium pr-2">Total Video Textures</td>
+                                    <td id="info-total-videotextures"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Animations</td>
+                                    <td id="info-total-animations"></td>
+                                </tr>
+                                <tr>
                                     <td class="font-medium pr-2">Draw Calls</td>
                                     <td id="info-draw-calls"></td>
                                 </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Scene Frame Time</td>
+                                    <td id="info-frame-time"></td>
+                                    <td id="info-frame-time-max"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Delta Time</td>
+                                    <td id="info-frame-delta-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Active Meshes Eval Time</td>
+                                    <td id="info-eval-time"></td>
+                                    <td id="info-eval-time-max"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Particles Render Time</td>
+                                    <td id="info-particles-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Inter Frame Time</td>
+                                    <td id="info-inter-frame"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">GPU Frame Time</td>
+                                    <td id="info-gpuframe-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Shader Compilation Time</td>
+                                    <td id="info-shader-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Total Compiled Shaders</td>
+                                    <td id="info-compiled-shaders"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Frame Render Time</td>
+                                    <td id="info-render-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Camera Render Time</td>
+                                    <td id="info-camera-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">RenderTargets Time</td>
+                                    <td id="info-targets-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">FPS </td>
+                                    <td id="info-fps-time"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Dummies</td>
+                                    <td>
+                                        <select class="text-black bg-white" v-model="dummyCount" @click="createDummies">
+                                            <option>0</option>
+                                            <option>5</option>
+                                            <option>10</option>
+                                            <option>15</option>
+                                            <option>20</option>
+                                            <option>25</option>
+                                            <option>30</option>
+                                            <option>35</option>
+                                            <option>40</option>
+                                        </select>
+                                        <select class="text-black bg-white ml-2" v-model="dummyQuality" @click="createDummies($event)">
+                                            <option value="qvga-15">QVGA 15 FPS (320)</option>
+                                            <option value="vga-15">VGA 15 FPS (480)</option>
+                                            <option value="hd-15">HD 15 FPS (720)</option>
+                                            <option value="hd-30">HD 30 FPS (720)</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr v-if="showCameraPosition">
+                                    <td class="font-medium pr-2">Camera Position</td>
+                                    <td id="info-camera-position"><input type="text" class="cursor-pointer text-black" @click="copyMe($event)"></td>
+                                </tr>
+                                <tr v-else>
+                                    <td class="font-medium pr-2" colspan="2"><button class="bg-gray-500 cursor-pointer rounded-md px-2 py-1 mt-1" @click="showCameraPosition = true">Show camera position</button></td>
+                                </tr>
                             </table>
                         </div>
-
                     </div>
 
                     <div class="flex items-stretch justify-end pb-12 absolute right-12 bottom-0">
@@ -505,7 +609,7 @@
                                             {{ entered ? 'Device Settings' : 'Before connecting, please select your devices:'}}
                                         </h3>
                                     </div>
-                                    <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4">
+                                    <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4" v-if="userSettings">
                                         <div class="col-span-2">
                                             <label for="audioDevice"
                                                    class="block text-sm font-medium leading-5 text-white">
@@ -633,31 +737,32 @@
     selectedPlaybackDeviceId: null,
     selectedVideoDeviceId: null,
     trackRotation: true,
-    schema: 0.1
+    schema: 0.1,
+    useComputerSound: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
 
-  let Videos = [
-    { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
-    { label: 'Intro', url: 'https://assets.soundstage.fm/vr/Intro.mp4' },
-    { label: 'Abyss', url: 'https://assets.soundstage.fm/vr/Abyss.mp4' },
-    { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
-    { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
-    { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
-    { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-    { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-    { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
-    { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/Neon.mp4' },
-    { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
-    { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
-    { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-    { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
-    { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
-    { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
-    { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
-    { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-  ]
+  const Videos = [
+    { "label": "Default", "url": "https://assets.soundstage.fm/vr/Default.mp4" },
+    { "label": "Intro", "url": "https://assets.soundstage.fm/vr/Intro.mp4" },
+    { "label": "Abyss", "url": "https://assets.soundstage.fm/vr/Abyss.mp4" },
+    { "label": "Beat Swiper", "url": "https://assets.soundstage.fm/vr/beat-swiper.mp4" },
+    { "label": "Blue Beams", "url": "https://assets.soundstage.fm/vr/Blue-Beams.mp4" },
+    { "label": "Disco", "url": "https://assets.soundstage.fm/vr/Disco-2.mp4" },
+    { "label": "Flamboyant Lines", "url": "https://assets.soundstage.fm/vr/flamboyant-lines.mp4" },
+    { "label": "Loop 1", "url": "https://assets.soundstage.fm/vr/Loop-1.mp4" },
+    { "label": "Megapixel", "url": "https://assets.soundstage.fm/vr/Megapixel.mp4" },
+    { "label": "Purple Tunnel", "url": "https://assets.soundstage.fm/vr/Purple-Tunnel.mp4" },
+    { "label": "Reactor", "url": "https://assets.soundstage.fm/vr/Reactor.mp4" },
+    { "label": "Waves", "url": "https://assets.soundstage.fm/vr/Retro-1.mp4" },
+    { "label": "Retro", "url": "https://assets.soundstage.fm/vr/Retro-2.mp4" },
+    { "label": "Ring Pulse", "url": "https://assets.soundstage.fm/vr/Ring-Pulse.mp4" },
+    { "label": "Split Sphere", "url": "https://assets.soundstage.fm/vr/split-sphere.mp4" },
+    { "label": "Tiler", "url": "https://assets.soundstage.fm/vr/Color-Tiler.mp4" },
+    { "label": "Trails", "url": "https://assets.soundstage.fm/vr/Cube-Trails.mp4" },
+    { "label": "Ultra", "url": "https://assets.soundstage.fm/vr/Ultra.mp4" }
+  ];
 
   export default {
     name: 'App',
@@ -703,7 +808,10 @@
         showingVideos: false,
         cubeTextures: [],
         moodSets: [],
-        fogSettings: []
+        fogSettings: [],
+        showCameraPosition: false,
+        dummyCount: 0,
+        dummyQuality: 'hd-30'
       }
     },
     computed: {
@@ -718,20 +826,22 @@
     mounted: async function () {
 
       /* Check browser */
-      if(browser().name !== 'chrome') {
-        this.browserSupported = false;
-        return;
-      }
+      //if(browser().name !== 'chrome') {
+        //this.browserSupported = false;
+        //return;
+      //}
 
       /* Set event configuration */
       await this.initConfig();
-      if(this.eventConfig) {
-        this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
-        if (this.eventConfig.permissions['stage_controls']) {
-          this.showStageControls = true;
-          this.cameraModes.push(['free', 'Free Cam'])
-        }
+      if(!this.eventConfig) {
+        return;
       }
+      this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
+      if (this.eventConfig.permissions['stage_controls']) {
+        this.showStageControls = true;
+        this.cameraModes.push(['free', 'Free Cam'])
+      }
+      this.videos = this.eventConfig.videos;
 
       this.deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'mobile' : 'other'
       if (this.deviceType === 'mobile') {
@@ -742,7 +852,7 @@
         return;
       }
       /* Preload default video only (just so it's ready on scene start) */
-      this.preloadVideos(true)
+      this.preloadVideos(this.eventConfig.videos, true)
 
       /* Retrieve values from local storage */
       if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
@@ -760,6 +870,8 @@
       }
       /* Always start stereo flag false just in case */
       userSettings.enableStereo = false
+      userSettings.useComputerSound = false
+      userSettings.computerAudioStream = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
@@ -778,6 +890,9 @@
       async initConfig() {
         if(process.env.VUE_APP_DEMO_CONFIG) {
           this.eventConfig = JSON.parse(process.env.VUE_APP_DEMO_CONFIG);
+          if(!this.eventConfig.videos) {
+            this.eventConfig.videos = Videos;
+          }
           return;
         }
         let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
@@ -795,6 +910,9 @@
           let data = await response.json();
           if(data.success) {
             this.eventConfig = data['event_config'];
+            if(!this.eventConfig.videos) {
+              this.eventConfig.videos = Videos;
+            }
           } else {
             this.invalidAccess = true;
           }
@@ -812,7 +930,7 @@
           }
         }
       },
-      preloadVideos: async (loadDefault = false) => {
+      preloadVideos: async (videos, loadDefault = false) => {
 
         function preloadVideo (video) {
           return new Promise((resolve, reject) => {
@@ -837,7 +955,7 @@
           })
         }
 
-        for (let video of Videos) {
+        for (let video of videos) {
           if (loadDefault && video.label !== 'Default') {
             continue
           } else if (!loadDefault && video.label === 'Default') {
@@ -935,27 +1053,24 @@
             })
 
             world.initStageControls((config) => {
-              this.videos = config.videos
               this.moodSets = this.world.stageControls.moodSets;
               this.cubeTextures = this.world.stageControls.cubeTextures;
               this.fogSettings = this.world.stageControls.fogSettings;
 
-              if(this.eventConfig['world_state']) {
-                world.loadState(this.eventConfig['world_state']);
-              }
               if(this.eventConfig['permissions']['stage_controls']) {
-                this.world.stageControls.startSaving();
+                this.world.startSavingState();
               }
             })
 
             world.connect(
               userName, fps, this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId, () => {
                 /* Preload remaining videos */
-                this.preloadVideos()
+                this.preloadVideos(this.eventConfig.videos)
               })
 
             if(this.debugging) {
               this.initInstrumentation();
+              document.addEventListener('keydown', this.world.HDRControl.bind(world));
             }
 
           }).then((s) => {
@@ -1010,6 +1125,12 @@
         if (this.cachedUserSettings.selectedVideoDeviceId !== this.userSettings.selectedVideoDeviceId) {
           needsRefresh = true
         }
+        if (this.cachedUserSettings.useComputerSound !== this.userSettings.useComputerSound) {
+          needsAudioRenegotiation = true
+          if(this.userSettings.useComputerSound === false) {
+            this.userSettings.computerAudioStream = false;
+          }
+        }
 
         if (needsRefresh) {
           var confirmed = confirm('To apply these changes we need to restart the application, do you want to continue?')
@@ -1019,8 +1140,8 @@
             window.location.reload()
           }
         } else {
-          /* Always save enableStereo false to localStorage */
-          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false } }))
+          /* Always save enableStereo false and useComputerSound false to localStorage */
+          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false, computerAudioStream: false, useComputerSound: false } }))
           console.log('saved', await localStorage.getItem('userSettings'))
           userSettings = JSON.parse(JSON.stringify(this.userSettings))
           this.cachedUserSettings = JSON.parse(JSON.stringify(this.userSettings))
@@ -1028,7 +1149,7 @@
 
           /* Reconnect to hifi after everythings settled */
           if (needsAudioRenegotiation) {
-            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId)
+            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId)
           }
 
           this.showSettings = false
@@ -1073,7 +1194,7 @@
           this.micEnabled = false
         } else {
           // await world.hifi.setInputAudioMuted(false);
-          world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId)
+          world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream ,this.userSettings.selectedPlaybackDeviceId)
           this.micEnabled = true
         }
       },
@@ -1094,6 +1215,26 @@
         this.userSettings.trackRotation = !this.userSettings.trackRotation
         this.cachedUserSettings = this.userSettings
         world.trackAvatarRotations(this.userSettings.trackRotation)
+      },
+      async requestComputerSound() {
+        if(!document.querySelector('#useComputerSound').checked) {
+          return;
+        }
+        try {
+          this.userSettings.computerAudioStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              sampleRate: 44100
+            }
+          });
+          this.userSettings.useComputerSound = true;
+          this.userSettings.enableStereo = true;
+        } catch (err) {
+          this.userSettings.computerAudioStream = false
+          this.userSettings.useComputerSound = false;
+        }
       },
       pollForDevices: async function () {
           let audioDevices = []
@@ -1209,21 +1350,72 @@
         let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
         world.stageControls.executeAndSend(stageEvent);
       },
+      createDummies(event) {
+        world.createDummies(this.dummyCount, this.dummyQuality)
+      },
+      copyMe(event) {
+        event.target.select();
+        document.execCommand("copy")
+      },
       initInstrumentation () {
-          // Instrumentation tool
+        // Instrumentation debugging tool
+        let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
+        sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
+        sceneInstrumentation.captureFrameTime = true;
+        sceneInstrumentation.captureParticlesRenderTime = true;
+        sceneInstrumentation.captureRenderTime = true;
+        sceneInstrumentation.captureCameraRenderTime = true;
+        sceneInstrumentation.captureRenderTargetsRenderTime = true;
+        sceneInstrumentation.captureInterFrameTime = true;
+        let engineInstrumentation = new BABYLON.EngineInstrumentation(engine);
+        engineInstrumentation.captureGPUFrameTime = true;
+        engineInstrumentation.captureShaderCompilationTime = true;
+        function videoTextureCount() {
+          let videoTextureCounter = 0;
+          for (let i = 0; i < scene.textures.length; i++) {
+            if (scene.textures[i].video) {
+              videoTextureCounter++;
+            }
+          }
+          return videoTextureCounter;
+        }
+        function checkDeltaTime() {
+          if (scene.deltaTime) {
+            return scene.deltaTime.toFixed();
+          }
+        }
+        scene.registerAfterRender(() => {
           document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
           document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
           document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
-          let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
-          sceneInstrumentation.captureActiveMeshesEvaluationTime = true;
-          sceneInstrumentation.captureFrameTime = true;
-          sceneInstrumentation.captureParticlesRenderTime = true;
-          console.log('Draw Calls: ' + sceneInstrumentation.drawCallsCounter.current);
-
-          scene.registerAfterRender(function () {
-            document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
-            // there will be much more more parameters
-          });
+          document.querySelector('#info-total-videotextures').innerHTML = videoTextureCount().toString();
+          document.querySelector('#info-total-animations').innerHTML = scene.animatables.length;
+          document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
+          document.querySelector('#info-frame-time').innerHTML = sceneInstrumentation.frameTimeCounter.current.toFixed();
+          document.querySelector('#info-frame-time-max').innerHTML = sceneInstrumentation.frameTimeCounter.lastSecAverage.toFixed(2);
+          document.querySelector('#info-frame-delta-time').innerHTML = checkDeltaTime();
+          document.querySelector('#info-eval-time').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.current.toFixed();
+          document.querySelector('#info-eval-time-max').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.lastSecAverage.toFixed(2);
+          document.querySelector('#info-particles-time').innerHTML = sceneInstrumentation.particlesRenderTimeCounter.current.toFixed(2);
+          document.querySelector('#info-inter-frame').innerHTML = sceneInstrumentation.interFrameTimeCounter.lastSecAverage.toFixed();
+          document.querySelector('#info-gpuframe-time').innerHTML = (engineInstrumentation.gpuFrameTimeCounter.average * 0.000001).toFixed(2);
+          document.querySelector('#info-shader-time').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.current.toFixed(2);
+          document.querySelector('#info-compiled-shaders').innerHTML = engineInstrumentation.shaderCompilationTimeCounter.count;
+          document.querySelector('#info-render-time').innerHTML = sceneInstrumentation.renderTimeCounter.current.toFixed();
+          document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed();
+          document.querySelector('#info-targets-time').innerHTML = sceneInstrumentation.renderTargetsRenderTimeCounter.current.toFixed();
+          document.querySelector('#info-fps-time').innerHTML = engine.getFps().toFixed() + " fps";
+          if(this.showCameraPosition) {
+            let cameraVars = {
+              '1p': 'camera1',
+              '3p':  'camera3',
+              'free': 'cameraFree'
+            }
+            var camPosition = world[cameraVars[world.activeCameraType]].position;
+            delete camPosition._isDirty;
+            document.querySelector('#info-camera-position input').value = JSON.stringify(camPosition);
+          }
+        });
       }
     }
   }

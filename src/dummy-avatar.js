@@ -1,6 +1,6 @@
 import { VideoAvatar } from './vrspace-babylon.js';
 
-export class HoloAvatar extends VideoAvatar {
+export class DummyAvatar extends VideoAvatar {
   show() {
     super.show();
     this.mesh.ellipsoid = new BABYLON.Vector3(this.radius, this.radius+this.avatarHeight, this.radius);
@@ -24,11 +24,19 @@ export class HoloAvatar extends VideoAvatar {
     this.startParticles(this.altText);
   }
 
-  displayStream(mediaStream) {
-    super.displayStream(mediaStream);
-    if ( this.streamCallback ) {
-      this.streamCallback(this);
+  async displayVideo() {
+    let avatarTexture = new BABYLON.VideoTexture(this.mesh.id + "-VideoTexture", this.videoUrl,
+      this.scene, true, true, null,
+      {
+        autoUpdateTexture: true,
+        autoPlay: true,
+        muted: true,
+        loop: true
+      });
+    if ( this.mesh.material.diffuseTexture ) {
+      this.mesh.material.diffuseTexture.dispose();
     }
+    this.mesh.material.diffuseTexture = avatarTexture;
   }
   
   applyRotation(enable) {
@@ -94,4 +102,4 @@ export class HoloAvatar extends VideoAvatar {
   }
 }
 
-export default HoloAvatar;
+export default DummyAvatar;

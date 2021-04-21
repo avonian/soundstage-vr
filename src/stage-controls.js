@@ -1,5 +1,5 @@
 export class StageControls {
-  constructor (displays, position, callback, userSettings, world) {
+  constructor (displays, callback, userSettings, world) {
     this.displays = displays;
     this.callback = callback;
     this.videos = world.videos;
@@ -91,7 +91,7 @@ export class StageControls {
   }
   executeAndSend(event) {
     this.execute(event);
-    this.world.worldManager.VRSPACE.sendMy('properties', {stageEvent: event});
+    this.world.worldManager.VRSPACE.sendMy('stageEvent', event);
   }
   changeCubeTexture(cubeTexture) {
     let hdrTexture = new BABYLON.CubeTexture(this.cubeTextures[cubeTexture].url, this.world.scene);
@@ -218,14 +218,19 @@ export class StageControls {
   }
   play( videoIndex ) {
     let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
+    this.world.properties.WindowVideo = videoIndex;
     this.executeAndSend(playTableEvent);
 
     let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
+    this.world.properties.DJTableVideo = videoIndex;
     this.executeAndSend(playWindowEvent);
+    this.world.shareProperties();
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
+    this.world.properties.castUser = userId;
     this.executeAndSend(castUserEvent);
+    this.world.shareProperties();
   }
   fetchPeerVideoElement(peerid) {
     let videos = document.querySelectorAll('video')
@@ -235,13 +240,6 @@ export class StageControls {
       }
     }
     return false;
-  }
-  startSaving() {
-    if(!this.saveInterval) {
-      this.saveInterval = setInterval(() => {
-        this.world.saveState()
-      }, 10000);
-    }
   }
   async execute( event ) {
     let resumeUserPlayback = false;
@@ -286,7 +284,19 @@ export class StageControls {
       let video = this.fetchPeerVideoElement(resumeUserPlayback);
       if(video) {
         video.play();
+      } else {
+        console.log("WARNING - can't stream video of "+userId);
       }
+    }
+  }
+  playUserVideo(userId, target) {
+    let video = this.fetchPeerVideoElement(userId);
+    if(video) {
+      this.world.initializeDisplays(video, [target]);
+      this.userBeingCasted = userId;
+      console.log("streaming video of "+userId);
+    } else {
+      console.log("WARNING - can't stream video of "+userId);
     }
   }
 }

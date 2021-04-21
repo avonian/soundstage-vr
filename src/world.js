@@ -1,8 +1,9 @@
-import { World, WorldManager, VRSPACEUI } from './babylon/vrspace-ui.js';
+import { World, WorldManager, VRSPACEUI, VRObject, VRSPACE } from './vrspace-babylon.js';
 import CinemaCamera from './cinema-camera';
 import StageControls from './stage-controls';
 import Emojis from './emojis';
 import MediaSoup from './media-streams';
+import DummyAvatar from './dummy-avatar';
 import HoloAvatar from './holo-avatar';
 import Movement from './movement';
 
@@ -39,6 +40,14 @@ export class NightClub extends World {
     // position of video preview in FPS mode
     // null defaults relative to eyes, 30cm front, 5cm below
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
+    // shared world properties
+    this.properties = {
+      WindowVideo:0, 
+      DJTableVideo:0, 
+      castUser:null,
+      castTarget:'WindowVideo'
+    };
+    this.worldState = null;
     // things to dispose of
     this.tableMaterial = null;
     this.tableTexture = null;
@@ -46,27 +55,8 @@ export class NightClub extends World {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
-    this.videos = [
-      { label: 'Default', url: 'https://assets.soundstage.fm/vr/Default.mp4' },
-      { label: 'Intro', url: 'https://assets.soundstage.fm/vr/Intro.mp4' },
-      { label: 'Abyss', url: 'https://assets.soundstage.fm/vr/Abyss.mp4' },
-      { label: 'Beat Swiper', url: 'https://assets.soundstage.fm/vr/beat-swiper.mp4' },
-      { label: 'Disco 1', url: 'https://assets.soundstage.fm/vr/Disco-1.mp4' },
-      { label: 'Disco 2', url: 'https://assets.soundstage.fm/vr/Disco-2.mp4' },
-      { label: 'Flamboyant Lines', url: 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4' },
-      { label: 'Loop 1', url: 'https://assets.soundstage.fm/vr/Loop-1.mp4' },
-      { label: 'Megapixel', url: 'https://assets.soundstage.fm/vr/Megapixel.mp4' },
-      { label: 'Neon Beams', url: 'https://assets.soundstage.fm/vr/Neon.mp4' },
-      { label: 'Reactor', url: 'https://assets.soundstage.fm/vr/Reactor.mp4' },
-      { label: 'Waves', url: 'https://assets.soundstage.fm/vr/Retro-1.mp4' },
-      { label: 'Retro', url: 'https://assets.soundstage.fm/vr/Retro-2.mp4' },
-      { label: 'Ring Pulse', url: 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4' },
-      { label: 'Split Sphere', url: 'https://assets.soundstage.fm/vr/split-sphere.mp4' },
-      { label: 'Tiler', url: 'https://assets.soundstage.fm/vr/Color-Tiler.mp4' },
-      { label: 'Trails', url: 'https://assets.soundstage.fm/vr/Cube-Trails.mp4' },
-      { label: 'Ultra', url: 'https://assets.soundstage.fm/vr/Ultra.mp4' },
-    ]
-    document.addEventListener('keydown', this.HDRControl.bind(this));
+    this.videos = eventConfig.videos;
+    this.dummies = [];
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -362,10 +352,9 @@ export class NightClub extends World {
     // screen is Cube.024_20 TransformNode, node43 mesh
     // its material is Material.001 - can be replaced with video texture
 
-    /* Initialize video (only if there is no world state to avoid video race condition) */
-    if(!this.eventConfig['world_state']) {
-      this.initializeDisplays();
-    }
+    /* Initialize video loop on DJ table */
+    // this is async now as shared state loads
+    //this.initializeDisplays();
 
     this.movement.start();
     this.scene.registerBeforeRender(() => this.spatializeAudio());
@@ -383,6 +372,7 @@ export class NightClub extends World {
     if ( this.afterLoad ) {
       this.afterLoad();
     }
+    
   }
 
 
@@ -420,7 +410,10 @@ export class NightClub extends World {
         this.tableTexture.dispose();
       }
       this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
+      this.tableTexture = new BABYLON.VideoTexture("tableTexture", 
+        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url],
+        this.scene, true, true, null, 
+        {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -451,7 +444,9 @@ export class NightClub extends World {
       }
 
       this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture", videoSource ? videoSource : [this.videos[0].url], this.scene, true, true, null, {
+      this.windowTexture = new BABYLON.VideoTexture("windowTexture", 
+        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url],
+        this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
@@ -557,7 +552,7 @@ export class NightClub extends World {
       this.video.displayAlt();
     }
 
-    this.connectHiFi(audioDeviceId, playbackDeviceId);
+    this.connectHiFi(audioDeviceId, false, playbackDeviceId);
 
     this.worldManager = new WorldManager(this, fps);
     this.worldManager.customOptions = {
@@ -568,11 +563,7 @@ export class NightClub extends World {
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
-        // THIS IS EVENT LISTENER FOR WORLD EVENTS
-        console.log("Properties:", obj);
-        if ( obj.properties.stageEvent ) {
-          this.stageControls.execute(obj.properties.stageEvent);
-        }
+        console.log("Properties:", obj.properties);
       }
     };
     this.worldManager.avatarFactory = (obj) => this.createAvatar(obj);
@@ -604,17 +595,23 @@ export class NightClub extends World {
           this.video.displayAlt();
         }
       }
+      
       // set own properties
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        this.worldManager.VRSPACE.sendMy("properties", {altImage: this.video.altImage});
+        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage});
       }
       this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
       this.worldManager.VRSPACE.sendCommand("Enter", {world: this.eventConfig.event_slug});
       // start session
       this.worldManager.VRSPACE.sendCommand("Session");
+
+      // SHARED STATE MANGLING
+      // custom scene listener, listening for shared state object
+      VRSPACE.addSceneListener((e) => this.findSharedState(e));
+      
       // add chatroom id to the client, and start streaming
       welcome.client.token = this.eventConfig.event_slug;
       this.worldManager.pubSub(welcome.client);
@@ -627,20 +624,66 @@ export class NightClub extends World {
     this.worldManager.VRSPACE.addWelcomeListener(enter);
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
+  
+  findSharedState(e) {
+    if ( e.added && e.added.properties && e.added.properties.name == 'worldState') {
+      this.worldState = e.added;
+      console.log('Shared world properties:', e.added.properties);
+      this.properties = e.added.properties;
+      this.initializeDisplays();
+      this.applyState();
+      // CHECKME add listener here to track changes to state
+    }
+  }
+  // create shared state object if not exists
+  async createSharedState() {
+    var o = {
+        //permanent:true,
+        properties: {
+          name:'worldState',
+          WindowVideo:0, 
+          DJTableVideo:0, 
+          castUser:null,
+          castTarget:'WindowVideo',
+          activeMood: this.stageControls.activeMood,
+          fogColor: this.scene.fogColor,
+          fogDensity: this.scene.fogDensity,
+          environmentIntensity: this.scene.environmentIntensity,
+          environmentTexture: this.stageControls.activeCubeTexture,
+          pedestalColor: this.stageControls.pedestal.material.emissiveColor
+        }
+    };
+    return new Promise((resolve,reject) => {
+      VRSPACE.createSharedObject(o, (obj)=>{
+        console.log("Created shared object", obj);
+        this.worldState = obj;
+        resolve(obj);
+      });
+    });
+  }
+  
+  async shareProperties() {
+    if ( ! this.worldState ) {
+      await this.createSharedState();
+      // CHECKME: do it here?
+      //this.startSavingState();
+    }
+    this.worldState.properties = this.properties;
+    this.worldState.publish();
+  }
 
   createAvatar(obj) {
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
     // obj is the client object sent by the server
     if ( obj.properties ) {
-      // THIS TRIGGERS WHEN USERS LOG IN
+      // apply avatar alt image
       if ( obj.properties.altImage ) {
         avatar.altImage = obj.properties.altImage;
       }
-      // TODO this can process only one stage event
-      // keep track of multiple states with multiple properties
-      // at this point stage controls are not initialized yet
-      if ( this.stageControls && obj.properties.stageEvent ) {
-        // this.stageControls.execute(obj.properties.stageEvent);
+    }
+    if ( this.properties.castUser && this.properties.castTarget ) {
+      avatar.streamCallback = () => {
+        this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
       }
     }
     return avatar;
@@ -674,7 +717,7 @@ export class NightClub extends World {
 
   initStageControls( callback ) {
     // stage controls
-    this.stageControls = new StageControls(this.displays, this.camera1.position, callback, this.userSettings, this );
+    this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
     this.stageControls.init();
   }
 
@@ -688,14 +731,14 @@ export class NightClub extends World {
     obj.emojis.execute(obj.emojiEvent.emoji);
   }
 
-  async getAudioStreamSettings(audioDeviceId) {
+  async getAudioStreamSettings(audioDeviceId, computerAudioStream) {
     window.audioStream = null;
-    window.performanceAudioSourceNode = null;
-    window.performancceAudioGainNode = null;
+    window.primaryAudioSourceNode = null;
+    window.audioGainNode = null;
     let stereo;
     let audioConstraints;
 
-    if(this.userSettings && this.userSettings.enableStereo) {
+    if(this.userSettings && (this.userSettings.enableStereo || computerAudioStream)) {
 
       window.audioContext = new AudioContext({
         sampleRate: 48000
@@ -703,7 +746,8 @@ export class NightClub extends World {
 
       let audioStreamDestination = await window.audioContext.createMediaStreamDestination();
 
-      window.performanceAudioSourceNode = window.audioContext.createMediaStreamSource(
+      /* Primary audio source */
+      window.primaryAudioSourceNode = window.audioContext.createMediaStreamSource(
         await navigator.mediaDevices.getUserMedia({
           audio: {
             deviceId: audioDeviceId,
@@ -718,14 +762,19 @@ export class NightClub extends World {
       );
 
       /* Gain node */
-      window.performanceAudioGainNode = window.audioContext.createGain();
-      window.performanceAudioSourceNode.connect(window.performanceAudioGainNode);
+      window.audioGainNode = window.audioContext.createGain();
+      window.primaryAudioSourceNode.connect(window.audioGainNode);
+      if(computerAudioStream) {
+        /* Computer audio source */
+        window.computerAudioSourceNode = window.audioContext.createMediaStreamSource(computerAudioStream);
+        window.computerAudioSourceNode.connect(window.audioGainNode);
+      }
 
       /* Connect to destination */
-      window.performanceAudioGainNode.connect(audioStreamDestination);
+      window.audioGainNode.connect(audioStreamDestination);
 
       /* Apply custom value */
-      window.performanceAudioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
+      window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
 
       window.audioStream = audioStreamDestination.stream;
 
@@ -743,7 +792,8 @@ export class NightClub extends World {
     return { audioStream: window.audioStream, stereo }
   }
 
-  async connectHiFi(audioDeviceId, playbackDeviceId) {
+  async connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId) {
+
     var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
@@ -752,7 +802,7 @@ export class NightClub extends World {
           console.log("HiFi state", state);
           if ( "Disconnected" === state && !interval) {
             console.log("Reconnecting to audio server");
-            interval = setInterval(() => this.connectHiFi(audioDeviceId, playbackDeviceId), 5000);
+            interval = setInterval(() => this.connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId), 5000);
           } else if ("Connected" === state && interval) {
             clearInterval(interval);
             interval = null;
@@ -761,7 +811,7 @@ export class NightClub extends World {
       });
     }
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
-      let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId);
+      let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
       console.log('stereo?', stereo);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
     }
@@ -849,50 +899,86 @@ export class NightClub extends World {
     return radians * 180/Math.PI;
   }
 
+  createDummies(dummiesToCreate, resolution) {
+    this.dummies.forEach((d) => {
+      d.dispose();
+    });
+    this.dummies = [];
+    for(var i = 0; i < dummiesToCreate; i ++) {
+      this.dummies.push(this.createDummy(i, resolution));
+    }
+  }
+
+  createDummy(number, quality ) {
+    let positions = [
+      {"_x":5.431473387209395,"_y":0.5020392882823944,"_z":-5.379895471447654},
+      {"_x":3.3235838153452697,"_y":0.5020392882823944,"_z":-3.830576919646698},
+      {"_x":1.2595007160994276,"_y":0.5020392882823944,"_z":-5.1334413361500255},
+      {"_x":-1.5881198566465093,"_y":0.6329896050691606,"_z":-1.2021913729740887},
+      {"_x":5.162093555837903,"_y":0.5020392882823944,"_z":-0.42446105020153335},
+      {"_x":5.051873055058412,"_y":0.6329896050691605,"_z":2.042682870518125},
+      {"_x":3.352004892532538,"_y":1.3393885695204033,"_z":3.8801678358589085},
+      {"_x":1.393176067234968,"_y":1.2254167024833897,"_z":3.9309678017287584},
+      {"_x":-2.191082690269314,"_y":0.7770091640949249,"_z":1.3946084986112277},
+      {"_x":-4.270700864586993,"_y":0.5020392882823944,"_z":-1.713672772760245},
+      {"_x":0.8964818847758403,"_y":3.3229227411746978,"_z":-4.298324330174525},
+      {"_x":3.470550831206224,"_y":3.3229227411746978,"_z":-4.164816288998033},
+      {"_x":5.89041647722795,"_y":2.995744887228546,"_z":-2.3368800041086937},
+      {"_x":4.0819664037074395,"_y":2.1217238056659697,"_z":5.140607416945104},
+      {"_x":2.235303563470356,"_y":3.1557497284075087,"_z":3.4052582763762054},
+      {"_x":1.3711427861898955,"_y":3.546687897946941,"_z":0.7876047108635504},
+      {"_x":-0.20218481979116307,"_y":1.4116190421581267,"_z":-6.227786819017921},
+      {"_x":0.828867822310814,"_y":1.2243401493132113,"_z":-5.5320242087012526},
+      {"_x":2.6232275099385274,"_y":0.5020392882823944,"_z":-4.914173842288647},
+      {"_x":8.109559771755414,"_y":1.4930522810631008,"_z":-1.4371147204249968},
+      {"_x":2.4168876186861725,"_y":1.9688320344361705,"_z":-0.46268751358159976},
+      {"_x":-0.05159295557449093,"_y":3.615399218240563,"_z":0.03285726818975975},
+      {"_x":1.7835875133065917,"_y":1.0714961487054824,"_z":4.369689563862487},
+      {"_x":0.6480836065478226,"_y":2.568219899790182,"_z":-0.1699217262229682},
+      {"_x":4.231955974264574,"_y":0.5020392882823944,"_z":0.017005001353289036},
+      {"_x":-1.7194037453857578,"_y":0.7770091640949249,"_z":-0.8632915693674342},
+      {"_x":-0.19120177742184197,"_y":4.10115071860869,"_z":5.439225920669849},
+      {"_x":8.080251695952205,"_y":1.0645160429861407,"_z":-2.27031636858793},
+      {"_x":8.472989485689123,"_y":3.0106141912937163,"_z":1.7547324889436016},
+      {"_x":2.88880261095007,"_y":5.0753859922002595,"_z":-1.2068022883260847},
+      {"_x":1.0582747485632122,"_y":0.5020392882823944,"_z":1.3245961054324362},
+      {"_x":-4.1997014394575585,"_y":1.2257839815025804,"_z":2.8141881968840297},
+      {"_x":-3.9589822131325,"_y":1.0917528617382048,"_z":4.741924775033939},
+      {"_x":-1.810621042022851,"_y":1.1634340929985045,"_z":3.3114265029519605},
+      {"_x":5.921978747490941,"_y":1.1580462724115423,"_z":4.943747938548314},
+      {"_x":6.955342512004644,"_y":1.2743175971508025,"_z":4.410383852153069},
+      {"_x":8.674166301124101,"_y":1.0891495692729949,"_z":5.120037739257379},
+      {"_x":4.7412671753889635,"_y":3.848582282584671,"_z":-0.5359687160095843},
+      {"_x":-1.7933221692824717,"_y":3.4265336360469827,"_z":-1.7183760046815826},
+      {"_x":-0.9318402267356171,"_y":1.557477130473056,"_z":-2.8948274460088275},
+      {"_x":-0.1892548597299717,"_y":2.1217238056659697,"_z":5.185895405028419}
+    ]
+
+    let videos = {
+      'qvga-15': ['https://assets.soundstage.fm/vr/Ara-QVGA-15FPS.mp4'],
+      'vga-15': ['https://assets.soundstage.fm/vr/Ara-VGA-15FPS.mp4','https://assets.soundstage.fm/vr/Purple-Tunnel-VGA-15FPS.mp4',],
+      'hd-15': ['https://assets.soundstage.fm/vr/Ara-HD-15FPS.mp4'],
+      'hd-30': ['https://assets.soundstage.fm/vr/Ara-HD-30FPS.mp4']
+    }
+    let randomVideoIndex = Math.floor(Math.random() * (videos[quality].length)) + 0;
+    let randomVideo = videos[quality][randomVideoIndex];
+
+    let video = new DummyAvatar( this.worldManager.scene, null, { ...this.worldManager.customOptions, ...{ videoUrl: randomVideo } } );
+    video.show();
+    video.mesh.name = 'dummy-' + number;
+    video.mesh.id = "DummyAvatar-" + number;
+
+    var parent = new BABYLON.TransformNode("Root of "+video.mesh.id, this.scene);
+    video.mesh.parent = parent;
+
+    var position = positions[number];
+    parent.position = new BABYLON.Vector3(position._x, (position._y - 0.5020392882823944), position._z);
+    return video;
+  }
+
 // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
-    if(event.key === "1") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 1;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "2") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 1.4;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "3") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/night.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 1.5;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "4") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/room.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 0.4;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "5") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/parking.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 0.4;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "6") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/country.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 0.8;
-      console.log("hdrTexture: " + hdrTexture);
-    }
-    if(event.key === "7") {
-      let hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/Studio_Softbox_2Umbrellas_cube_specular.env", this.scene);
-      this.scene.environmentTexture = hdrTexture;
-      this.scene.environmentIntensity = 0.4;
-      console.log("hdrTexture: " + hdrTexture);
-    }
+
     if(event.key === "8") {
       this.scene.fogEnabled = false;
     }
@@ -943,8 +1029,63 @@ export class NightClub extends World {
     if(event.key === "i") {
       let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
       tempPipe.imageProcessingEnabled = false;
+    }
+
+    if (event.key === "1") {
+      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+      if (tempPipe.samples > 1) {
+        tempPipe.samples -= 1;
+        console.log("AA Samples: " + tempPipe.samples);
+      }
 
     }
+    if (event.key === "2") {
+      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+      if (tempPipe.samples < 8) {
+        tempPipe.samples += 1;
+        console.log("AA Samples: " + tempPipe.samples);
+      }
+    }
+
+    if (event.key === "3") {
+      this.scene.meshes.forEach(mesh => {
+        if (mesh.name.includes("Sampler") || mesh.name.includes("Mixer") || mesh.name.includes("Player") || mesh.name.includes("Display") ) {
+
+          if (mesh.material) {
+            if (mesh.material.albedoTexture) {
+              console.log("albedoTexture: " + mesh.material.albedoTexture.name + " disposed");
+              mesh.material.albedoTexture.dispose();
+            }
+            if (mesh.material.emissiveTexture) {
+              console.log("emissiveTexture: " + mesh.material.emissiveTexture.name + " disposed");
+              mesh.material.emissiveTexture.dispose();
+            }
+            if (mesh.material.bumpTexture) {
+              console.log("bumpTexture: " + mesh.material.bumpTexture.name + " disposed");
+              mesh.material.bumpTexture.dispose();
+            }
+            if (mesh.material.ambientTexture) {
+              console.log("ambientTexture: " + mesh.material.ambientTexture.name + " disposed");
+              mesh.material.ambientTexture.dispose();
+            }
+
+            console.log("MATERIAL: " + mesh.material.name + " disposed");
+            mesh.material.dispose();
+          }
+          console.log("MESH: " + mesh.name + " disposed")
+          mesh.dispose();
+        }
+      });
+      console.log("NO MIXER ANYMORE :)");
+    }
+
+    if (event.key === "5") {
+      this.scene.meshes.forEach(mesh => {
+        mesh.cullingStrategy = BABYLON.AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION;
+        console.log(mesh.name + " CULLINGSTRATEGY_OPTIMISTIC_INCLUSION ");
+      });
+    }
+
     if(event.key === "l") {
       let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
       tempMesh.material.emissiveColor = BABYLON.Color3.Green();
@@ -964,105 +1105,130 @@ export class NightClub extends World {
       console.log("FLOOR");
     }
     if(event.key === "h") {
-      let tempMesh = this.scene.getMeshByName("Plane.1");
+      let tempMesh = this.scene.getMeshByName("PosterClubS1");
+      console.log("Slide Show! ");
       this.scene.registerBeforeRender(function () {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset +=0.003;
-        console.log("Slide Show");
+        // console.log("Slide Show");
       });
     }
 
-    if(event.key === "m") {
-      var stream = navigator.getUserMedia({ audio:true, video:true },
-        function( localMediaStream ){
-          let sound = new BABYLON.Sound("Music", localMediaStream,
-            this.scene, null, { streaming: true, autoplay: true, loop:true, volume:1 });
-        },
-        function(){ console.log("failed mic for visualizer"); }
-      );
-      var myAnalyser = new BABYLON.Analyser(this.scene);
-      BABYLON.Engine.audioEngine.connectToAnalyser(myAnalyser);
-      myAnalyser.FFT_SIZE = 256;
-      myAnalyser.SMOOTHING = 0.9;
-      console.log(myAnalyser);
-      myAnalyser.DEBUGCANVASSIZE.width = 160;
-      myAnalyser.DEBUGCANVASSIZE.height = 100;
-      myAnalyser.DEBUGCANVASPOS.x = 40;
-      myAnalyser.DEBUGCANVASPOS.y = 30;
-      myAnalyser.drawDebugCanvas();
-      var fft;
-      let tempMesh = this.scene.getMeshByName("Plane.2");
-      let tempMesh2 = this.scene.getMeshByName("Table.001_Table.004_Base_2_15346");
-      let callback = function(){
-        fft = myAnalyser.getByteFrequencyData();
-        var scale = fft[20] / 100;
-        //console.log(scale);
-        tempMesh.scaling.x = scale;
-        tempMesh.scaling.y = scale;
-        tempMesh.scaling.z = scale;
-//tempMesh2.scaling.x = scale;
-        tempMesh2.scaling.y = scale*1.4;
-// tempMesh2.scaling.z = scale;
-      };
-      this.scene.registerBeforeRender(callback);
-
+    if (event.key === "c") {
+      this.scene.meshes.forEach(mesh => {
+        mesh.isPickable = false;
+        console.log(mesh.name + " isPickable " + mesh.isPickable);
+      });
+    }
+    if (event.key === "v") {
+      this.scene.meshes.forEach(mesh => {
+        mesh.isPickable = true;
+        console.log(mesh.name + " isPickable " + mesh.isPickable);
+      });
     }
 
+    // sometimes it works, sometimes does not
+    if (event.key === 'o' ) {
+      this.optimizeScene();
+    }
+    
+    if (event.key === "x") {
+      this.scene.materials.forEach(mat => {
+        mat.freeze();
+        console.log(mat.name + " frozen " );
+      });
+    }
+
+    if (event.key === "e") {
+      this.scene.materials.forEach(mat => {
+        mat.unfreeze();
+        console.log(mat.name + " unfrozen ");
+      });
+    }
+
+    if (event.key === "z") {
+      this.scene.meshes.forEach(mesh=> {
+        mesh.freezeWorldMatrix();
+        console.log(mesh.name + " freezeWorldMatrix ");
+      });
+    }
+
+    if (event.key === "f") {
+      this.scene.meshes.forEach(mesh => {
+        mesh.unfreezeWorldMatrix();
+        console.log(mesh.name + " unfreezeWorldMatrix ");
+      });
+    }
+
+    if (event.key === "r") {
+      this.scene.blockMaterialDirtyMechanism = true;
+      console.log("blockMaterialDirtyMechanism = true");
+    }
+    if (event.key === "t") {
+      this.scene.blockMaterialDirtyMechanism = false;
+      console.log("blockMaterialDirtyMechanism = false");
+    }
+
+    if (event.key === "n") {
+      console.log(this.scene.lights);
+      let pointLight = new BABYLON.PointLight("newPointLight", new BABYLON.Vector3(2, 1.1, 3.4), this.scene);
+      pointLight.intensity = 15;
+      pointLight.diffuse = BABYLON.Color3.White();
+    }
+
+    if (event.key === "b") {
+      let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
+      let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(0, 2, 8), new BABYLON.Vector3(0, -1, 0),
+        BABYLON.Tools.ToRadians(45), 1, this.scene);
+      selectionLight.intensity = 500;
+      selectionLight.projectionTexture = proceduralTexture;
+      let alpha = 0;
+      let lPos = new BABYLON.Vector3(0, -1, 8);
+      selectionLight.setDirectionToTarget(lPos);
+      //   let hdrTexture = this.scene.environmentTexture;
+      this.scene.registerBeforeRender(function () {
+        //   hdrTexture.rotationY += alpha/100;
+        //selectionLight.position.x = Math.cos(alpha)*2;
+        selectionLight.position.z = Math.sin(alpha)*2;
+        lPos.x = Math.cos(alpha) * 8;
+        //lPos.z = Math.sin(alpha)*8;
+        selectionLight.setDirectionToTarget(lPos);
+        // proceduralTexture.vAng += alpha / 2;
+        alpha += 0.01;
+      });
+
+    }
+  }
+
+  startSavingState() {
+    if(!this.saveInterval) {
+      this.saveInterval = setInterval(() => {
+        this.saveState()
+      }, 10000);
+    }
   }
 
   async saveState() {
-    if(!process.env.VUE_APP_API_URL || document.querySelector('#saveState').value === 'false') {
+    if ( ! this.worldState ) {
       return;
     }
-    let state = {
-      activeMood: this.stageControls.activeMood,
-      fogColor: this.scene.fogColor,
-      fogDensity: this.scene.fogDensity,
-      environmentIntensity: this.scene.environmentIntensity,
-      environmentTexture: this.stageControls.activeCubeTexture,
-      videoBeingPlayed: this.stageControls.videoBeingPlayed,
-      userBeingCasted: this.stageControls.userBeingCasted,
-      pedestalColor: this.stageControls.pedestal.material.emissiveColor
-    }
-
-    let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
-      .split('; ')
-      .find(row => row.startsWith('jwt='))
-      .split('=')[1] : false;
-    let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${this.eventConfig['event_slug']}/saveWorldState`, {
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        'Accept': 'application/json',
-        "Authorization": `Bearer ${jwt}`
-      },
-      method: 'POST',
-      body: JSON.stringify(state)
-    });
+    let state = this.worldState.properties;
+    state.activeMood = this.stageControls.activeMood;
+    state.fogColor = this.scene.fogColor;
+    state.fogDensity = this.scene.fogDensity;
+    state.environmentIntensity = this.scene.environmentIntensity;
+    state.environmentTexture = this.stageControls.activeCubeTexture;
+    state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
+    state.userBeingCasted = this.stageControls.userBeingCasted;
+    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor
+    this.worldState.publish();
   }
 
-  loadState(state) {
+  applyState() {
+    let state = this.worldState.properties;
     this.stageControls.activeMood = state.activeMood;
     this.stageControls.activeCubeTexture = state.environmentTexture;
     this.stageControls.changeCubeTexture(state.environmentTexture);
-
-    if(state.videoBeingPlayed === false && state.userBeingCasted === false) {
-      state.videoBeingPlayed = 'https://assets.soundstage.fm/vr/Default.mp4';
-    }
-
-    if(state.videoBeingPlayed) {
-      this.stageControls.videoBeingPlayed = state.videoBeingPlayed;
-      this.initializeDisplays(state.videoBeingPlayed, "WindowVideo");
-      this.initializeDisplays(state.videoBeingPlayed, "DJTableVideo");
-    }
-
-    if(state.userBeingCasted) {
-      let video = this.fetchPeerVideoElement(event.userId);
-      if(video) {
-        this.stageControls.userBeingCasted = state.userBeingCasted;
-        this.initializeDisplays(video, "WindowVideo");
-        this.initializeDisplays(video, "DJTableVideo");
-      }
-    }
 
     this.scene.fogColor = new BABYLON.Color3(state.fogColor['r'],state.fogColor['g'],state.fogColor['b']);
     this.scene.fogDensity = state.fogDensity;
