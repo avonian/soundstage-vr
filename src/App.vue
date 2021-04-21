@@ -822,10 +822,10 @@
     mounted: async function () {
 
       /* Check browser */
-      if(browser().name !== 'chrome') {
-        this.browserSupported = false;
-        return;
-      }
+      //if(browser().name !== 'chrome') {
+        //this.browserSupported = false;
+        //return;
+      //}
 
       /* Set event configuration */
       await this.initConfig();

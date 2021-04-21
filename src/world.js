@@ -382,6 +382,7 @@ export class NightClub extends World {
     if ( this.afterLoad ) {
       this.afterLoad();
     }
+    
   }
 
 
@@ -1128,6 +1129,11 @@ export class NightClub extends World {
       });
     }
 
+    // sometimes it works, sometimes does not
+    if (event.key === 'o' ) {
+      this.optimizeScene();
+    }
+    
     if (event.key === "x") {
       this.scene.materials.forEach(mat => {
         mat.freeze();
