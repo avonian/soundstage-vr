@@ -61,7 +61,7 @@ export class MediaSoup extends MediaStreams {
       mode: mediasoup.MODES.VIDEO_ONLY,
       useSimulcast: false,
       forceH264: false,
-      resolution: this.role === 'artist' ? 'qvga' : 'vga'
+      resolution: this.role === 'artist' ? 'uhd' : 'qvga'
     });
     await roomClient.join();
     // Listen for events on 'PRODUCER's. Local tracks.

@@ -891,7 +891,10 @@ export class NightClub extends World {
   }
 
   createDummies(dummiesToCreate, resolution) {
-    this.dummies.forEach((d) => d.dispose());
+    this.dummies.forEach((d) => {
+      d.dispose();
+    });
+    this.dummies = [];
     for(var i = 0; i < dummiesToCreate; i ++) {
       this.dummies.push(this.createDummy(i, resolution));
     }
@@ -961,7 +964,7 @@ export class NightClub extends World {
 
     var position = positions[number];
     parent.position = new BABYLON.Vector3(position._x, (position._y - 0.5020392882823944), position._z);
-    return parent;
+    return video;
   }
 
 // FOR TESTING, WILL BE REMOVED
