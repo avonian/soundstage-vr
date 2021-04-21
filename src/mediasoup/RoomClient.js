@@ -4,8 +4,8 @@ import Logger from "./Logger";
 import { EventEmitter } from "eventemitter3";
 
 const VIDEO_CONSTRAINTS = {
-  qvga: { height: { ideal: 320 } },
-  vga: { height: { ideal: 640 } },
+  qvga: { height: { ideal: 240 } },
+  vga: { height: { ideal: 480 } },
   hd: { height: { ideal: 720 } },
   uhd: { height: { ideal: 1080 } },
 };

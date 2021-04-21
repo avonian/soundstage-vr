@@ -456,9 +456,37 @@
                                     <td class="font-medium pr-2">FPS </td>
                                     <td id="info-fps-time"></td>
                                 </tr>
+                                <tr>
+                                    <td class="font-medium pr-2">Dummies</td>
+                                    <td>
+                                        <select class="text-black bg-white" v-model="dummyCount" @click="createDummies">
+                                            <option>0</option>
+                                            <option>5</option>
+                                            <option>10</option>
+                                            <option>15</option>
+                                            <option>20</option>
+                                            <option>25</option>
+                                            <option>30</option>
+                                            <option>35</option>
+                                            <option>40</option>
+                                        </select>
+                                        <select class="text-black bg-white ml-2" v-model="dummyQuality" @click="createDummies($event)">
+                                            <option value="qvga-15">QVGA 15 FPS (320)</option>
+                                            <option value="vga-15">VGA 15 FPS (480)</option>
+                                            <option value="hd-15">HD 15 FPS (720)</option>
+                                            <option value="hd-30">HD 30 FPS (720)</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr v-if="showCameraPosition">
+                                    <td class="font-medium pr-2">Camera Position</td>
+                                    <td id="info-camera-position"><input type="text" class="cursor-pointer text-black" @click="copyMe($event)"></td>
+                                </tr>
+                                <tr v-else>
+                                    <td class="font-medium pr-2" colspan="2"><button class="bg-gray-500 cursor-pointer rounded-md px-2 py-1 mt-1" @click="showCameraPosition = true">Show camera position</button></td>
+                                </tr>
                             </table>
                         </div>
-
                     </div>
 
                     <div class="flex items-stretch justify-end pb-12 absolute right-12 bottom-0">
@@ -776,7 +804,10 @@
         showingVideos: false,
         cubeTextures: [],
         moodSets: [],
-        fogSettings: []
+        fogSettings: [],
+        showCameraPosition: false,
+        dummyCount: 0,
+        dummyQuality: 'hd-30'
       }
     },
     computed: {
@@ -1311,6 +1342,13 @@
         let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
         world.stageControls.executeAndSend(stageEvent);
       },
+      createDummies(event) {
+        world.createDummies(this.dummyCount, this.dummyQuality)
+      },
+      copyMe(event) {
+        event.target.select();
+        document.execCommand("copy")
+      },
       initInstrumentation () {
         // Instrumentation debugging tool
         let sceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
@@ -1338,7 +1376,7 @@
             return scene.deltaTime.toFixed();
           }
         }
-        scene.registerAfterRender(function () {
+        scene.registerAfterRender(() => {
           document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
           document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
           document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
@@ -1359,7 +1397,16 @@
           document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed();
           document.querySelector('#info-targets-time').innerHTML = sceneInstrumentation.renderTargetsRenderTimeCounter.current.toFixed();
           document.querySelector('#info-fps-time').innerHTML = engine.getFps().toFixed() + " fps";
-          // more parameters may be added or some of them may be removed
+          if(this.showCameraPosition) {
+            let cameraVars = {
+              '1p': 'camera1',
+              '3p':  'camera3',
+              'free': 'cameraFree'
+            }
+            var camPosition = world[cameraVars[world.activeCameraType]].position;
+            delete camPosition._isDirty;
+            document.querySelector('#info-camera-position input').value = JSON.stringify(camPosition);
+          }
         });
       }
     }
