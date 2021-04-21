@@ -258,6 +258,12 @@ export class NightClub extends World {
       this.video.detachFromCamera();
     }
     this.stopTrackingRotation();
+
+    this.video.mesh.isVisible = true;
+    this.video.back.isVisible = true;
+    if(this.video.particleSystem) {
+      this.video.particleSystem.start();
+    }
     if ( '1p' === cameraType ) {
       // set position/target from current camera/avatar
       this.camera1.rotation.y = 1.5*Math.PI-this.camera3.alpha;
@@ -282,6 +288,10 @@ export class NightClub extends World {
         this.video.mesh.rotation.y = .5*Math.PI-this.camera3.alpha;
         this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
       }
+      this.video.mesh.isVisible = false;
+      this.video.back.isVisible = false;
+      this.video.particleSystem.stop();
+
       this.camera = this.cameraFree;
       if ( this.worldManager && this.video ) {
         this.worldManager.trackMesh(this.movementTracker);

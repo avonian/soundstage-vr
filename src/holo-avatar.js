@@ -21,7 +21,7 @@ export class HoloAvatar extends VideoAvatar {
     this.back.visibility = 0.5;
     this.back.parent = this.mesh;
 
-    this.startParticles(this.altText);
+    this.particleSystem = this.startParticles(this.altText);
   }
 
   displayStream(mediaStream) {
