@@ -1008,7 +1008,8 @@ export class NightClub extends World {
         break;
       case "low":
         setVisibility(meshList, false);
-        aa_samples = 1;
+        hardware_scaling_level = 1.375;
+        aa_samples = 2;
         break;
       case "medium":
         setVisibility(meshList, false);
@@ -1027,25 +1028,6 @@ export class NightClub extends World {
 // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
 
-    if(event.key === "8") {
-      this.scene.fogEnabled = false;
-    }
-    if(event.key === "9") {
-      let myFogColor = new BABYLON.Color4(1,0,1,0.5);
-      this.scene.fogEnabled = true;
-      this.scene.fogMode = 2;
-      this.scene.fogColor = myFogColor;
-      this.scene.fogDensity = 0;
-      console.log("this.scene.fogEnabled: " + this.scene.fogEnabled);
-    }
-    if(event.key === "0") {
-      let myFogColor = new BABYLON.Color4(0,0,1,0.5);
-      this.scene.fogEnabled = true;
-      this.scene.fogMode = 2;
-      this.scene.fogColor = myFogColor;
-      this.scene.fogDensity = 0;
-      console.log("this.scene.fogEnabled: " + this.scene.fogEnabled);
-    }
     if(event.key === "-") {
       this.scene.environmentIntensity -= 0.01;
       console.log("this.scene.environmentIntensity: " + this.scene.environmentIntensity);
@@ -1053,19 +1035,6 @@ export class NightClub extends World {
     if(event.key === "=") {
       this.scene.environmentIntensity += 0.01;
       console.log("this.scene.environmentIntensity: " + this.scene.environmentIntensity);
-    }
-    if(event.key === "/") {
-      this.scene.fogDensity += 0.001;
-      console.log("this.scene.fogDensity: " + this.scene.fogDensity);
-    }
-    if(event.key === "*") {
-      this.scene.fogDensity -= 0.001;
-      console.log("this.scene.fogDensity: " + this.scene.fogDensity);
-    }
-
-    if(event.key === "i") {
-      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
-      tempPipe.imageProcessingEnabled = false;
     }
 
     if (event.key === "1") {
@@ -1164,13 +1133,18 @@ export class NightClub extends World {
       });
     }
 
-    // sometimes it works, sometimes does not
     if (event.key === 'o' ) {
-      this.optimizeScene();
+      this.engine.setHardwareScalingLevel(1.375);
+      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
+    }
+
+    if (event.key === '7') {
+      this.engine.setHardwareScalingLevel(1.5);
+      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
     }
 
     if (event.key === '8') {
-      this.engine.setHardwareScalingLevel(2);
+      this.engine.setHardwareScalingLevel(1.25);
       console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
     }
 
