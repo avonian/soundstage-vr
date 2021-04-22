@@ -89,9 +89,19 @@ select, select:focus, select:active, select:focus-visible, select:focus-within {
 .cursor-none {
     cursor: none
 }
+
 /* CSS fix for Inspector */
 #actionTabs .tabs .panes .pane input,
 #actionTabs .tabs .panes .pane select,
 #actionTabs .tabs .panes .pane textarea {
     color: black !important
+}
+
+.settings-title {
+    height: 50px;
+}
+
+.settings-body {
+    margin-bottom: 50px;
+    overflow-y: auto;
 }

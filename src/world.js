@@ -978,6 +978,44 @@ export class NightClub extends World {
     return video;
   }
 
+  adjustGraphicsQuality(setting) {
+    var setVisibility = (meshes, isVisible) => {
+      this.scene.meshes.forEach(mesh => {
+        for(let name of meshes) {
+          if (mesh.name.includes(name)) {
+            mesh.isVisible = isVisible;
+          }
+        }
+      });
+    }
+
+    var aa_samples;
+    var hardware_scaling_level = 1;
+    var meshList = ["Sampler", "Mixer", "Player", "Display"];
+    switch(setting) {
+      case "very-low":
+        hardware_scaling_level = 2;
+        setVisibility(meshList, false);
+        aa_samples = 1;
+        break;
+      case "low":
+        setVisibility(meshList, false);
+        aa_samples = 1;
+        break;
+      case "medium":
+        setVisibility(meshList, false);
+        aa_samples = 4;
+        break;
+      case "high":
+        setVisibility(meshList, true);
+        aa_samples = 8;
+        break;
+    }
+    this.engine.setHardwareScalingLevel(hardware_scaling_level);
+    let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+    pipeline.samples = aa_samples;
+  }
+
 // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
 
