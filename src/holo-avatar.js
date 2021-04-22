@@ -92,6 +92,11 @@ export class HoloAvatar extends VideoAvatar {
   randomColor() {
     return new BABYLON.Color4(Math.random(), Math.random, Math.random(), Math.random()/5+0.8);
   }
+  dispose() {
+    super.dispose();
+    this.back.material.dispose();
+    this.particleSystem.dispose();
+  }
 }
 
 export default HoloAvatar;
