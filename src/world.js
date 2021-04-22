@@ -475,7 +475,6 @@ export class NightClub extends World {
         mesh: this.windowMesh,
         texture: this.windowTexture
       });
-
       this.scene.getMeshByName("LogoText").visibility = 0;
       console.log("LogoText", this.scene.getMeshByName("LogoText"));
       this.scene.getMeshByName("LogoSign").visibility = 0;
@@ -642,6 +641,7 @@ export class NightClub extends World {
       console.log('Shared world properties:', e.added.properties);
       this.properties = e.added.properties;
       this.initializeDisplays();
+      this.applyState();
       // CHECKME add listener here to track changes to state
     }
   }
@@ -654,7 +654,13 @@ export class NightClub extends World {
           WindowVideo:0, 
           DJTableVideo:0, 
           castUser:null,
-          castTarget:'WindowVideo'
+          castTarget:'WindowVideo',
+          activeMood: this.stageControls.activeMood,
+          fogColor: this.scene.fogColor,
+          fogDensity: this.scene.fogDensity,
+          environmentIntensity: this.scene.environmentIntensity,
+          environmentTexture: this.stageControls.activeCubeTexture,
+          pedestalColor: this.stageControls.pedestal.material.emissiveColor
         }
     };
     return new Promise((resolve,reject) => {
@@ -669,6 +675,8 @@ export class NightClub extends World {
   async shareProperties() {
     if ( ! this.worldState ) {
       await this.createSharedState();
+      // CHECKME: do it here?
+      //this.startSavingState();
     }
     this.worldState.properties = this.properties;
     this.worldState.publish();
@@ -1233,6 +1241,52 @@ export class NightClub extends World {
 
     }
   }
+
+  startSavingState() {
+    if(!this.saveInterval) {
+      this.saveInterval = setInterval(() => {
+        this.saveState()
+      }, 1000);
+    }
+  }
+
+  async saveState() {
+    if ( ! this.worldState ) {
+      return;
+    }
+    let state = this.worldState.properties;
+    state.activeMood = this.stageControls.activeMood;
+    state.fogColor = this.scene.fogColor;
+    state.fogDensity = this.scene.fogDensity;
+    state.environmentIntensity = this.scene.environmentIntensity;
+    state.environmentTexture = this.stageControls.activeCubeTexture;
+    state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
+    state.userBeingCasted = this.stageControls.userBeingCasted;
+    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor
+    this.worldState.publish();
+  }
+
+  applyState() {
+    let state = this.worldState.properties;
+    this.stageControls.activeMood = state.activeMood;
+    this.stageControls.activeCubeTexture = state.environmentTexture;
+    this.stageControls.changeCubeTexture(state.environmentTexture);
+
+    this.scene.fogColor = new BABYLON.Color3(state.fogColor['r'],state.fogColor['g'],state.fogColor['b']);
+    this.scene.fogDensity = state.fogDensity;
+    this.scene.environmentIntensity = state.environmentIntensity;
+
+    if(state.activeMood) {
+      let moodSet = this.stageControls.moodSets[state.activeMood];
+      this.stageControls.pedestal.material.emissiveColor = new BABYLON.Color3(state.pedestalColor['r'], state.pedestalColor['g'], state.pedestalColor['b']);
+      let pedestalColors = [this.stageControls.pedestal.material.emissiveColor, ...moodSet.pedestalColor];
+      this.stageControls.animatePedestalColor(pedestalColors, moodSet.pedestalTransitionInterval, moodSet.pedestalWaitInterval, true);
+      setTimeout(() => {
+        document.querySelector('#moodSet').value = state.activeMood;
+      }, 1000);
+    }
+  }
+
 }
 
 export default NightClub;

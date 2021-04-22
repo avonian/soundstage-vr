@@ -6,6 +6,7 @@ export class StageControls {
     this.userSettings = userSettings;
     this.world = world;
     this.userBeingCasted = false;
+    this.videoBeingPlayed = false;
     this.pedestal = this.world.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
     this.pedestalColorAnimation = false;
     this.cubeTextures = {
@@ -81,6 +82,7 @@ export class StageControls {
     }
     this.activeCubeTexture = 'default';
     this.activeMood = false;
+    this.saveInterval = false;
   }
   init () {
     if (this.callback) {
@@ -94,9 +96,6 @@ export class StageControls {
   changeCubeTexture(cubeTexture) {
     let hdrTexture = new BABYLON.CubeTexture(this.cubeTextures[cubeTexture].url, this.world.scene);
     this.world.scene.environmentTexture = hdrTexture;
-    this.world.scene.environmentIntensity = this.cubeTextures[cubeTexture].environmentIntensity;
-    this.world.scene.fogDensity = 0;
-    this.world.scene.pedestalColor = BABYLON.Color3.White();
     this.activeCubeTexture = cubeTexture;
   }
   animatePedestalColor(colors, transitionInterval, waitInterval, loop = false) {
@@ -246,6 +245,7 @@ export class StageControls {
     let resumeUserPlayback = false;
     switch(event.action) {
       case 'playVideo':
+        this.videoBeingPlayed = this.videos[event.videoIndex].url;
         if(!this.userSettings.enableVisuals) {
           return;
         }
@@ -255,6 +255,7 @@ export class StageControls {
         this.userBeingCasted = false;
         break;
       case "castUser":
+        this.videoBeingPlayed = false;
         if(!this.userSettings.enableVisuals) {
           return;
         }
