@@ -1089,6 +1089,7 @@
               this.userSettings.selectedPlaybackDeviceId,
               () => {
                 /* Preload remaining videos */
+                world.adjustGraphicsQuality(userSettings.graphicsQuality);
                 this.preloadVideos(this.eventConfig.videos)
               }
             );
@@ -1101,7 +1102,6 @@
           }).then((s) => {
             scene = s
             // Apply graphics quality settings from welcome screen
-            world.adjustGraphicsQuality(userSettings.graphicsQuality);
             world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
           })
 
