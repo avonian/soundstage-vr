@@ -462,14 +462,20 @@
                                 <tr>
                                     <td class="font-medium pr-2">Frame Render Time</td>
                                     <td id="info-render-time"></td>
+                                    <td class="font-medium pr-2">Heap Used</td>
+                                    <td id="info-heap-size"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">Camera Render Time</td>
                                     <td id="info-camera-time"></td>
+                                    <td class="font-medium pr-2">Heap Total</td>
+                                    <td id="info-heap-total"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">RenderTargets Time</td>
                                     <td id="info-targets-time"></td>
+                                    <td class="font-medium pr-2">Heap Limit </td>
+                                    <td id="info-heap-limit"></td>
                                 </tr>
                                 <tr>
                                     <td class="font-medium pr-2">FPS </td>
@@ -1446,6 +1452,10 @@
           document.querySelector('#info-camera-time').innerHTML = sceneInstrumentation.cameraRenderTimeCounter.current.toFixed();
           document.querySelector('#info-targets-time').innerHTML = sceneInstrumentation.renderTargetsRenderTimeCounter.current.toFixed();
           document.querySelector('#info-fps-time').innerHTML = engine.getFps().toFixed() + " fps";
+          document.querySelector('#info-heap-size').innerHTML = ((performance.memory.usedJSHeapSize / 1024) / 1024).toFixed() + " Mb";
+          document.querySelector('#info-heap-total').innerHTML = ((performance.memory.totalJSHeapSize / 1024) / 1024).toFixed() + " Mb";
+          document.querySelector('#info-heap-limit').innerHTML = ((performance.memory.jsHeapSizeLimit / 1024) / 1024).toFixed() + " Mb";
+
           if(this.showCameraPosition) {
             let cameraVars = {
               '1p': 'camera1',
