@@ -1016,18 +1016,7 @@ export class NightClub extends World {
       this.scene.fogDensity -= 0.001;
       console.log("this.scene.fogDensity: " + this.scene.fogDensity);
     }
-    if(event.key === "p") {
-      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
-      tempPipe.imageProcessingEnabled = true;
-      tempPipe.imageProcessing.toneMappingEnabled = true;
-      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
-    }
-    if(event.key === "o") {
-      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
-      tempPipe.imageProcessingEnabled = true;
-      tempPipe.imageProcessing.toneMappingEnabled = true;
-      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
-    }
+
     if(event.key === "i") {
       let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
       tempPipe.imageProcessingEnabled = false;
@@ -1133,7 +1122,12 @@ export class NightClub extends World {
     if (event.key === 'o' ) {
       this.optimizeScene();
     }
-    
+
+    if (event.key === '8') {
+      this.engine.setHardwareScalingLevel(2);
+      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
+    }
+
     if (event.key === "x") {
       this.scene.materials.forEach(mat => {
         mat.freeze();

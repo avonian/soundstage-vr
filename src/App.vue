@@ -456,6 +456,8 @@
                                     <td class="font-medium pr-2">FPS </td>
                                     <td id="info-fps-time"></td>
                                 </tr>
+                            </table>
+                            <table border="0">
                                 <tr>
                                     <td class="font-medium pr-2">Dummies</td>
                                     <td>
@@ -480,7 +482,7 @@
                                 </tr>
                                 <tr v-if="showCameraPosition">
                                     <td class="font-medium pr-2">Camera Position</td>
-                                    <td id="info-camera-position"><input type="text" class="cursor-pointer text-black" @click="copyMe($event)"></td>
+                                    <td id="info-camera-position"><input type="text" size="30" class="cursor-pointer text-black" @click="copyMe($event)"></td>
                                 </tr>
                                 <tr v-else>
                                     <td class="font-medium pr-2" colspan="2"><button class="bg-gray-500 cursor-pointer rounded-md px-2 py-1 mt-1" @click="showCameraPosition = true">Show camera position</button></td>
@@ -807,7 +809,7 @@
         fogSettings: [],
         showCameraPosition: false,
         dummyCount: 0,
-        dummyQuality: 'hd-30'
+        dummyQuality: 'vga-15'
       }
     },
     computed: {
@@ -1403,9 +1405,13 @@
               '3p':  'camera3',
               'free': 'cameraFree'
             }
-            var camPosition = world[cameraVars[world.activeCameraType]].position;
+              var camPosition = world[cameraVars[world.activeCameraType]].position;
+              var simplifiedCamPos = {};
+              simplifiedCamPos._x = camPosition._x.toFixed(2);
+              simplifiedCamPos._y = camPosition._y.toFixed(2);
+              simplifiedCamPos._z = camPosition._z.toFixed(2);
             delete camPosition._isDirty;
-            document.querySelector('#info-camera-position input').value = JSON.stringify(camPosition);
+          document.querySelector('#info-camera-position input').value = JSON.stringify(simplifiedCamPos);
           }
         });
       }
