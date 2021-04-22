@@ -258,6 +258,12 @@ export class NightClub extends World {
       this.video.detachFromCamera();
     }
     this.stopTrackingRotation();
+
+    this.video.mesh.isVisible = true;
+    this.video.back.isVisible = true;
+    if(this.video.particleSystem) {
+      this.video.particleSystem.start();
+    }
     if ( '1p' === cameraType ) {
       // set position/target from current camera/avatar
       this.camera1.rotation.y = 1.5*Math.PI-this.camera3.alpha;
@@ -282,6 +288,10 @@ export class NightClub extends World {
         this.video.mesh.rotation.y = .5*Math.PI-this.camera3.alpha;
         this.video.back.position = new BABYLON.Vector3( 0, 0, 0.001);
       }
+      this.video.mesh.isVisible = false;
+      this.video.back.isVisible = false;
+      this.video.particleSystem.stop();
+
       this.camera = this.cameraFree;
       if ( this.worldManager && this.video ) {
         this.worldManager.trackMesh(this.movementTracker);
@@ -976,6 +986,44 @@ export class NightClub extends World {
     return video;
   }
 
+  adjustGraphicsQuality(setting) {
+    var setVisibility = (meshes, isVisible) => {
+      this.scene.meshes.forEach(mesh => {
+        for(let name of meshes) {
+          if (mesh.name.includes(name)) {
+            mesh.isVisible = isVisible;
+          }
+        }
+      });
+    }
+
+    var aa_samples;
+    var hardware_scaling_level = 1;
+    var meshList = ["Sampler", "Mixer", "Player", "Display"];
+    switch(setting) {
+      case "very-low":
+        hardware_scaling_level = 2;
+        setVisibility(meshList, false);
+        aa_samples = 1;
+        break;
+      case "low":
+        setVisibility(meshList, false);
+        aa_samples = 1;
+        break;
+      case "medium":
+        setVisibility(meshList, false);
+        aa_samples = 4;
+        break;
+      case "high":
+        setVisibility(meshList, true);
+        aa_samples = 8;
+        break;
+    }
+    this.engine.setHardwareScalingLevel(hardware_scaling_level);
+    let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
+    pipeline.samples = aa_samples;
+  }
+
 // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
 
@@ -1014,18 +1062,7 @@ export class NightClub extends World {
       this.scene.fogDensity -= 0.001;
       console.log("this.scene.fogDensity: " + this.scene.fogDensity);
     }
-    if(event.key === "p") {
-      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
-      tempPipe.imageProcessingEnabled = true;
-      tempPipe.imageProcessing.toneMappingEnabled = true;
-      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
-    }
-    if(event.key === "o") {
-      let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
-      tempPipe.imageProcessingEnabled = true;
-      tempPipe.imageProcessing.toneMappingEnabled = true;
-      tempPipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
-    }
+
     if(event.key === "i") {
       let tempPipe = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
       tempPipe.imageProcessingEnabled = false;
@@ -1131,7 +1168,12 @@ export class NightClub extends World {
     if (event.key === 'o' ) {
       this.optimizeScene();
     }
-    
+
+    if (event.key === '8') {
+      this.engine.setHardwareScalingLevel(2);
+      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
+    }
+
     if (event.key === "x") {
       this.scene.materials.forEach(mat => {
         mat.freeze();

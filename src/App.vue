@@ -112,7 +112,7 @@
                             -->
                             <div class="w-screen max-w-md">
                                 <div class="h-full flex flex-col py-6 bg-alt-primary shadow-xl">
-                                    <div class="px-4 sm:px-6">
+                                    <div class="settings-title px-4 sm:px-6">
                                         <div class="flex items-start justify-between">
                                             <h2 id="slide-over-heading" class="text-lg font-medium text-white">
                                                 Settings
@@ -131,7 +131,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="mt-6 relative flex-1 px-4 sm:px-6">
+                                    <div class="settings-body relative flex-1 px-4 sm:px-6">
                                         <div class="grid grid-cols-2 gap-y-6 gap-x-4">
                                             <div class="col-span-2">
                                                 <label for="audioDevice"
@@ -239,9 +239,24 @@
                                                 </div>
                                             </div>
                                             <div class="col-span-2">
-                                                <label for="audioDevice"
+                                                <label for="graphicsQuality"
                                                        class="block text-sm font-medium leading-5 text-white">
-                                                    Visual Settings
+                                                    Graphics Quality
+                                                </label>
+                                                <div class="mt-1 flex rounded-md shadow-sm">
+                                                    <select id="graphicsQuality"
+                                                            class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
+                                                            v-model="userSettings.graphicsQuality">
+                                                        <option value="very-low">Very Low</option>
+                                                        <option value="low">Low</option>
+                                                        <option value="medium">Medium</option>
+                                                        <option value="high">High</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-span-2">
+                                                <label class="block text-sm font-medium leading-5 text-white">
+                                                    Video Settings
                                                 </label>
                                                 <div class="mt-4 space-y-4">
                                                     <div class="relative flex items-start">
@@ -275,7 +290,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex-shrink-0 px-4 py-4 flex justify-end">
+                                    <div class="settings-footer flex-shrink-0 px-4 py-4 flex justify-end absolute bottom-0 right-10 w-full bg-alt-primary">
                                         <button type="button"
                                                 class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                                 @click="revertSettings">
@@ -460,6 +475,8 @@
                                     <td class="font-medium pr-2">FPS </td>
                                     <td id="info-fps-time"></td>
                                 </tr>
+                            </table>
+                            <table border="0">
                                 <tr>
                                     <td class="font-medium pr-2">Dummies</td>
                                     <td>
@@ -484,7 +501,7 @@
                                 </tr>
                                 <tr v-if="showCameraPosition">
                                     <td class="font-medium pr-2">Camera Position</td>
-                                    <td id="info-camera-position"><input type="text" class="cursor-pointer text-black" @click="copyMe($event)"></td>
+                                    <td id="info-camera-position"><input type="text" size="30" class="cursor-pointer text-black" @click="copyMe($event)"></td>
                                 </tr>
                                 <tr v-else>
                                     <td class="font-medium pr-2" colspan="2"><button class="bg-gray-500 cursor-pointer rounded-md px-2 py-1 mt-1" @click="showCameraPosition = true">Show camera position</button></td>
@@ -606,10 +623,26 @@
                                 <form v-else>
                                     <div>
                                         <h3 class="text-lg leading-6 font-medium text-white">
-                                            {{ entered ? 'Device Settings' : 'Before connecting, please select your devices:'}}
+                                            Before connecting, please choose your settings:
                                         </h3>
                                     </div>
                                     <div class="mt-6 grid grid-cols-2 gap-y-6 gap-x-4" v-if="userSettings">
+                                        <div class="col-span-2">
+                                            <label for="graphicsQuality"
+                                                   class="block text-sm font-medium leading-5 text-white">
+                                                Graphics Quality
+                                            </label>
+                                            <div class="mt-1 flex rounded-md shadow-sm">
+                                                <select id="graphicsQuality"
+                                                        class="form-select block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 bg-alt-primary border rounded-md text-lg p-1"
+                                                        v-model="userSettings.graphicsQuality">
+                                                    <option value="very-low">Very Low</option>
+                                                    <option value="low">Low</option>
+                                                    <option value="medium">Medium</option>
+                                                    <option value="high">High</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="col-span-2">
                                             <label for="audioDevice"
                                                    class="block text-sm font-medium leading-5 text-white">
@@ -668,23 +701,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="mt-5 sm:mt-6"
-                                         :class="entered ? 'sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense' : ''">
-                                    <span class="flex w-full rounded-md shadow-sm sm:col-start-2">
-                                      <button type="button"
-                                              class="cursor-pointer gradient-ultra inline-flex justify-center w-full rounded-md px-4 py-2 text-base leading-6 font-medium text-white shadow-sm focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                              @click="apply">
-                                        {{ entered ? 'Apply' : 'Connect' }}
-                                      </button>
-                                    </span>
-                                        <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:col-start-1"
-                                              v-if="entered">
-                                      <button type="button"
-                                              class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                                              @click="cancel">
-                                        Cancel
-                                      </button>
-                                    </span>
+                                    <div class="mt-5 sm:mt-6">
+                                        <span class="flex w-full rounded-md shadow-sm sm:col-start-2">
+                                          <button type="button"
+                                                  class="cursor-pointer gradient-ultra inline-flex justify-center w-full rounded-md px-4 py-2 text-base leading-6 font-medium text-white shadow-sm focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                                  @click="apply">
+                                            Connect
+                                          </button>
+                                        </span>
                                     </div>
                                 </form>
                             </div>
@@ -729,6 +753,7 @@
 
   // Default user settings
   var defaultUserSettings = {
+    graphicsQuality: 'medium',
     enableStereo: false,
     stereoGainBoost: 0,
     enableWebcamFeeds: true,
@@ -811,7 +836,7 @@
         fogSettings: [],
         showCameraPosition: false,
         dummyCount: 0,
-        dummyQuality: 'hd-30'
+        dummyQuality: 'qvga-15'
       }
     },
     computed: {
@@ -991,6 +1016,9 @@
           // webcam/mic UI should be set up before 3D world, i.e. desired device ID has to be known
           this.world = world = await new Nightclub(this.eventConfig, this.userSettings);
 
+          // Apply any settings adjustments from initial welcome screen
+          this.saveSettings(true);
+
           world.userSettings = userSettings
           world.onProgress = (evt) => {
             if (evt.lengthComputable) {
@@ -1063,10 +1091,15 @@
             })
 
             world.connect(
-              userName, fps, this.userSettings.selectedAudioDeviceId, this.userSettings.selectedPlaybackDeviceId, () => {
+              userName,
+              fps,
+              this.userSettings.selectedAudioDeviceId,
+              this.userSettings.selectedPlaybackDeviceId,
+              () => {
                 /* Preload remaining videos */
                 this.preloadVideos(this.eventConfig.videos)
-              })
+              }
+            );
 
             if(this.debugging) {
               this.initInstrumentation();
@@ -1075,6 +1108,8 @@
 
           }).then((s) => {
             scene = s
+            // Apply graphics quality settings from welcome screen
+            world.adjustGraphicsQuality(userSettings.graphicsQuality);
             world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
           })
 
@@ -1101,7 +1136,7 @@
         this.userSettings = JSON.parse(JSON.stringify(this.cachedUserSettings))
         this.showSettings = false
       },
-      saveSettings: async function () {
+      saveSettings: async function (saveOnly = false) {
         var needsRefresh = false
         var needsAudioRenegotiation = false
         if (this.cachedUserSettings.enableVisuals !== this.userSettings.enableVisuals) {
@@ -1147,12 +1182,17 @@
           this.cachedUserSettings = JSON.parse(JSON.stringify(this.userSettings))
           this.world.userSettings = this.userSettings;
 
+          if(saveOnly === true) {
+            return;
+          }
+
           /* Reconnect to hifi after everythings settled */
           if (needsAudioRenegotiation) {
             world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId)
           }
 
-          this.showSettings = false
+          this.showSettings = false;
+          world.adjustGraphicsQuality(this.userSettings.graphicsQuality);
         }
       },
       cycleCamera: function () {
@@ -1411,9 +1451,13 @@
               '3p':  'camera3',
               'free': 'cameraFree'
             }
-            var camPosition = world[cameraVars[world.activeCameraType]].position;
+              var camPosition = world[cameraVars[world.activeCameraType]].position;
+              var simplifiedCamPos = {};
+              simplifiedCamPos._x = camPosition._x.toFixed(2);
+              simplifiedCamPos._y = camPosition._y.toFixed(2);
+              simplifiedCamPos._z = camPosition._z.toFixed(2);
             delete camPosition._isDirty;
-            document.querySelector('#info-camera-position input').value = JSON.stringify(camPosition);
+          document.querySelector('#info-camera-position input').value = JSON.stringify(simplifiedCamPos);
           }
         });
       }
