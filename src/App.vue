@@ -1094,6 +1094,12 @@
 
               if(this.eventConfig['permissions']['stage_controls']) {
                 this.world.startSavingState();
+                document.addEventListener('keydown', (event) => {
+                  if(['Insert','Delete'].indexOf(event.key) !== -1) {
+                    this.world.activateCamera('free');
+                    this.world.cineCam.playOnce(event.key);
+                  }
+                });
               }
             })
 

@@ -315,9 +315,6 @@ export class NightClub extends World {
 
   playCameraAnimation(animation) {
     this.activateCamera('free');
-    if(!this.cineCam) {
-      this.cineCam = new CinemaCamera(this.cameraFree, this.scene);
-    }
     this.cineCam.play(animation, true);
   }
 
@@ -729,6 +726,7 @@ export class NightClub extends World {
     // stage controls
     this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
     this.stageControls.init();
+    this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
   }
 
   animateAvatar(obj) {
