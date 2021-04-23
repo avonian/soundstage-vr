@@ -1133,6 +1133,26 @@ export class NightClub extends World {
       });
     }
 
+    if (event.key === "q") {
+      const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(0, -1, -1), this.scene);
+      dirLight.position = new BABYLON.Vector3(0, 3, 0);
+      dirLight.intensity = 3;
+  //    const shadowGenerator = new BABYLON.ShadowGenerator(1024, dirLight);
+      // shadowGenerator.usePoissonSampling = true;
+    //  shadowGenerator.useBlurExponentialShadowMap = true;
+
+    //  shadowGenerator.usePercentageCloserFiltering = true;
+    //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+      /*
+      this.scene.meshes.forEach(mesh => {
+        shadowGenerator.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+      */
+    }
+
+
     if (event.key === 'o' ) {
       this.engine.setHardwareScalingLevel(1.375);
       console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
@@ -1187,17 +1207,39 @@ export class NightClub extends World {
 
     if (event.key === "n") {
       console.log(this.scene.lights);
-      let pointLight = new BABYLON.PointLight("newPointLight", new BABYLON.Vector3(2, 1.1, 3.4), this.scene);
-      pointLight.intensity = 15;
-      pointLight.diffuse = BABYLON.Color3.White();
+      let pointLight = new BABYLON.PointLight("newPointLight", new BABYLON.Vector3(2, 4, -8.5), this.scene);
+      pointLight.intensity = 2;
+      pointLight.diffuse = BABYLON.Color3.Purple();
+      let alpha = 0;
+      this.scene.registerBeforeRender(function () {
+        pointLight.position.x = Math.cos(alpha) * 2;
+        alpha += 0.01;
+      });
     }
 
     if (event.key === "b") {
-      let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
-      let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(0, 2, 8), new BABYLON.Vector3(0, -1, 0),
+     // let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
+      let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(2, 2, -8), new BABYLON.Vector3(0, -1, 0),
         BABYLON.Tools.ToRadians(45), 1, this.scene);
-      selectionLight.intensity = 500;
-      selectionLight.projectionTexture = proceduralTexture;
+      selectionLight.intensity = 300;
+      selectionLight.angle = Math.PI / 2;
+
+      const shadowGenerator = new BABYLON.ShadowGenerator(1024, selectionLight);
+      shadowGenerator.usePercentageCloserFiltering = true;
+    //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+    
+      this.scene.meshes.forEach(mesh => {
+        shadowGenerator.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+
+     // selectionLight.excludedMeshes.push(this.scene.getMeshByName("WindowTable"), this.scene.getMeshByName("DJTableVideo"));
+
+      this.scene.environmentIntensity = 0.3;
+
+  //    selectionLight.projectionTexture = proceduralTexture;
+
       let alpha = 0;
       let lPos = new BABYLON.Vector3(0, -1, 8);
       selectionLight.setDirectionToTarget(lPos);
@@ -1205,12 +1247,12 @@ export class NightClub extends World {
       this.scene.registerBeforeRender(function () {
         //   hdrTexture.rotationY += alpha/100;
         //selectionLight.position.x = Math.cos(alpha)*2;
-        selectionLight.position.z = Math.sin(alpha)*2;
-        lPos.x = Math.cos(alpha) * 8;
-        //lPos.z = Math.sin(alpha)*8;
-        selectionLight.setDirectionToTarget(lPos);
-        // proceduralTexture.vAng += alpha / 2;
-        alpha += 0.01;
+       // selectionLight.position.z = Math.sin(alpha)*2;
+      // lPos.x = Math.cos(alpha) * 8;
+      //lPos.z = Math.sin(alpha)*8;
+      //  selectionLight.setDirectionToTarget(lPos);
+      //  // proceduralTexture.vAng += alpha / 2;
+      //  alpha += 0.01;
       });
 
     }
