@@ -164,7 +164,7 @@ export class NightClub extends World {
     this.camera1.keysLeft = [65]; // A
     this.camera1.keysRight = [68]; // D
     this.camera1.keysUp = [87]; // W
-    this.camera1.keysUpward = [36, 33, 32]; // home, pgup, space
+    this.camera1.keysUpward = [32]; // space
     console.log("1st Person Camera:")
     console.log(this.camera1);
 
@@ -182,7 +182,7 @@ export class NightClub extends World {
     this.camera3.keysLeft = [];
     this.camera3.keysRight = [];
     this.camera3.keysUp = [];
-    this.camera3.keysUpward = [36, 33, 32]; // home, pgup, space
+    this.camera3.keysUpward = [32]; // space
 
     // this disables looking at own avatar from below:
     //this.camera3.upperBetaLimit = 1.5; // little less than Math.PI/2;
@@ -213,8 +213,8 @@ export class NightClub extends World {
     this.cameraFree.keysLeft = [37, 65]; // left, A
     this.cameraFree.keysRight = [39, 68]; // right, D
     this.cameraFree.keysUp = [38, 87]; // up, W
-    this.cameraFree.keysUpward = [36, 33, 16]; // home, pgup, shift
-    this.cameraFree.keysDownward = [35, 34, 32] // end, pgdn, space
+    this.cameraFree.keysUpward = [16]; // shift
+    this.cameraFree.keysDownward = [32] // space
     console.log("Free Camera:")
     console.log(this.cameraFree);
 
@@ -311,11 +311,6 @@ export class NightClub extends World {
     console.log("Active camera:");
     console.log(this.camera);
     this.activeCameraType = cameraType;
-  }
-
-  playCameraAnimation(animation) {
-    this.activateCamera('free');
-    this.cineCam.play(animation, true);
   }
 
   load(callback) {
@@ -727,6 +722,15 @@ export class NightClub extends World {
     this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
+    document.addEventListener('keyup', (event) => {
+      if(!event.altKey && !event.ctrlKey) {
+        return;
+      }
+      if(this.cineCam.animations[event.key]) {
+        this.activateCamera('free');
+        this.cineCam.play(event.key, event.ctrlKey);
+      }
+    });
   }
 
   animateAvatar(obj) {

@@ -5,7 +5,7 @@ export class CinemaCamera {
     this.startDelay = startDelay;
     this.animations = [];
     this.activeAnimation = null;
-    this.continueLooping = true;
+    this.nextAnimationTimeout;
 
     let cameraLocations = {
       entrance: {"position":{"_x":11,"_y":1.3,"_z":-7},"rotation":{"_x":0,"_y":-1.0164888305933453,"_z":0}},
@@ -110,20 +110,42 @@ export class CinemaCamera {
       3200: {"position":{"_isDirty":true,"_x":4.594282606288688,"_y":2.360403962693647,"_z":5.518596067365541},"rotation":{"_isDirty":true,"_x":0.3291938980363425,"_y":-2.341850515739511,"_z":0}},
       4200: {"position":{"_x":8.069870792404346,"_y":1.0500232098477533,"_z":-4.766294851415272},"rotation":{"_x":0.051664574268398905,"_y":-0.6955063511428636,"_z":0}}
     }
+
     this.animations['Insert'] = {
       0: cameraLocations.entrance,
-      1400: cameraLocations.dj_from_the_bar,
-      2500: cameraLocations.dj_from_up_close,
+      1000: cameraLocations.dj_from_the_bar,
+      1800: {"position": {_isDirty: true, _x: 2.146117235439716, _y: 1.1943042196913987, _z: 2.5539031191146067}, "rotation": {_isDirty: true, _x: 0.03145491368223644, _y: -0.002670104918247234, _z: 0}},
     };
     this.animations['Delete'] = {
-      0: cameraLocations.dj_from_up_close,
+      0: {"position": {_isDirty: true, _x: 2.146117235439716, _y: 1.1943042196913987, _z: 2.5539031191146067}, "rotation": {_isDirty: true, _x: 0.03145491368223644, _y: -0.002670104918247234, _z: 0}},
       1200: {"position": {_isDirty: true, _x: 2.168240283987669, _y: 4.97209498652936, _z: -7.88401117568601}, "rotation": {_isDirty: true, _x: 0.2214687683273271, _y: 0.014055259785063744, _z: 0} },
     }
 
-    this.autoLoopSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    this.autoLoopSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
   }
   convertToVector3(coords) {
     return new BABYLON.Vector3(coords['_x'], coords['_y'], coords['_z']);
+  }
+  buildAnimationFrames(animation) {
+    for(let type of ['position', 'rotation']) {
+      let animationCamera = new BABYLON.Animation(
+        `${type}Animation`,
+        type,
+        100,
+        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+      );
+      if(document.querySelector('#easing').value !== "") {
+        let ease = new BABYLON[document.querySelector('#easing').value]();
+        ease.setEasingMode(BABYLON.EasingFunction.EASEINOUT);
+        animationCamera.setEasingFunction(ease);
+      }
+      let keys = this.buildKeys(animation, type);
+      animationCamera.setKeys(keys);
+      this.camera.animations.push(animationCamera);
+    }
+    return Object.keys(animation);
   }
   buildKeys(animation, type) {
     let keys = [];
@@ -139,84 +161,51 @@ export class CinemaCamera {
     })
     return keys;
   }
-  playOnce(animationNumber) {
-    this.showHideUI(true);
-    let animation = this.animations[animationNumber];
-    for(let type of ['position', 'rotation']) {
-      let animationCamera = new BABYLON.Animation(
-        `${type}Animation`,
-        type,
-        100,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-      if(document.querySelector('#easing').value !== "") {
-        let ease = new BABYLON[document.querySelector('#easing').value]();
-        ease.setEasingMode(BABYLON.EasingFunction.EASEINOUT);
-        animationCamera.setEasingFunction(ease);
+  stopAnimationChain(event) {
+    if(event){
+      if(event.key !== "Escape") {
+        return;
+      } else {
+        this.showHideUI(false)
       }
-      let keys = this.buildKeys(animation, type);
-      animationCamera.setKeys(keys);
-      this.camera.animations.push(animationCamera);
     }
-    let frames = Object.keys(animation);
-    this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1);
-    document.removeEventListener('keydown', this.stop.bind(this))
-    document.addEventListener('keydown', this.stop.bind(this));
-  }
-  play(animationNumber, restartLoop) {
-    if(restartLoop) {
-      this.continueLooping = true;
-    }
-    let animation = this.animations[animationNumber];
-    this.camera.animations = [];
-    for(let type of ['position', 'rotation']) {
-      let animationCamera = new BABYLON.Animation(
-        `${type}Animation`,
-        type,
-        100,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-      if(document.querySelector('#easing').value !== "") {
-        let ease = new BABYLON[document.querySelector('#easing').value]();
-        ease.setEasingMode(BABYLON.EasingFunction.EASEINOUT);
-        animationCamera.setEasingFunction(ease);
-      }
-      let keys = this.buildKeys(animation, type);
-      animationCamera.setKeys(keys);
-      this.camera.animations.push(animationCamera);
-    }
-    let frames = Object.keys(animation);
-    this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, () => {
+    if(this.activeAnimation) {
+      this.activeAnimation.stop();
       this.activeAnimation = null;
-      if(this.continueLooping) {
-        setTimeout(() => {
+    }
+    if(this.nextAnimationTimeout) {
+      clearTimeout(this.nextAnimationTimeout);
+    }
+  }
+  play(animationNumber, playAll) {
+    this.stopAnimationChain();
+
+    this.camera.animations = [];
+    let frames = this.buildAnimationFrames(this.animations[animationNumber]);
+
+    let callback = false;
+
+    if(playAll) {
+      callback = () => {
+        this.nextAnimationTimeout = setTimeout(() => {
           var autoLoopIndex = this.autoLoopSequence.indexOf(animationNumber);
           var nextAnimation = this.autoLoopSequence[autoLoopIndex + 1];
           if(nextAnimation) {
-            this.play(animationNumber + 1)
+            this.play(nextAnimation, true)
           } else {
-            this.play(0)
+            this.play(this.autoLoopSequence[0], true)
           }
         }, 10000)
       }
-    });
-    this.showHideUI();
-    document.removeEventListener('keydown', this.stop.bind(this))
-    document.addEventListener('keydown', this.stop.bind(this));
-  }
-  stop(event) {
-    if(event.key === "Escape"){
-      this.showHideUI(false)
-      if(this.activeAnimation) {
-        this.continueLooping = false;
-        this.activeAnimation.stop();
-      }
     }
+
+    this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback);
+    this.showHideUI();
+    document.removeEventListener('keydown', this.stopAnimationChain.bind(this))
+    document.addEventListener('keydown', this.stopAnimationChain.bind(this));
   }
   showHideUI(hide = true) {
-    var controls = document.body.querySelectorAll(":not(canvas, #app, #app > div, audio)");
+    var controls = document.body.querySelectorAll(".ui-hide");
     for(var el of controls) {
       if(hide) {
         el.classList.add('hidden');

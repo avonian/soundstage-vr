@@ -75,7 +75,7 @@
         <template v-else>
             <div class="min-h-screen" v-if="entered">
 
-                <div class="fixed w-64 h-48 right-12 top-12 rounded-lg"
+                <div class="fixed w-64 h-48 right-12 top-12 rounded-lg ui-hide"
                      v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0">
                     <div class="absolute top-0 right-0 bg-indigo-500 mt-2 mr-2 px-3 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer"
                          @click="castSelf" v-show="showStageControls">CAST
@@ -326,7 +326,7 @@
 
                 <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
 
-                <div v-show="showControls" class="stage">
+                <div v-show="showControls" class="stage ui-hide">
                     <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0" v-if="showStageControls">
                         <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                            :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'" :bind="visual"
@@ -350,11 +350,13 @@
                             <option value="CubicEase">Cubic Ease</option>
                             <option value="SineEase">Sine Ease</option>
                         </select>
-                        <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
-                           @click="cameraMode = cameraModes[2]; world.playCameraAnimation(i);"
-                           v-for="i in [0,1,2,3,4,5,6,7,8,9]" :key="i">
-                            A{{ i+1 }}
-                        </a>
+                        <span class="inline-flex" v-if="world && world.cineCam">
+                            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+                               @click="playCameraAnimations(i)"
+                               v-for="i in Object.keys(world.cineCam.animations)" :key="i">
+                                {{ i }}
+                            </a>
+                        </span>
                         <select class="bg-white text-sm text-black mr-3 rounded-md" id="moodSet" @change="changeMood">
                             <option :value=null>None</option>
                             <option :value="moodSet" v-for="moodSet of Object.keys(moodSets)" :key="moodSet">{{ moodSet }}</option>
@@ -372,7 +374,7 @@
                     </div>
                 </div>
 
-                <div v-show="showControls">
+                <div v-show="showControls" class="ui-hide">
                     <div class="flex items-stretch justify-end pl-12 pb-12 absolute left-0 bottom-0">
                         <a href="#"
                            class="gradient-ultra glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4"
@@ -1094,12 +1096,6 @@
 
               if(this.eventConfig['permissions']['stage_controls']) {
                 this.world.startSavingState();
-                document.addEventListener('keydown', (event) => {
-                  if(['Insert','Delete'].indexOf(event.key) !== -1) {
-                    this.world.activateCamera('free');
-                    this.world.cineCam.playOnce(event.key);
-                  }
-                });
               }
             })
 
@@ -1152,6 +1148,7 @@
       saveSettings: async function (saveOnly = false) {
         var needsRefresh = false
         var needsAudioRenegotiation = false
+
         if (this.cachedUserSettings.enableVisuals !== this.userSettings.enableVisuals) {
           needsRefresh = true
         }
@@ -1180,7 +1177,7 @@
           }
         }
 
-        if (needsRefresh) {
+        if (world.scene && needsRefresh) {
           var confirmed = confirm('To apply these changes we need to restart the application, do you want to continue?')
           if (confirmed) {
             /* Always save enableStereo false to localStorage */
@@ -1409,6 +1406,11 @@
       copyMe(event) {
         event.target.select();
         document.execCommand("copy")
+      },
+      playCameraAnimations(i) {
+        this.cameraMode = this.cameraModes[2];
+        world.activateCamera('free');
+        world.cineCam.play(i, true);
       },
       initInstrumentation () {
         // Instrumentation debugging tool
