@@ -1215,6 +1215,92 @@ export class NightClub extends World {
       });
     }
 
+
+    if (event.key === ".") {
+      let wallHeight = 0.5;
+      let wallWidth = 4;
+
+      let roomFloor = BABYLON.MeshBuilder.CreateGround("wallFloor", {width: wallWidth, height: wallWidth }, this.scene);
+      roomFloor.checkCollisions = true;
+      let smallRoom = new BABYLON.TransformNode("smallRoom");
+
+      let wall = BABYLON.MeshBuilder.CreatePlane("wall",
+        { height: wallHeight, width: wallWidth });
+      wall.position.x = 0;
+      wall.position.y = wallHeight / 2;
+      wall.position.z = wallWidth / 2;
+      wall.parent = smallRoom;
+      roomFloor.parent = smallRoom;
+
+      let wallMat = new BABYLON.PBRMaterial("wallMat", this.scene);
+      wallMat.albedoColor = new BABYLON.Color3(0.02, 0.04, 0.83);
+      wallMat.roughness = 0.8;
+     // wall.material = wallMat;
+      wall.material = this.scene.getMeshByName("Room_Room_Base_1_15402").material;
+
+      let floorMat = new BABYLON.PBRMaterial("floorMat", this.scene);
+      floorMat.albedoColor = new BABYLON.Color3(0.59, 0.11, 0.51);
+      floorMat.roughness = 0.3;
+      roomFloor.material = floorMat;
+
+      let wallFront = wall.createInstance("wallFront");
+      wallFront.position.z = -wallWidth / 2;
+      wallFront.rotation.y = BABYLON.Tools.ToRadians(180);
+      wallFront.parent = smallRoom;
+
+      let wallLeft = wall.createInstance("wallLeft");
+      wallLeft.position.x = -wallWidth / 2;
+      wallLeft.position.z = 0;
+      wallLeft.rotation.y = BABYLON.Tools.ToRadians(-90);
+      wallLeft.parent = smallRoom;
+
+      let wallRight = wall.createInstance("wallRight");
+      wallRight.position.x = wallWidth / 2;
+      wallRight.position.z = 0;
+      wallRight.rotation.y = BABYLON.Tools.ToRadians(90);
+      wallRight.parent = smallRoom;
+
+      smallRoom.position.x = -7.045;
+      smallRoom.position.z = -6.6;
+
+      this.scene.getMeshByName("Room_Room_Base_15926").checkCollisions = false;
+      this.scene.getMeshByName("Room_Room_Base_15926").visibility = 0.7;
+
+    }
+
+    if (event.key === ",") {
+      let cloneVIP = this.scene.getMeshByName("WindowVideo").createInstance("DJTableVideo-Inst");
+      cloneVIP.position.z = 0;
+      cloneVIP.position.y = 0;
+      cloneVIP.scaling = new BABYLON.Vector3(2, 2, 2);
+      cloneVIP.rotate(new BABYLON.Vector3(1, 0, 0), Math.PI / 2, BABYLON.Space.WORLD);
+      
+    }
+
+    if (event.key === "/") {
+      let cloneVIP = this.scene.getTransformNodeByName("RoomVip").clone("RoomVip-Clone");
+      cloneVIP.scaling = new BABYLON.Vector3(0.05, 0.05, -0.05);
+      cloneVIP.position.x = -2.6;
+      cloneVIP.position.y = 0.5;
+      cloneVIP.position.z = -5.4;
+      cloneVIP.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2.4, BABYLON.Space.WORLD);
+     // cloneVIP.checkCollisions = false;
+    
+    }
+
+
+    if (event.key === ";") {
+      this.scene.getMeshByName("Room_Room_Base_15926").visibility = 0.7;
+      let cloneVIP = this.scene.getMeshByName("__root__").clone("Root-Clone");
+      cloneVIP.scaling = new BABYLON.Vector3(0.04, 0.04, -0.04);
+      cloneVIP.position.x = 0;
+      cloneVIP.position.y = -0.2;
+      cloneVIP.position.z = 0;
+      cloneVIP.rotate(new BABYLON.Vector3(1, 0, 0), Math.PI, BABYLON.Space.WORLD);
+    //  cloneVIP.checkCollisions = false;
+
+    }
+
     if (event.key === "b") {
      // let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
       let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(2, 2, -8), new BABYLON.Vector3(0, -1, 0),
@@ -1234,7 +1320,7 @@ export class NightClub extends World {
 
      // selectionLight.excludedMeshes.push(this.scene.getMeshByName("WindowTable"), this.scene.getMeshByName("DJTableVideo"));
 
-      this.scene.environmentIntensity = 0.3;
+      this.scene.environmentIntensity = 0.5;
 
   //    selectionLight.projectionTexture = proceduralTexture;
 
