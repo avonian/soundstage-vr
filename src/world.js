@@ -663,7 +663,7 @@ export class NightClub extends World {
       });
     });
   }
-  
+
   async shareProperties() {
     if ( ! this.worldState ) {
       await this.createSharedState();
@@ -722,13 +722,17 @@ export class NightClub extends World {
     this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
-    document.addEventListener('keyup', (event) => {
+    document.addEventListener('keydown', (event) => {
+      if(event.key === '*') {
+        this.cineCam.pauseOnOff();
+        return;
+      }
       if(!event.altKey && !event.ctrlKey) {
         return;
       }
       if(this.cineCam.animations[event.key]) {
         this.activateCamera('free');
-        this.cineCam.play(event.key, event.ctrlKey);
+        this.cineCam.play(event.key, event.altKey ? 50 : null);
       }
     });
   }

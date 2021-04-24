@@ -1,8 +1,8 @@
 export class CinemaCamera {
-  constructor (camera, scene, startDelay = 200) {
+  constructor (camera, scene, defaultStartDelay = 200) {
     this.camera = camera;
     this.scene = scene;
-    this.startDelay = startDelay;
+    this.defaultStartDelay = defaultStartDelay;
     this.animations = [];
     this.activeAnimation = null;
     this.nextAnimationTimeout;
@@ -127,7 +127,7 @@ export class CinemaCamera {
   convertToVector3(coords) {
     return new BABYLON.Vector3(coords['_x'], coords['_y'], coords['_z']);
   }
-  buildAnimationFrames(animation) {
+  buildAnimationFrames(animation, immediate ) {
     for(let type of ['position', 'rotation']) {
       let animationCamera = new BABYLON.Animation(
         `${type}Animation`,
@@ -141,13 +141,13 @@ export class CinemaCamera {
         ease.setEasingMode(BABYLON.EasingFunction.EASEINOUT);
         animationCamera.setEasingFunction(ease);
       }
-      let keys = this.buildKeys(animation, type);
+      let keys = this.buildKeys(animation, type, immediate);
       animationCamera.setKeys(keys);
       this.camera.animations.push(animationCamera);
     }
     return Object.keys(animation);
   }
-  buildKeys(animation, type) {
+  buildKeys(animation, type ) {
     let keys = [];
     for(var frame of Object.keys(animation)) {
       keys.push({
@@ -177,29 +177,37 @@ export class CinemaCamera {
       clearTimeout(this.nextAnimationTimeout);
     }
   }
-  play(animationNumber, playAll) {
-    this.stopAnimationChain();
+  pauseOnOff() {
+    if(this.nextAnimationTimeout) {
+      clearTimeout(this.nextAnimationTimeout);
+    }
+    if(this.activeAnimation && this.activeAnimation.animationStarted) {
+      this.activeAnimation.pause();
+    } else {
+      this.activeAnimation.restart();
+    }
+  }
+  play(animationNumber, startDelay) {
 
+    this.stopAnimationChain();
     this.camera.animations = [];
+
+    this.startDelay = startDelay ? startDelay : this.defaultStartDelay;
     let frames = this.buildAnimationFrames(this.animations[animationNumber]);
 
-    let callback = false;
-
-    if(playAll) {
-      callback = () => {
-        this.nextAnimationTimeout = setTimeout(() => {
-          var autoLoopIndex = this.autoLoopSequence.indexOf(animationNumber);
-          var nextAnimation = this.autoLoopSequence[autoLoopIndex + 1];
-          if(nextAnimation) {
-            this.play(nextAnimation, true)
-          } else {
-            this.play(this.autoLoopSequence[0], true)
-          }
-        }, 10000)
-      }
+    let callback = () => {
+      this.nextAnimationTimeout = setTimeout(() => {
+        var autoLoopIndex = this.autoLoopSequence.indexOf(animationNumber);
+        var nextAnimation = this.autoLoopSequence[autoLoopIndex + 1];
+        if(nextAnimation) {
+          this.play(nextAnimation)
+        } else {
+          this.play(this.autoLoopSequence[0])
+        }
+      }, 10000)
     }
 
-    this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback);
+    this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback.bind(this));
     this.showHideUI();
     document.removeEventListener('keydown', this.stopAnimationChain.bind(this))
     document.addEventListener('keydown', this.stopAnimationChain.bind(this));
