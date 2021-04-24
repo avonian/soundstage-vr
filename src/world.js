@@ -1301,6 +1301,75 @@ export class NightClub extends World {
 
     }
 
+
+
+    if (event.key === "'") {
+      /*
+      let spotlightPurple = new BABYLON.SpotLight("spotlightPurple", new BABYLON.Vector3(0.864, 1.787, -6.131),
+        new BABYLON.Vector3(0, -1, 0), BABYLON.Tools.ToRadians(45), 1, this.scene);
+      spotlightPurple.intensity = 100;
+      spotlightPurple.angle = Math.PI / 2;
+      spotlightPurple.diffuse = BABYLON.Color3.Purple();
+
+      const shadowGeneratorPurple = BABYLON.ShadowGenerator(1024, spotlightPurple);
+      shadowGeneratorPurple.usePercentageCloserFiltering = true;
+      this.scene.meshes.forEach(mesh => {
+        shadowGeneratorPurple.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+      */
+
+      let selectionLight = new BABYLON.SpotLight("selectLight", new BABYLON.Vector3(0.864, 2, -6.131),
+        new BABYLON.Vector3(0, -1, 0),BABYLON.Tools.ToRadians(45), 1, this.scene);
+      selectionLight.intensity = 100;
+      selectionLight.angle = BABYLON.Tools.ToRadians(120);
+      selectionLight.diffuse = BABYLON.Color3.Purple();
+
+      let tealLight = selectionLight.clone("tealLight");
+      tealLight.position = new BABYLON.Vector3(-0.6, 1.787, -6.131);
+      tealLight.diffuse = BABYLON.Color3.Teal();
+      /*
+      let purpleLight = selectionLight.clone("purpleLight");
+      purpleLight.position = new BABYLON.Vector3(1.6, 1.787, -6.131);
+      purpleLight.diffuse = BABYLON.Color3.Purple();
+      */
+      let tealLight2 = selectionLight.clone("tealLight2");
+      tealLight2.position = new BABYLON.Vector3(3.25, 1.787, -6.131);
+      tealLight2.diffuse = BABYLON.Color3.Blue();
+
+      const shadowGenerator = new BABYLON.ShadowGenerator(1024, selectionLight);
+      shadowGenerator.usePercentageCloserFiltering = true;
+      //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+
+      this.scene.meshes.forEach(mesh => {
+        shadowGenerator.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+
+      const shadowGeneratorBlue = new BABYLON.ShadowGenerator(1024, tealLight2);
+      shadowGeneratorBlue.usePercentageCloserFiltering = true;
+      //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+
+      this.scene.meshes.forEach(mesh => {
+        shadowGeneratorBlue.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+
+      const shadowGeneratorTeal = new BABYLON.ShadowGenerator(1024, tealLight);
+      shadowGeneratorTeal.usePercentageCloserFiltering = true;
+      //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+
+      this.scene.meshes.forEach(mesh => {
+        shadowGeneratorTeal.getShadowMap().renderList.push(mesh);
+        mesh.receiveShadows = true;
+        console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
+      });
+
+    }
+
     if (event.key === "b") {
      // let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
       let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(2, 2, -8), new BABYLON.Vector3(0, -1, 0),
