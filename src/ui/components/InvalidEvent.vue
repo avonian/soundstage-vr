@@ -4,8 +4,8 @@
 
     <div class="w-full h-full">
       <div class="w-full flex-shrink-0 flex items-center justify-center pt-16">
-        <img class="block h-8 sm:h-10 w-auto" src="../assets/images/logo-badge.svg">
-        <img class="block h-4 sm:h-5 w-auto ml-2" src="../assets/images/logo-text.svg">
+        <img class="block h-8 sm:h-10 w-auto" src="../../assets/images/logo-badge.svg">
+        <img class="block h-4 sm:h-5 w-auto ml-2" src="../../assets/images/logo-text.svg">
       </div>
       <div class="z-10 inset-0 overflow-y-auto">
         <div class="flex items-end justify-center pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -37,7 +37,7 @@
 </template>
 <script>
   export default {
-    name: 'App',
+    name: 'InvalidEvent',
     data() {
       return {
         app_url: process.env.VUE_APP_API_URL
