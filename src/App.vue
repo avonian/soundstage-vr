@@ -1116,6 +1116,7 @@
             scene = s
             // Apply graphics quality settings from welcome screen
             world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
+            world.customize();
           })
 
           // Watch for browser/canvas resize events

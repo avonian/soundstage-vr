@@ -6,6 +6,7 @@ import MediaSoup from './media-streams';
 import DummyAvatar from './dummy-avatar';
 import HoloAvatar from './holo-avatar';
 import Movement from './movement';
+import Customizer from './customizer';
 
 // deals with everything inside 3D world
 export class NightClub extends World {
@@ -57,6 +58,7 @@ export class NightClub extends World {
     this.windowMesh = null;
     this.videos = eventConfig.videos;
     this.dummies = [];
+    this.customizer = null;
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -1267,6 +1269,10 @@ export class NightClub extends World {
     }
   }
 
+  customize() {
+    this.customizer = new Customizer(this);
+    this.customizer.init();
+  }
 }
 
 export default NightClub;
