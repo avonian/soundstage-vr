@@ -6,6 +6,14 @@ export class Customizer {
     this.userSettings = world.userSettings;
   }
   init () {
+    if(this.eventConfig.posters) {
+      this.posters();
+    }
+    if(this.userSettings.graphicsQuality === 'high') {
+      this.barLights();
+    }
+  }
+  posters () {
     const posters = this.eventConfig.posters;
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     for (let i = 0; i < posters.length; i++) {
@@ -19,9 +27,6 @@ export class Customizer {
         galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].url, this.scene);
         galleryPoster.parent = posterGallery;
       }
-    }
-    if(this.userSettings.graphicsQuality === 'high') {
-      this.barLights();
     }
   }
   barLights () {
