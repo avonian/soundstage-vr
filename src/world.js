@@ -1032,6 +1032,28 @@ export class NightClub extends World {
     let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
     pipeline.samples = aa_samples;
     this.customizer.initBarLights();
+
+    // Lights optimization
+    let maxLights = 8; // Sets max lights for material
+    this.customizer.barLights.forEach(light => {
+      this.scene.meshes.forEach(mesh => {
+        // TODO: Rewrite function and mesh name after model remake
+        if (mesh.name.includes("Chair_") || mesh.name.includes("Bar_counter") || mesh.name.includes("Lamp") || mesh.name.includes("Room")) {
+          if (!light.includedOnlyMeshes.includes(mesh)) 
+          light.includedOnlyMeshes.push(mesh); // Array of only needed meshes to minimize computations
+        }
+        // TODO: Rewrite function after model remake
+        if (mesh.name.includes("Room")) {
+          mesh.material.maxSimultaneousLights = maxLights; // Adding more lights to the room materials
+          console.log("maxSimultaneousLights = " + maxLights + " for Material ", mesh.material.name);
+        }
+      });
+      console.log(light.includedOnlyMeshes.length + " Meshes pushed to ", light.name);
+      let allBarLights = new BABYLON.TransformNode("allBarLights");
+      light.parent = allBarLights;
+    });
+    console.log("BarLights ", this.customizer.barLights);
+    console.log("Graphics quality: " + setting);
   }
 
 // FOR TESTING, WILL BE REMOVED
