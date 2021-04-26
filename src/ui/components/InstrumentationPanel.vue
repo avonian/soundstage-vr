@@ -200,7 +200,7 @@
       },
       methods: {
         createDummies() {
-          world.createDummies(this.dummyCount, this.dummyQuality)
+          this.world.createDummies(this.dummyCount, this.dummyQuality)
         },
         copyMe(event) {
           event.target.select();
