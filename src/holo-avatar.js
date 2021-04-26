@@ -56,7 +56,7 @@ export class HoloAvatar extends VideoAvatar {
   startParticles( name ) {
     var particleSystem;
 
-    if (BABYLON.GPUParticleSystem.IsSupported) {
+    if (this.useHWParticles && BABYLON.GPUParticleSystem.IsSupported) {
       // does not work in XR, renders only in one eye
       particleSystem = new BABYLON.GPUParticleSystem("particles:"+name, { capacity:100 }, this.scene);
       particleSystem.activeParticleCount = 100;

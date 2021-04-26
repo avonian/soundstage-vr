@@ -59,6 +59,7 @@ export class NightClub extends World {
     this.videos = eventConfig.videos;
     this.dummies = [];
     this.customizer = null;
+    this.useHWParticles = false; // TODO autodetect
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
@@ -366,6 +367,27 @@ export class NightClub extends World {
     // media streaming stuff
     this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings, this.eventConfig);
 
+    // XR stuff
+    var floors = [
+      "Room_Room_Base_1_15402",
+      "Stairs_Stairs_Base_15926",
+      "Pedestal_Pedestal_Blue_15390",
+      "Room_Room_Base_1_15402.1",
+      "Cube",
+      "Cube.1",
+      "Cube.3",
+      "Cube.4",
+      "Boole"   
+    ];
+    this.floorMeshes = [];
+    floors.forEach((f)=>{
+      var floorMesh = this.scene.getMeshByName(f);
+      if ( floorMesh ) {
+        this.floorMeshes.push( floorMesh );
+      }
+    });
+    this.initXR();
+    
     // stop movement when focus is lost
     this.canvas.onblur = () => {
       if ( this.movingDirections > 0 && ! this.movingToTarget ) {
@@ -482,7 +504,8 @@ export class NightClub extends World {
       radius: this.videoAvatarSize,
       avatarHeight: this.avatarHeight,
       videoAvatarSize: this.videoAvatarSize,
-      trackAvatarRotation: this.trackAvatarRotation
+      trackAvatarRotation: this.trackAvatarRotation,
+      useHWParticles: this.useHWParticles
     };
     if ( altImage ) {
       avatarOptions.altImage = altImage;
@@ -564,6 +587,7 @@ export class NightClub extends World {
       avatarHeight: this.avatarHeight,
       videoAvatarSize: this.videoAvatarSize,
       trackAvatarRotation: this.trackAvatarRotation,
+      useHWParticles: this.useHWParticles,
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       properties: (obj) => {
