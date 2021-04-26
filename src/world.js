@@ -1122,6 +1122,21 @@ export class NightClub extends World {
       DJAreaLight.diffuse = new BABYLON.Color3(240,240,170);
       DJAreaLight.range = 6;
     }
+
+    if (event.key === "5") {
+      console.clear();
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.scene, false).then((system) => {
+        system.emitter = new BABYLON.Vector3(2, 0.4, 3.5);
+        console.log("Stars created!");
+      });
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#23", this.scene, false).then((system) => {
+        system.emitter = new BABYLON.Vector3(2, 0.4, 3.5);
+        console.log("Moving Stars created!");
+        system.disposeOnStop = true;
+        setTimeout(() => system.stop(), 5000);
+      });
+    }
+
   }
 
   startSavingState() {
