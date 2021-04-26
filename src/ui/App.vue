@@ -271,7 +271,10 @@
     methods: {
       async initConfig() {
         if(process.env.VUE_APP_DEMO_CONFIG) {
-          this.eventConfig = JSON.parse(process.env.VUE_APP_DEMO_CONFIG);
+          var baseConfig = require('../configs/_config.js').default;
+          var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
+          this.eventConfig = {...baseConfig, ...customConfig};
+          this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
           if(!this.eventConfig.videos) {
             this.eventConfig.videos = [{"url": "https://assets.soundstage.fm/vr/Default.mp4", "label": "Default"}];
           }
