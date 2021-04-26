@@ -1,41 +1,40 @@
 export class Customizer {
   constructor (world) {
     this.world = world;
-    this.scene = world.scene;
     this.eventConfig = world.eventConfig;
-    this.userSettings = world.userSettings;
+    this.barLights = [];
   }
-  init () {
-    if(this.eventConfig.posters) {
-      this.posters();
-    }
-    if(this.userSettings.graphicsQuality === 'high') {
-      this.barLights();
-    }
-  }
-  posters () {
+  initPosters () {
     const posters = this.eventConfig.posters;
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     for (let i = 0; i < posters.length; i++) {
-      if (!this.scene.getMeshByName(posters[i].name)) {
+      if (!this.world.scene.getMeshByName(posters[i].name)) {
         let galleryPoster = BABYLON.MeshBuilder.CreatePlane(posters[i].name, { width: posters[i].width, height: posters[i].height });
         galleryPoster.position.x = posters[i].posX;
         galleryPoster.position.y = posters[i].posY;
         galleryPoster.position.z = posters[i].posZ;
         galleryPoster.rotation.y = BABYLON.Tools.ToRadians(posters[i].rotationY);
-        galleryPoster.material = new BABYLON.StandardMaterial(posters[i].name + "_mat", this.scene);
-        galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].url, this.scene);
+        galleryPoster.material = new BABYLON.StandardMaterial(posters[i].name + "_mat", this.world.scene);
+        galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].url, this.world.scene);
         galleryPoster.parent = posterGallery;
       }
     }
   }
-  barLights () {
-    if (this.scene.getLightByName("PointLight")) {
-      this.scene.getLightByName("PointLight").dispose(); // dispose currently non-used light from world.js
+  initBarLights () {
+    if(this.barLights) {
+      this.barLights.forEach((light) => {
+        light.dispose()
+      });
+    }
+    if(this.world.userSettings.graphicsQuality !== 'high') {
+      return;
+    }
+    if (this.world.scene.getLightByName("PointLight")) {
+      this.world.scene.getLightByName("PointLight").dispose(); // dispose currently non-used light from world.js
       console.log("PointLight disposed");
     }
     let barLight = new BABYLON.SpotLight("barLight", new BABYLON.Vector3(1.2, 1.7, -6.13),
-      new BABYLON.Vector3(0.1, -1, 0),BABYLON.Tools.ToRadians(45), 1, this.scene);
+      new BABYLON.Vector3(0.1, -1, 0),BABYLON.Tools.ToRadians(45), 1, this.world.scene);
     barLight.intensity = 25;
     barLight.angle = BABYLON.Tools.ToRadians(120);
     barLight.diffuse = BABYLON.Color3.Purple();
@@ -63,7 +62,9 @@ export class Customizer {
     barBackLight.diffuse = new BABYLON.Color3(91, 0, 255);
     barBackLight.intensity = 2;
 
-    console.log("Lights: ", this.scene.lights);
+    this.barLights = [barLight, tealLight, blueLight, barBackLight];
+
+    console.log("Lights: ", this.world.scene.lights);
     // since customizer loads before the model and its meshes, we cannot use here light.includedOnlyMeshes
     // Press '4' to see it in action at world.js
   }

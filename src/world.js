@@ -1031,6 +1031,7 @@ export class NightClub extends World {
     this.engine.setHardwareScalingLevel(hardware_scaling_level);
     let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
     pipeline.samples = aa_samples;
+    this.customizer.initBarLights();
   }
 
 // FOR TESTING, WILL BE REMOVED
@@ -1271,7 +1272,6 @@ export class NightClub extends World {
 
   customize() {
     this.customizer = new Customizer(this);
-    this.customizer.init();
   }
 }
 
