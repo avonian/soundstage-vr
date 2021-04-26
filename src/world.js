@@ -1093,134 +1093,34 @@ export class NightClub extends World {
       console.log("NO MIXER ANYMORE :)");
     }
 
-    if (event.key === "5") {
+    if (event.key === "4") {
+      console.clear();
+
+      this.scene.lights.forEach(light => {
+        if (light.name === "barLight")
+          console.log(light.name, "checked");
+        this.scene.meshes.forEach(mesh => {
+          if (mesh.name.includes("Chair_") || mesh.name.includes("Bar_counter") || mesh.name.includes("Lamp") || mesh.name.includes("Room")) {
+            light.includedOnlyMeshes.push(mesh); // Array of only needed meshes to save computations
+          }
+        });
+        console.log("Meshes pushed to ", light.name, light.includedOnlyMeshes);
+      });
+      console.log("Lights", this.scene.lights);
+
       this.scene.meshes.forEach(mesh => {
-        mesh.cullingStrategy = BABYLON.AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION;
-        console.log(mesh.name + " CULLINGSTRATEGY_OPTIMISTIC_INCLUSION ");
+        if (mesh.name.includes("Room")) {
+          mesh.material.maxSimultaneousLights = 8; // Adding more lights to the room materials
+          console.log("maxSimultaneousLights = 8 ", mesh.material);
+        }
       });
-    }
-
-    if(event.key === "l") {
-      let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
-      tempMesh.material.emissiveColor = BABYLON.Color3.Green();
-      console.log("Emissive Green");
-    }
-    if(event.key === "k") {
-      let mat = new BABYLON.StandardMaterial("mat", this.scene);
-      mat.disableLighting = true;
-      mat.backFaceCulling = false;
-      let noiseTexture = new BABYLON.NoiseProceduralTexture("perlin", 512, this.scene);
-      noiseTexture.octaves = 3;
-      noiseTexture.persistence = 0.9;
-      mat.emissiveTexture = noiseTexture;
-      mat.emissiveColor = BABYLON.Color3.Black();
-      let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Blue_15390");
-      tempMesh.material = mat;
-      console.log("FLOOR");
-    }
-    if(event.key === "h") {
-      let tempMesh = this.scene.getMeshByName("PosterClubS1");
-      console.log("Slide Show! ");
-      this.scene.registerBeforeRender(function () {
-        tempMesh.material.albedoTexture.uOffset +=0.003;
-        tempMesh.material.emissiveTexture.uOffset +=0.003;
-        // console.log("Slide Show");
-      });
-    }
-
-    if (event.key === "c") {
-      this.scene.meshes.forEach(mesh => {
-        mesh.isPickable = false;
-        console.log(mesh.name + " isPickable " + mesh.isPickable);
-      });
-    }
-    if (event.key === "v") {
-      this.scene.meshes.forEach(mesh => {
-        mesh.isPickable = true;
-        console.log(mesh.name + " isPickable " + mesh.isPickable);
-      });
-    }
-
-    if (event.key === 'o' ) {
-      this.engine.setHardwareScalingLevel(1.375);
-      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
-    }
-
-    if (event.key === '7') {
-      this.engine.setHardwareScalingLevel(1.5);
-      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
-    }
-
-    if (event.key === '8') {
-      this.engine.setHardwareScalingLevel(1.25);
-      console.log("setHardwareScalingLevel " + this.engine.getHardwareScalingLevel());
-    }
-
-    if (event.key === "x") {
-      this.scene.materials.forEach(mat => {
-        mat.freeze();
-        console.log(mat.name + " frozen " );
-      });
-    }
-
-    if (event.key === "e") {
-      this.scene.materials.forEach(mat => {
-        mat.unfreeze();
-        console.log(mat.name + " unfrozen ");
-      });
-    }
-
-    if (event.key === "z") {
-      this.scene.meshes.forEach(mesh=> {
-        mesh.freezeWorldMatrix();
-        console.log(mesh.name + " freezeWorldMatrix ");
-      });
-    }
-
-    if (event.key === "f") {
-      this.scene.meshes.forEach(mesh => {
-        mesh.unfreezeWorldMatrix();
-        console.log(mesh.name + " unfreezeWorldMatrix ");
-      });
-    }
-
-    if (event.key === "r") {
-      this.scene.blockMaterialDirtyMechanism = true;
-      console.log("blockMaterialDirtyMechanism = true");
-    }
-    if (event.key === "t") {
-      this.scene.blockMaterialDirtyMechanism = false;
-      console.log("blockMaterialDirtyMechanism = false");
-    }
-
-    if (event.key === "n") {
-      console.log(this.scene.lights);
-      let pointLight = new BABYLON.PointLight("newPointLight", new BABYLON.Vector3(2, 1.1, 3.4), this.scene);
-      pointLight.intensity = 15;
-      pointLight.diffuse = BABYLON.Color3.White();
-    }
-
-    if (event.key === "b") {
-      let proceduralTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
-      let selectionLight = new BABYLON.SpotLight("selectionLight", new BABYLON.Vector3(0, 2, 8), new BABYLON.Vector3(0, -1, 0),
-        BABYLON.Tools.ToRadians(45), 1, this.scene);
-      selectionLight.intensity = 500;
-      selectionLight.projectionTexture = proceduralTexture;
-      let alpha = 0;
-      let lPos = new BABYLON.Vector3(0, -1, 8);
-      selectionLight.setDirectionToTarget(lPos);
-      //   let hdrTexture = this.scene.environmentTexture;
-      this.scene.registerBeforeRender(function () {
-        //   hdrTexture.rotationY += alpha/100;
-        //selectionLight.position.x = Math.cos(alpha)*2;
-        selectionLight.position.z = Math.sin(alpha)*2;
-        lPos.x = Math.cos(alpha) * 8;
-        //lPos.z = Math.sin(alpha)*8;
-        selectionLight.setDirectionToTarget(lPos);
-        // proceduralTexture.vAng += alpha / 2;
-        alpha += 0.01;
-      });
-
+      // Making the light over DJ table
+      let DJAreaLight = new BABYLON.SpotLight("DJtableLight", new BABYLON.Vector3(2, 1.5, 3.5),
+        new BABYLON.Vector3(0.1, -1, 0), BABYLON.Tools.ToRadians(120), 1, this.scene);
+      DJAreaLight.intensity = 1;
+      DJAreaLight.angle = BABYLON.Tools.ToRadians(120);
+      DJAreaLight.diffuse = new BABYLON.Color3(240,240,170);
+      DJAreaLight.range = 6;
     }
   }
 
