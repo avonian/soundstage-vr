@@ -1035,6 +1035,10 @@ export class NightClub extends World {
 
     // Lights optimization
     let maxLights = 8; // Sets max lights for material
+      if (this.scene.getTransformNodeByName("allBarLights")) {
+        this.scene.getTransformNodeByName("allBarLights").dispose();
+      }
+    let allBarLights = new BABYLON.TransformNode("allBarLights");
     this.customizer.barLights.forEach(light => {
       this.scene.meshes.forEach(mesh => {
         // TODO: Rewrite function and mesh name after model remake
@@ -1049,7 +1053,6 @@ export class NightClub extends World {
         }
       });
       console.log(light.includedOnlyMeshes.length + " Meshes pushed to ", light.name);
-      let allBarLights = new BABYLON.TransformNode("allBarLights");
       light.parent = allBarLights;
     });
     console.log("BarLights ", this.customizer.barLights);
