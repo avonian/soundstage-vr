@@ -30,53 +30,42 @@ export class Customizer {
     }
   }
   barLights () {
-    let selectionLight = new BABYLON.SpotLight("selectLight", new BABYLON.Vector3(0.864, 2, -6.131),
-      new BABYLON.Vector3(0, -1, 0),BABYLON.Tools.ToRadians(45), 1, this.scene);
-    selectionLight.intensity = 100;
-    selectionLight.angle = BABYLON.Tools.ToRadians(120);
-    selectionLight.diffuse = BABYLON.Color3.Purple();
+    if (this.scene.getLightByName("PointLight")) {
+      this.scene.getLightByName("PointLight").dispose(); // dispose currently non-used light from world.js
+      console.log("PointLight disposed");
+    }
+    let barLight = new BABYLON.SpotLight("barLight", new BABYLON.Vector3(1.2, 1.7, -6.13),
+      new BABYLON.Vector3(0.1, -1, 0),BABYLON.Tools.ToRadians(45), 1, this.scene);
+    barLight.intensity = 25;
+    barLight.angle = BABYLON.Tools.ToRadians(120);
+    barLight.diffuse = BABYLON.Color3.Purple();
+    barLight.range = 10;
 
-    let tealLight = selectionLight.clone("tealLight");
-    tealLight.position = new BABYLON.Vector3(-0.6, 1.787, -6.131);
+//  This part later may become a function with lights settings in JSON
+    let tealLight = barLight.clone("tealLight");
+    barLight.intensity = 40;
+    tealLight.position.x = -0.6;
+    tealLight.direction.x = 0.32;
+    tealLight.direction.z = -0.1;
     tealLight.diffuse = BABYLON.Color3.Teal();
-    /*
-    let purpleLight = selectionLight.clone("purpleLight");
-    purpleLight.position = new BABYLON.Vector3(1.6, 1.787, -6.131);
-    purpleLight.diffuse = BABYLON.Color3.Purple();
-    */
-    let tealLight2 = selectionLight.clone("tealLight2");
-    tealLight2.position = new BABYLON.Vector3(3.25, 1.787, -6.131);
-    tealLight2.diffuse = BABYLON.Color3.Blue();
 
-    const shadowGenerator = new BABYLON.ShadowGenerator(1024, selectionLight);
-    shadowGenerator.usePercentageCloserFiltering = true;
-    //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+    let blueLight = barLight.clone("blueLight");
+    blueLight.position.x = 3.25;
+    blueLight.diffuse = BABYLON.Color3.Blue();
 
-    this.scene.meshes.forEach(mesh => {
-      shadowGenerator.getShadowMap().renderList.push(mesh);
-      mesh.receiveShadows = true;
-      console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
-    });
+    let barBackLight = barLight.clone("barBackLight");
+    barBackLight.position.x = 1;
+    barBackLight.position.y = 2;
+    barBackLight.position.z = -7;
+    barBackLight.direction.x = 1;
+    barBackLight.direction.z = -1;
+    barBackLight.angle = BABYLON.Tools.ToRadians(72);
+    barBackLight.diffuse = new BABYLON.Color3(91, 0, 255);
+    barBackLight.intensity = 2;
 
-    const shadowGeneratorBlue = new BABYLON.ShadowGenerator(1024, tealLight2);
-    shadowGeneratorBlue.usePercentageCloserFiltering = true;
-    //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
-
-    this.scene.meshes.forEach(mesh => {
-      shadowGeneratorBlue.getShadowMap().renderList.push(mesh);
-      mesh.receiveShadows = true;
-      console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
-    });
-
-    const shadowGeneratorTeal = new BABYLON.ShadowGenerator(1024, tealLight);
-    shadowGeneratorTeal.usePercentageCloserFiltering = true;
-    //  shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
-
-    this.scene.meshes.forEach(mesh => {
-      shadowGeneratorTeal.getShadowMap().renderList.push(mesh);
-      mesh.receiveShadows = true;
-      console.log(mesh.name + " receiveShadows " + mesh.receiveShadows);
-    });
+    console.log("Lights: ", this.scene.lights);
+    // since customizer loads before the model and its meshes, we cannot use here light.includedOnlyMeshes
+    // Press '4' to see it in action at world.js
   }
 }
 
