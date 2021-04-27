@@ -1133,35 +1133,57 @@ export class NightClub extends World {
       tempMesh.material = mat;
       console.log("FLOOR");
     }
-    // for future Slideshow
-    if(event.key === "h") {
+     // for future Slideshow
+    if (event.key === "h") {
       let tempMesh = this.scene.getMeshByName("PosterClubS1");
       console.log("Slide Show! ");
       this.scene.registerBeforeRender(function () {
-        tempMesh.material.albedoTexture.uOffset +=0.003;
+        tempMesh.material.albedoTexture.uOffset += 0.003;
         tempMesh.material.emissiveTexture.uOffset += 0.003;
+      });
+    }
+    // for Logo particles from WindowVideo mesh
+    if (event.key === "l") {
+      //Logo particles
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#29", this.scene, false).then((system) => {
+        let vectorEmitter = new BABYLON.Vector3(2, 5, 5.5);
+        system.emitter = vectorEmitter;
       });
     }
     // Initial function for mood particles
     if (event.key === "p") {
       console.clear();
+      let partPosArray = [
+        new BABYLON.Vector3(2, 0.4, 3.5),
+        new BABYLON.Vector3(7, 4, 3.5),
+        new BABYLON.Vector3(2, 4, 3.5),
+        new BABYLON.Vector3(7, 4, -3.5),
+        new BABYLON.Vector3(-3, 0.5, 3.5),
+        new BABYLON.Vector3(7, 0.5, 3.5),
+        new BABYLON.Vector3(-3, 0.5, -4.5),
+        new BABYLON.Vector3(-3, 4, 3.5),
+        new BABYLON.Vector3(-3, 4, -4.5),
+        new BABYLON.Vector3(7, 0.5, -3.5)
+      ]
+
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("P5LNB1",
+        this.scene, false).then((system) => {
+         system.emitter = new BABYLON.Vector3(2, 2, -6);
+          let intCounter = 0;
+          setInterval(function () {
+            system.stop();
+            intCounter++;
+            if (intCounter > 1) {
+              system.start();
+              intCounter = 0;
+            }
+            console.log("intCounter = " + intCounter);
+          }, 5000);
+
+        });
       BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.scene, false).then((system) => {
-        let vectorEmitter = new BABYLON.Vector3(2, 0.4, 3.5);
-        system.emitter = vectorEmitter;
+
         console.log("Stars created!");
-        
-        let partPosArray = [
-          new BABYLON.Vector3(2, 0.4, 3.5),
-          new BABYLON.Vector3(7, 4, 3.5),
-          new BABYLON.Vector3(2, 4, 3.5),
-          new BABYLON.Vector3(7, 4, -3.5),
-          new BABYLON.Vector3(-3, 0.5, 3.5),
-          new BABYLON.Vector3(7, 0.5, 3.5),
-          new BABYLON.Vector3(-3, 0.5, -4.5),
-          new BABYLON.Vector3(-3, 4, 3.5),
-          new BABYLON.Vector3(-3, 4, -4.5),
-          new BABYLON.Vector3(7, 0.5, -3.5)
-        ]
 
         let intCounter = 0;
         setInterval(function () {
