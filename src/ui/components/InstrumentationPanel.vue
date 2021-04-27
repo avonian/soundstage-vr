@@ -6,6 +6,10 @@
                 <td id="info-total-meshes"></td>
             </tr>
             <tr>
+                <td class="font-medium pr-2">Active Meshes</td>
+                <td id="info-active-meshes"></td>
+            </tr>
+            <tr>
                 <td class="font-medium pr-2">Total Materials</td>
                 <td id="info-total-materials"></td>
             </tr>
@@ -27,16 +31,10 @@
             </tr>
             <tr>
                 <td class="font-medium pr-2">Scene Frame Time</td>
-                <td id="info-frame-time"></td>
                 <td id="info-frame-time-max"></td>
             </tr>
             <tr>
-                <td class="font-medium pr-2">Delta Time</td>
-                <td id="info-frame-delta-time"></td>
-            </tr>
-            <tr>
                 <td class="font-medium pr-2">Active Meshes Eval Time</td>
-                <td id="info-eval-time"></td>
                 <td id="info-eval-time-max"></td>
             </tr>
             <tr>
@@ -152,22 +150,16 @@
           }
           return videoTextureCounter;
         }
-        function checkDeltaTime() {
-          if (scene.deltaTime) {
-            return scene.deltaTime.toFixed();
-          }
-        }
+
         scene.registerAfterRender(() => {
           document.querySelector('#info-total-meshes').innerHTML = scene.meshes.length;
+          document.querySelector('#info-active-meshes').innerHTML = scene.getActiveMeshes().length;
           document.querySelector('#info-total-materials').innerHTML = scene.materials.length;
           document.querySelector('#info-total-textures').innerHTML = scene.textures.length;
           document.querySelector('#info-total-videotextures').innerHTML = videoTextureCount().toString();
           document.querySelector('#info-total-animations').innerHTML = scene.animatables.length;
           document.querySelector('#info-draw-calls').innerHTML = sceneInstrumentation.drawCallsCounter.current;
-          document.querySelector('#info-frame-time').innerHTML = sceneInstrumentation.frameTimeCounter.current.toFixed();
           document.querySelector('#info-frame-time-max').innerHTML = sceneInstrumentation.frameTimeCounter.lastSecAverage.toFixed(2);
-          document.querySelector('#info-frame-delta-time').innerHTML = checkDeltaTime();
-          document.querySelector('#info-eval-time').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.current.toFixed();
           document.querySelector('#info-eval-time-max').innerHTML = sceneInstrumentation.activeMeshesEvaluationTimeCounter.lastSecAverage.toFixed(2);
           document.querySelector('#info-particles-time').innerHTML = sceneInstrumentation.particlesRenderTimeCounter.current.toFixed(2);
           document.querySelector('#info-inter-frame').innerHTML = sceneInstrumentation.interFrameTimeCounter.lastSecAverage.toFixed();
