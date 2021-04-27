@@ -1142,6 +1142,42 @@ export class NightClub extends World {
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
     }
+    // Initial function for mood particles
+    if (event.key === "p") {
+      console.clear();
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.scene, false).then((system) => {
+        let vectorEmitter = new BABYLON.Vector3(2, 0.4, 3.5);
+        system.emitter = vectorEmitter;
+        console.log("Stars created!");
+        
+        let partPosArray = [
+          new BABYLON.Vector3(2, 0.4, 3.5),
+          new BABYLON.Vector3(7, 4, 3.5),
+          new BABYLON.Vector3(2, 4, 3.5),
+          new BABYLON.Vector3(7, 4, -3.5),
+          new BABYLON.Vector3(-3, 0.5, 3.5),
+          new BABYLON.Vector3(7, 0.5, 3.5),
+          new BABYLON.Vector3(-3, 0.5, -4.5),
+          new BABYLON.Vector3(-3, 4, 3.5),
+          new BABYLON.Vector3(-3, 4, -4.5),
+          new BABYLON.Vector3(7, 0.5, -3.5)
+        ]
+
+        let intCounter = 0;
+        setInterval(function () {
+          console.log("partSystemPos moved ")
+          system.emitter = partPosArray[intCounter];
+          intCounter++;
+          console.log(intCounter);
+          if (intCounter > partPosArray.length) {
+            intCounter = 0;
+            system.emitter = partPosArray[intCounter];
+          }
+          console.log(system.emitter);
+        }, 3000);
+      });
+    }
+
   }
 
   startSavingState() {
