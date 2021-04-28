@@ -408,10 +408,15 @@ export class NightClub extends World {
       && /Chair_.*_Red_15380.*/.test(pointerInfo.pickInfo.pickedMesh.name)
     ) {
       var dest = new BABYLON.Vector3(pointerInfo.pickInfo.pickedPoint.x, pointerInfo.pickInfo.pickedPoint.y+.5, pointerInfo.pickInfo.pickedPoint.z);
-      if ( ! this.animateCamera ) {
-        this.animateCamera = VRSPACEUI.createAnimation(this.camera1, "position", 1);
+      var pos = this.camera1.position.clone();
+      var distance = dest.subtract(pos).length();
+      //console.log( distance, pos, dest);
+      if ( distance < 2 ) {
+        if ( ! this.animateCamera ) {
+          this.animateCamera = VRSPACEUI.createAnimation(this.camera1, "position", 1);
+        }
+        VRSPACEUI.updateAnimation(this.animateCamera, pos, dest);
       }
-      VRSPACEUI.updateAnimation(this.animateCamera, this.camera1.position.clone(), dest);
     }
   }
   
