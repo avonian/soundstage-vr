@@ -185,7 +185,7 @@ export class StageControls {
     this.world.scene.animations.push(environmentIntensityAnimation);
     this.world.scene.beginAnimation(this.world.scene, 0, transitionInterval, false, 1, callback);
   }
-  animateDjSpotLight(intensity, transitionInterval, callback) {
+  animateDJSpotLight(intensity, transitionInterval, callback) {
     let DJSpotLightAnimation = new BABYLON.Animation("DJSpotLightAnimation", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
     let keys = [
       {
@@ -295,8 +295,8 @@ export class StageControls {
       case "changeFog":
         this.animateFog(this.fogSettings[event.fogSetting], 300);
         break;
-      case "changeDjSpotLightIntensity":
-        this.animateDjSpotLight(event.intensity, 50);
+      case "changeDJSpotLightIntensity":
+        this.animateDJSpotLight(event.intensity, 50);
         break;
     }
 
