@@ -39,12 +39,14 @@
                 :mood-sets="moodSets"
                 :fog-settings="fogSettings"
                 :showing-user-videos="showUserVideosPanel"
+                :DJSpotLightIntensity="DJSpotLightIntensity"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
                 @changeMood="changeMood"
                 @changeCubeTexture="changeCubeTexture"
-                @changeFog="changeFog"/>
+                @changeFog="changeFog"
+                @changeDjSpotLightIntensity="changeDjSpotLightIntensity($event)"/>
         <UserControls v-show="showControls"
                 :debugging="debugging"
                 :recording="recording"
@@ -175,6 +177,7 @@
         cubeTextures: [],
         moodSets: [],
         fogSettings: [],
+        DJSpotLightIntensity: 0,
         showInstrumentation: false,
         graphicsOptions: [
           {
@@ -448,6 +451,11 @@
               this.cubeTextures = this.world.stageControls.cubeTextures;
               this.fogSettings = this.world.stageControls.fogSettings;
 
+              world.adjustGraphicsQuality(this.userSettings.graphicsQuality);
+              if(this.world.customizer.DJSpotLight) {
+                this.DJSpotLightIntensity = this.world.customizer.DJSpotLight.intensity;
+              }
+
               if(this.eventConfig['permissions']['stage_controls']) {
                 this.world.startSavingState();
               }
@@ -557,7 +565,7 @@
           }
 
           this.showSettings = false;
-          world.adjustGraphicsQuality(this.userSettings.graphicsQuality);
+          world.adjustGraphicsQuality(this.userSettings.graphicsQuality, () => this.world.applyState());
         }
       },
       cycleCamera: function () {
@@ -753,6 +761,11 @@
       },
       changeFog () {
         let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      changeDjSpotLightIntensity (value) {
+        this.DJSpotLightIntensity = value;
+        let stageEvent = { action: 'changeDjSpotLightIntensity', intensity: value };
         world.stageControls.executeAndSend(stageEvent);
       },
       playCameraAnimations(i) {

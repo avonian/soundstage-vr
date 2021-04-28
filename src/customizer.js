@@ -20,6 +20,21 @@ export class Customizer {
       }
     }
   }
+  initDjSpotLight() {
+    if(this.DJSpotLight) {
+      this.DJSpotLight.dispose();
+    }
+    if(this.world.userSettings.graphicsQuality !== 'medium' && this.world.userSettings.graphicsQuality !== 'high') {
+      return;
+    }
+    // Making the light over DJ table
+    this.DJSpotLight = new BABYLON.SpotLight("DJSpotLight", new BABYLON.Vector3(2, 2, 4.2),
+      new BABYLON.Vector3(0.1, -1, 0), BABYLON.Tools.ToRadians(300), 1, this.scene);
+    this.DJSpotLight.intensity = 0;
+    this.DJSpotLight.angle = BABYLON.Tools.ToRadians(300);
+    this.DJSpotLight.diffuse = new BABYLON.Color3(50, 50, 50);
+    this.DJSpotLight.range = 20;
+  }
   initBarLights () {
     if(this.barLights) {
       this.barLights.forEach((light) => {

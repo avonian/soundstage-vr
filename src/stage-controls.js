@@ -184,7 +184,24 @@ export class StageControls {
     this.world.scene.animations = [];
     this.world.scene.animations.push(environmentIntensityAnimation);
     this.world.scene.beginAnimation(this.world.scene, 0, transitionInterval, false, 1, callback);
-
+  }
+  animateDjSpotLight(intensity, transitionInterval, callback) {
+    let DJSpotLightAnimation = new BABYLON.Animation("DJSpotLightAnimation", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+    let keys = [
+      {
+        frame: 0,
+        value: this.world.customizer.DJSpotLight.intensity
+      },
+      {
+        frame: transitionInterval,
+        value: intensity
+      },
+    ];
+    DJSpotLightAnimation.setKeys(keys);
+    let DJSpotLight = this.world.customizer.DJSpotLight;
+    DJSpotLight.animations = [];
+    DJSpotLight.animations.push(DJSpotLightAnimation);
+    this.world.scene.beginAnimation(DJSpotLight, 0, transitionInterval, false, 1, callback);
   }
   changeMood(moodSetName) {
     if(moodSetName) {
@@ -277,6 +294,9 @@ export class StageControls {
         break;
       case "changeFog":
         this.animateFog(this.fogSettings[event.fogSetting], 300);
+        break;
+      case "changeDjSpotLightIntensity":
+        this.animateDjSpotLight(event.intensity, 50);
         break;
     }
 

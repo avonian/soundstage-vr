@@ -694,7 +694,8 @@ export class NightClub extends World {
           fogDensity: this.scene.fogDensity,
           environmentIntensity: this.scene.environmentIntensity,
           environmentTexture: this.stageControls.activeCubeTexture,
-          pedestalColor: this.stageControls.pedestal.material.emissiveColor
+          pedestalColor: this.stageControls.pedestal.material.emissiveColor,
+          DJSpotLightIntensity: this.customizer.DJSpotLightIntensity
         }
     };
     return new Promise((resolve,reject) => {
@@ -1034,7 +1035,7 @@ export class NightClub extends World {
     return video;
   }
 
-  adjustGraphicsQuality(setting) {
+  adjustGraphicsQuality(setting, callback) {
     var setVisibility = (meshes, isVisible) => {
       this.scene.meshes.forEach(mesh => {
         for(let name of meshes) {
@@ -1072,6 +1073,7 @@ export class NightClub extends World {
     let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
     pipeline.samples = aa_samples;
     this.customizer.initBarLights();
+    this.customizer.initDjSpotLight();
 
     // Lights optimization
       if (this.scene.getTransformNodeByName("allBarLights")) {
@@ -1099,6 +1101,9 @@ export class NightClub extends World {
     }
     console.log("BarLights ", this.customizer.barLights);
     console.log("Graphics quality: " + setting);
+    if(callback) {
+      callback();
+    }
   }
 
 // FOR TESTING, WILL BE REMOVED
@@ -1204,12 +1209,16 @@ export class NightClub extends World {
     state.environmentTexture = this.stageControls.activeCubeTexture;
     state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
     state.userBeingCasted = this.stageControls.userBeingCasted;
-    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor
+    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
+    if(this.customizer) {
+      state.DJSpotLightIntensity = this.customizer.DJSpotLight ? this.customizer.DJSpotLight.intensity : false;
+    }
     this.worldState.publish();
   }
 
   applyState() {
     let state = this.worldState.properties;
+
     this.stageControls.activeMood = state.activeMood;
     this.stageControls.activeCubeTexture = state.environmentTexture;
     this.stageControls.changeCubeTexture(state.environmentTexture);
@@ -1223,8 +1232,15 @@ export class NightClub extends World {
       this.stageControls.pedestal.material.emissiveColor = new BABYLON.Color3(state.pedestalColor['r'], state.pedestalColor['g'], state.pedestalColor['b']);
       let pedestalColors = [this.stageControls.pedestal.material.emissiveColor, ...moodSet.pedestalColor];
       this.stageControls.animatePedestalColor(pedestalColors, moodSet.pedestalTransitionInterval, moodSet.pedestalWaitInterval, true);
+
+      console.log('djspotlightintensityf', state.DJSpotLightIntensity);
+      if(state.DJSpotLightIntensity && this.customizer.DJSpotLight) {
+        this.customizer.DJSpotLight.intensity = state.DJSpotLightIntensity;
+      }
+
       setTimeout(() => {
         document.querySelector('#moodSet').value = state.activeMood;
+        document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity
       }, 1000);
     }
   }
