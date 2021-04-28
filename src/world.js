@@ -373,13 +373,32 @@ export class NightClub extends World {
       }
     }
 
+    // handle click on barstools
+    this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
+
     if ( this.afterLoad ) {
       this.afterLoad();
     }
     
   }
 
-
+  handleClick(pointerInfo) {
+    if ( this.activeCameraType === 'free' ) {
+      return;
+    }
+    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP 
+      && pointerInfo.event.button == 0 // LMB
+      // regex to match red bar stool top mesh name:
+      && /Chair_.*_Red_15380.*/.test(pointerInfo.pickInfo.pickedMesh.name)
+    ) {
+      var dest = new BABYLON.Vector3(pointerInfo.pickInfo.pickedPoint.x, pointerInfo.pickInfo.pickedPoint.y+.5, pointerInfo.pickInfo.pickedPoint.z);
+      if ( ! this.animateCamera ) {
+        this.animateCamera = VRSPACEUI.createAnimation(this.camera1, "position", 1);
+      }
+      VRSPACEUI.updateAnimation(this.animateCamera, this.camera1.position.clone(), dest);
+    }
+  }
+  
   trackAvatarRotations(enable) {
     if ( this.trackAvatarRotation == enable ) {
       return;
