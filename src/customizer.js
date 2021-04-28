@@ -32,7 +32,7 @@ export class Customizer {
       new BABYLON.Vector3(0.1, -1, 0), BABYLON.Tools.ToRadians(300), 1, this.scene);
     this.DJSpotLight.intensity = 0;
     this.DJSpotLight.angle = BABYLON.Tools.ToRadians(300);
-    this.DJSpotLight.diffuse = new BABYLON.Color3(50, 50, 50);
+    this.DJSpotLight.diffuse = new BABYLON.Color3(80,30, 50)
     this.DJSpotLight.range = 20;
   }
   initBarLights () {
