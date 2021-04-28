@@ -46,7 +46,7 @@
                 @changeMood="changeMood"
                 @changeCubeTexture="changeCubeTexture"
                 @changeFog="changeFog"
-                @changeDjSpotLightIntensity="changeDjSpotLightIntensity($event)"/>
+                @changeDJSpotLightIntensity="changeDJSpotLightIntensity($event)"/>
         <UserControls v-show="showControls"
                 :debugging="debugging"
                 :recording="recording"
@@ -763,9 +763,9 @@
         let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
         world.stageControls.executeAndSend(stageEvent);
       },
-      changeDjSpotLightIntensity (value) {
+      changeDJSpotLightIntensity (value) {
         this.DJSpotLightIntensity = value;
-        let stageEvent = { action: 'changeDjSpotLightIntensity', intensity: value };
+        let stageEvent = { action: 'changeDJSpotLightIntensity', intensity: value };
         world.stageControls.executeAndSend(stageEvent);
       },
       playCameraAnimations(i) {

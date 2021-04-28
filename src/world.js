@@ -1073,7 +1073,7 @@ export class NightClub extends World {
     let pipeline = this.scene.postProcessRenderPipelineManager.supportedPipelines[0];
     pipeline.samples = aa_samples;
     this.customizer.initBarLights();
-    this.customizer.initDjSpotLight();
+    this.customizer.initDJSpotLight();
 
     // Lights optimization
       if (this.scene.getTransformNodeByName("allBarLights")) {

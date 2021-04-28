@@ -40,7 +40,7 @@
             <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')">
                 <option :value="setting" v-for="setting of Object.keys(fogSettings)" :key="setting">{{ setting }}</option>
             </select>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" @change="$emit('changeDjSpotLightIntensity', $event.target.value)">
+            <select class="bg-white text-sm text-black mr-3 rounded-md" @change="$emit('changeDJSpotLightIntensity', $event.target.value)">
                 <option :value="setting" v-for="setting of [0, 0.1, 0.2, 0.5]" :selected="setting === DJSpotLightIntensity" :key="setting">{{ setting }}</option>
             </select>
         </div>

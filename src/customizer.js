@@ -20,7 +20,7 @@ export class Customizer {
       }
     }
   }
-  initDjSpotLight() {
+  initDJSpotLight() {
     if(this.DJSpotLight) {
       this.DJSpotLight.dispose();
     }
