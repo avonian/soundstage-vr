@@ -395,6 +395,8 @@
           world.afterLoad = () => {
             setTimeout(() => {
               document.querySelector('#progress-splash').remove()
+              canvas.setAttribute('tabindex', '-1')
+              canvas.focus()
             }, 2000)
           }
           // by default, World loads scene.gltf from current directory
