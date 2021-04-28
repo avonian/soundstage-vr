@@ -376,10 +376,26 @@ export class NightClub extends World {
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
+    // collision debug, may very noisy
+    //this.camera1.onCollide = m => {
+    //  if ( m.name.startsWith('Lamp')) {
+    //    console.log('Collided with '+m.checkCollisions, m);
+    //  }
+    //}
+    
     if ( this.afterLoad ) {
       this.afterLoad();
     }
     
+  }
+
+  /**
+  Overridden, called for every mesh when safe. World starts with collisions turned off.
+   */
+  setMeshCollisions(mesh, state) {
+    if ( !mesh.name.startsWith('Lamp')) {
+      mesh.checkCollisions = state;    
+    }
   }
 
   handleClick(pointerInfo) {
