@@ -1320,6 +1320,16 @@ export class NightClub extends World {
         rightPodium.material = savedMat; 
       }, 10000);
     }
+
+    if (event.key === ",") {
+      let instancedVideo = this.scene.getMeshByName("WindowVideo").createInstance("WindowVideo-Instance");
+      instancedVideo.position.x = 2;
+      instancedVideo.position.y = 0;
+      instancedVideo.position.z = -8;
+      instancedVideo.scaling = new BABYLON.Vector3(3, 3, 3);
+      instancedVideo.rotate(new BABYLON.Vector3(1, 0, 0), Math.PI / 2, BABYLON.Space.WORLD);
+      instancedVideo.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
+    }
   }
 
   startSavingState() {
