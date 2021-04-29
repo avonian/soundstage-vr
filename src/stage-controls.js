@@ -200,8 +200,42 @@ export class StageControls {
     DJSpotLightAnimation.setKeys(keys);
     let DJSpotLight = this.world.customizer.DJSpotLight;
     DJSpotLight.animations = [];
-    DJSpotLight.animations.push(DJSpotLightAnimation);
+    DJSpotLight.animations.push(DJSpotLightAnimation)
     this.world.scene.beginAnimation(DJSpotLight, 0, transitionInterval, false, 1, callback);
+  }
+  raiseDJPlatform(raise = true, transitionInterval = 150) {
+    let mesh = this.world.scene.getMeshByName("Pedestal.002_Pedestal.002_Blue_15390");
+    mesh.animations = [];
+
+    let meshPositionAnimation = new BABYLON.Animation("meshPositionAnimation", `position.y`, 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+    let positionKeys = [
+      {
+        frame: 0,
+        value: mesh.position.y
+      },
+      {
+        frame: transitionInterval,
+        value: raise ? -0.84 : -1.004
+      },
+    ];
+    meshPositionAnimation.setKeys(positionKeys);
+    mesh.animations.push(meshPositionAnimation);
+
+    let meshScalingAnimation = new BABYLON.Animation("meshScalingAnimation", `_scaling.y`, 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+    let scaleKeys = [
+      {
+        frame: 0,
+        value: mesh._scaling.y
+      },
+      {
+        frame: transitionInterval / 1.5,
+        value: raise ? 1 : 1.4
+      },
+    ];
+    meshScalingAnimation.setKeys(scaleKeys);
+    mesh.animations.push(meshScalingAnimation);
+
+    this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1);
   }
   changeMood(moodSetName) {
     if(moodSetName) {
@@ -296,7 +330,9 @@ export class StageControls {
         this.animateFog(this.fogSettings[event.fogSetting], 300);
         break;
       case "changeDJSpotLightIntensity":
-        this.animateDJSpotLight(event.intensity, 50);
+        this.animateDJSpotLight(event.intensity, 50, () => {
+          this.raiseDJPlatform(event.intensity > 0);
+        });
         break;
     }
 

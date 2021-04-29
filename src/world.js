@@ -376,6 +376,33 @@ export class NightClub extends World {
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
+    this.scene.getMeshByName('Pedestal.002_Pedestal.002_Blue_15390').position = new BABYLON.Vector3(-0.124, -1.004, -0.962);
+    this.scene.getMeshByName('Pedestal.002_Pedestal.002_Blue_15390')._scaling.y = 1.400;
+    // turn off lights on platform
+/*
+    this.mainStage = [
+      "Pedestal.002_Pedestal.002_Blue_15390",
+      "DJTableVideo",
+      "DJ_Table_DJ_Table_metal_table_15812",
+      "DJ_Table_DJ_Table_table_15810",
+      "Pedestal.002_Pedestal.002_Blue_15390",
+      "Pedestal.002_Pedestal.002_Emission_2_15348",
+      "Cube",
+      "Cube.1",
+    ]
+    this.mainStage.forEach((m) => {
+       this.scene.getMeshByName(m).position.y -= 0.09;
+    })
+    this.scene.meshes.forEach(mesh => {
+      if (mesh.name.includes("Sampler") || mesh.name.includes("Mixer") || mesh.name.includes("Player") || mesh.name.includes("Display")) {
+        mesh.position.y -= 0.09;
+      }
+    });
+
+ */
+    // this.scene.getMeshByName("Pedestal.002_Pedestal.002_Emission_2_15348").material
+    // this.scene.getMeshByName("Pedestal.002_Pedestal.002_Emission_2_15348").material = this.scene.getMeshByName("Pedestal.002_Pedestal.002_Blue_15390").material;
+
     // collision debug, may very noisy
     //this.camera1.onCollide = m => {
     //  if ( m.name.startsWith('Lamp')) {
