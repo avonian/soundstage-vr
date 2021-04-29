@@ -37,7 +37,7 @@
             <select class="bg-white text-sm text-black mr-3 rounded-md hidden" id="cubeTexture" @change="$emit('changeCubeTexture')">
                 <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
             </select>
-            <select class="bg-white text-sm text-black mr-3 rounded-md hidden" id="fogSetting" @change="$emit('changeFog')">
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')">
                 <option :value="setting" v-for="setting of Object.keys(fogSettings)" :key="setting">{{ setting }}</option>
             </select>
             <select class="bg-white text-sm text-black mr-3 rounded-md" @change="$emit('changeDJSpotLightIntensity', $event.target.value)">
@@ -50,6 +50,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
             </a>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+               :class="gridFloorOn ? 'gradient-ultra' : 'bg-gray-500'"
+               @click="$emit('toggleGridFloor')">
+                Grid Floor
+            </a>
+            <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
         </div>
     </div>
 </template>
@@ -57,6 +63,6 @@
 <script>
     export default {
       name: "StageControls",
-      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettings', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn']
+      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettings', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn']
     }
 </script>

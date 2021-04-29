@@ -41,6 +41,7 @@
                 :showing-user-videos="showUserVideosPanel"
                 :DJSpotLightIntensity="DJSpotLightIntensity"
                 :tunnelLightsOn="tunnelLightsOn"
+                :gridFloorOn="gridFloorOn"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
@@ -49,6 +50,7 @@
                 @changeFog="changeFog"
                 @changeDJSpotLightIntensity="changeDJSpotLightIntensity($event)"
                 @toggleTunnelLights="toggleTunnelLights"
+                @toggleGridFloor="toggleGridFloor"
                 />
         <UserControls v-show="showControls"
                 :debugging="debugging"
@@ -182,6 +184,7 @@
         fogSettings: [],
         DJSpotLightIntensity: 0,
         tunnelLightsOn: false,
+        gridFloorOn: false,
         showInstrumentation: false,
         graphicsOptions: [
           {
@@ -777,6 +780,11 @@
       toggleTunnelLights () {
         this.tunnelLightsOn = this.tunnelLightsOn !== true;
         let stageEvent = { action: 'toggleTunnelLights', value: this.tunnelLightsOn };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      toggleGridFloor () {
+        this.gridFloorOn = this.gridFloorOn !== true;
+        let stageEvent = { action: 'toggleGridFloor', value: this.gridFloorOn };
         world.stageControls.executeAndSend(stageEvent);
       },
       playCameraAnimations(i) {

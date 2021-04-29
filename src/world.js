@@ -690,7 +690,8 @@ export class NightClub extends World {
           pedestalColor: this.stageControls.pedestal.material.emissiveColor,
           DJSpotLightIntensity: this.customizer.DJSpotLightIntensity,
           DJPlatformRaised: this.stageControls.DJPlatformRaised,
-          tunnelLightsOn: this.stageControls.tunnelLightsOn
+          tunnelLightsOn: this.stageControls.tunnelLightsOn,
+          gridFloorOn: this.stageControls.gridFloorOn,
         }
     };
     return new Promise((resolve,reject) => {
@@ -1188,14 +1189,15 @@ export class NightClub extends World {
     if(!this.saveInterval) {
       this.saveInterval = setInterval(() => {
         this.saveState()
-      }, 1000);
+      }, 2000);
     }
   }
 
   async saveState() {
-    if ( ! this.worldState ) {
+    if ( ! this.worldState || document.querySelector("#saveState").checked === false) {
       return;
     }
+    console.log('saving');
     let state = this.worldState.properties;
     state.activeMood = this.stageControls.activeMood;
     state.fogColor = this.scene.fogColor;
@@ -1207,6 +1209,7 @@ export class NightClub extends World {
     state.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
     state.DJPlatformRaised = this.stageControls.DJPlatformRaised;
     state.tunnelLightsOn = this.stageControls.tunnelLightsOn;
+    state.gridFloorOn = this.stageControls.gridFloorOn;
     if(this.customizer) {
       state.DJSpotLightIntensity = this.customizer.DJSpotLight ? this.customizer.DJSpotLight.intensity : false;
     }
@@ -1226,6 +1229,7 @@ export class NightClub extends World {
 
     this.stageControls.raiseDJPlatform(state.DJPlatformRaised, 0)
     this.stageControls.toggleTunnelLights(state.tunnelLightsOn, 0);
+    this.stageControls.toggleGridFloor(state.gridFloorOn);
 
     if(state.DJSpotLightIntensity && this.customizer.DJSpotLight) {
       this.customizer.DJSpotLight.intensity = state.DJSpotLightIntensity;
@@ -1245,6 +1249,7 @@ export class NightClub extends World {
       }
       document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
       document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;
+      document.querySelector("#app")._vnode.component.data.gridFloorOn = state.gridFloorOn;
     }, 1000);
   }
 

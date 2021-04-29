@@ -11,6 +11,8 @@ export class StageControls {
     this.pedestalColorAnimation = false;
     this.DJPlatformRaised = false;
     this.tunnelLightsOn = false;
+    this.gridFloorOn = false;
+    this.gridFloorInterval = false;
     this.cubeTextures = {
       default: { url: 'https://playground.babylonjs.com/textures/environment.env', environmentIntensity: 1 },
       runyon: { url: 'https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env', environmentIntensity: 1.4 },
@@ -274,6 +276,37 @@ export class StageControls {
       }
     });
   }
+  toggleGridFloor(on = true, speed = 500) {
+
+    this.gridFloorOn = on;
+
+    let gridFloor = this.world.scene.getMeshByName("gridFloor");
+    if(this.gridFloorOn) {
+      if (!gridFloor) {
+        // need to include materialsLibrary/babylonjs.materials.min.js in public/index.html
+        let gridFloorMat = new BABYLON.GridMaterial("gridFloorMat", this.world.scene);
+        gridFloorMat.gridRatio = 0.1;
+        gridFloorMat.lineColor = BABYLON.Color3.Purple();
+        gridFloor = BABYLON.MeshBuilder.CreateGround("gridFloor", { width: 20, height: 20 }, this.world.scene);
+        gridFloor.material = gridFloorMat;
+        gridFloor.position.x = 2; // in the center
+        gridFloor.position.z = -4;
+      }
+
+      let gridFloorMat = this.world.scene.getMaterialByName("gridFloorMat");
+      this.gridFloorInterval = setInterval(function () {
+        gridFloorMat.lineColor = BABYLON.Color3.Random();
+      }, speed);
+      gridFloor.visibility = 1;
+    } else {
+      if(gridFloor) {
+        gridFloor.visibility = 0;
+      }
+      clearInterval(this.gridFloorInterval);
+      this.gridFloorInterval = false;
+    }
+
+  }
   changeMood(moodSetName) {
     if(moodSetName) {
       let moodSet = this.moodSets[moodSetName];
@@ -373,6 +406,9 @@ export class StageControls {
         break;
       case "toggleTunnelLights":
         this.toggleTunnelLights(event.value);
+        break;
+      case "toggleGridFloor":
+        this.toggleGridFloor(event.value, event.speed);
         break;
     }
 
