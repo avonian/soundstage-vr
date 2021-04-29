@@ -1305,6 +1305,21 @@ export class NightClub extends World {
           }, particlesTimeout);
         });
     }
+
+    // Video podiums
+    if (event.key === "v") {
+      let leftPodium = this.scene.getMeshByName("Pedestal_Pedestal_Blue_15390");
+      let rightPodium = this.scene.getMeshByName("Pedestal.001_Pedestal.001_Blue_15390");
+      let videoMesh = this.scene.getMeshByName("WindowVideo");
+      let savedMat = leftPodium.material; // save material to restore after
+      leftPodium.material = videoMesh.material;
+      rightPodium.material = videoMesh.material; 
+      console.log("Video Podium");
+      setTimeout(function () {
+        leftPodium.material = savedMat;
+        rightPodium.material = savedMat; 
+      }, 10000);
+    }
   }
 
   startSavingState() {
