@@ -3,6 +3,7 @@ export class Customizer {
     this.world = world;
     this.eventConfig = world.eventConfig;
     this.barLights = [];
+    this.initPosters();
   }
   initPosters () {
     const posters = this.eventConfig.posters;
