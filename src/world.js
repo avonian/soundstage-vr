@@ -1328,8 +1328,8 @@ export class NightClub extends World {
       let instancedVideo = this.scene.getMeshByName("WindowVideo").createInstance("WindowVideo-Instance");
       instancedVideo.position.x = 2;
       instancedVideo.position.y = 0;
-      instancedVideo.position.z = -8;
-      instancedVideo.scaling.scaleInPlace(3);
+      instancedVideo.position.z = -6;
+      instancedVideo.scaling.scaleInPlace(1.8);
       instancedVideo.rotate(new BABYLON.Vector3(1, 0, 0), Math.PI / 2, BABYLON.Space.WORLD);
       instancedVideo.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
     }
@@ -1338,13 +1338,17 @@ export class NightClub extends World {
       let videoMaterial = new BABYLON.StandardMaterial("videoMat", this.scene);
       videoMaterial.disableLighting = true;
       let videoTexture = new BABYLON.VideoTexture("videoTexture",
-        "https://assets.soundstage.fm/vr/beat-swiper.mp4",
+        "https://playground.babylonjs.com/textures/babylonjs.mp4",
         this.scene, true, true, null, {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
         loop: true
       });
+      videoTexture.vScale = -1;
+      videoTexture.uScale = -1;
+      //  videoTexture.uAng = BABYLON.Tools.ToRadians(180)
+      //  videoTexture.vAng = BABYLON.Tools.ToRadians(180);
       let videoMesh = this.scene.getMeshByName("Room_Room_Base_1_15402");
       videoMaterial.emissiveTexture = videoTexture;
       videoMesh.material = videoMaterial;
