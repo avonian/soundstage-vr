@@ -1176,7 +1176,7 @@ export class NightClub extends World {
       mat.emissiveColor = BABYLON.Color3.Black();
       let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Blue_15390");
       tempMesh.material = mat;
-      console.log("FLOOR");
+      console.log("NOISE FLOOR");
     }
     // for future Slideshow
     if(event.key === "h") {
@@ -1186,6 +1186,124 @@ export class NightClub extends World {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
+    }
+
+    // Grid floor
+    if (event.key === "g") {
+      // need to include materialsLibrary/babylonjs.materials.min.js in public/index.html
+      let gridFloorMat = new BABYLON.GridMaterial("gridFloorMat", this.scene);
+      gridFloorMat.gridRatio = 0.1;
+      gridFloorMat.lineColor = BABYLON.Color3.Purple();
+      let gridFloor = BABYLON.MeshBuilder.CreateGround("gridFloor", { width: 20, height: 20 }, this.scene);
+      gridFloor.material = gridFloorMat;
+      gridFloor.position.x = 2; // in the center 
+      gridFloor.position.z = -4; 
+    }
+
+    // Grid floor random color change
+    if (event.key === "c") {
+      if (this.scene.getMaterialByName("gridFloorMat")) {
+        let changeGridColorSpeed = 1000;
+        let gridFloorMat = this.scene.getMaterialByName("gridFloorMat");
+        setInterval(function () {
+          gridFloorMat.lineColor = BABYLON.Color3.Random();
+          console.log(gridFloorMat.lineColor);
+        }, changeGridColorSpeed);
+      }
+    }
+
+    // Gravity Invertor for "Always on Top" bar drink :)
+    if (event.key === "i") {
+      this.scene.gravity.y = 0.01;
+      console.log("Gravity inverted ")
+    }
+    // Return to default gravity
+    if (event.key === "u") {
+      this.scene.gravity.y = -0.01;
+      console.log("Gravity restored ")
+    }
+
+    // Move user under the stairs and put into "prison" :)
+    // This space could be used for private conversations with muted music
+    if (event.key === "[") {
+      this.scene.activeCamera.position = new BABYLON.Vector3(8, 1, 0);
+    }
+    if (event.key === "]") { // Free user from "prison"
+      this.scene.activeCamera.position = new BABYLON.Vector3(2, 5, -2);
+    }
+
+    // Mushroom particles :)
+    // But we can use any textures, even emojis
+    // To let users to express their feelings with particles emitting too
+    // We can also bind this to the amplitude-frequency response of the sound casted
+    if (event.key === "m") {
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#33", this.scene, false).then((system) => {
+        console.log("Mushrooms created  ")
+      });
+    }
+
+    // Emits Logo particles over DJ table with timeout
+    if (event.key === "l") {
+      let particlesTimeout = 5000;
+      //Logo particles: create, start by default, stop, dispose after timeout to let stop gracefully
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#29", this.scene, false).then((system) => {
+        system.emitter = new BABYLON.Vector3(2, 4, 5.5);
+        setTimeout(function () {
+          system.stop();
+          setTimeout(() => system.dispose(), system.maxLifeTime+1000);
+        }, particlesTimeout);
+      });
+    }
+
+    // Initial function for mood particles
+    if (event.key === "p") {
+      console.clear();
+      // Positions array to move particles emitter
+      let partPosArray = [
+        new BABYLON.Vector3(2, 0.4, 3.5),
+        new BABYLON.Vector3(7, 4, 3.5),
+        new BABYLON.Vector3(2, 4, 3.5),
+        new BABYLON.Vector3(7, 4, -3.5),
+        new BABYLON.Vector3(-3, 0.5, 3.5),
+        new BABYLON.Vector3(7, 0.5, 3.5),
+        new BABYLON.Vector3(-3, 0.5, -4.5),
+        new BABYLON.Vector3(-3, 4, 3.5),
+        new BABYLON.Vector3(-3, 4, -4.5),
+        new BABYLON.Vector3(7, 0.5, -3.5)
+      ]
+      // For reliability it may be better to use json file for particles instead of snippet - later
+      let particlesTimeout = 5000;
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.scene, false).then((system) => {
+        console.log("Stars created!");
+        let intCounter = 0;
+        setInterval(function () {
+        //  console.log("partSystemPos moved ")
+          system.emitter = partPosArray[intCounter];
+          intCounter++;
+        //  console.log(intCounter);
+          if (intCounter > partPosArray.length) {
+            intCounter = 0;
+            system.emitter = partPosArray[intCounter];
+          }
+        //  console.log(system.emitter);
+        }, particlesTimeout);
+      });
+      // Sets blue star particles over upstairs central table with start/stop timeout
+      // Some stars are also visible at the bar ceiling
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("P5LNB1",
+        this.scene, false).then((system) => {
+          system.emitter = new BABYLON.Vector3(2, 2, -6);
+          let intCounter = 0;
+          setInterval(function () {
+            system.stop();
+            intCounter++;
+            if (intCounter > 1) {
+              system.start();
+              intCounter = 0;
+            }
+           // console.log("Blue star counter = " + intCounter);
+          }, particlesTimeout);
+        });
     }
   }
 
