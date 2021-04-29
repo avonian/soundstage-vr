@@ -1313,7 +1313,10 @@ export class NightClub extends World {
       let videoMesh = this.scene.getMeshByName("WindowVideo");
       let savedMat = leftPodium.material; // save material to restore after
       leftPodium.material = videoMesh.material;
-      rightPodium.material = videoMesh.material; 
+      leftPodium.material.diffuseTexture.vScale = 1;
+      leftPodium.material.emissiveTexture.vScale = 1;
+      leftPodium.material.emissiveTexture.vOffset = 0;
+      rightPodium.material = leftPodium.material; 
       console.log("Video Podium");
       setTimeout(function () {
         leftPodium.material = savedMat;
@@ -1326,9 +1329,27 @@ export class NightClub extends World {
       instancedVideo.position.x = 2;
       instancedVideo.position.y = 0;
       instancedVideo.position.z = -8;
-      instancedVideo.scaling = new BABYLON.Vector3(3, 3, 3);
+      instancedVideo.scaling.scaleInPlace(3);
       instancedVideo.rotate(new BABYLON.Vector3(1, 0, 0), Math.PI / 2, BABYLON.Space.WORLD);
       instancedVideo.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
+    }
+
+    if (event.key === ".") {
+      let videoMaterial = new BABYLON.StandardMaterial("videoMat", this.scene);
+      videoMaterial.disableLighting = true;
+      let videoTexture = new BABYLON.VideoTexture("videoTexture",
+        "https://assets.soundstage.fm/vr/beat-swiper.mp4",
+        this.scene, true, true, null, {
+        autoUpdateTexture: true,
+        autoPlay: true,
+        muted: true,
+        loop: true
+      });
+      let videoMesh = this.scene.getMeshByName("Room_Room_Base_1_15402");
+      videoMaterial.emissiveTexture = videoTexture;
+      videoMesh.material = videoMaterial;
+
+
     }
   }
 
