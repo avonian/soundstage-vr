@@ -9,6 +9,8 @@ export class StageControls {
     this.videoBeingPlayed = false;
     this.pedestal = this.world.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
     this.pedestalColorAnimation = false;
+    this.DJPlatformRaised = false;
+    this.tunnelLightsOn = false;
     this.cubeTextures = {
       default: { url: 'https://playground.babylonjs.com/textures/environment.env', environmentIntensity: 1 },
       runyon: { url: 'https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env', environmentIntensity: 1.4 },
@@ -204,7 +206,16 @@ export class StageControls {
     this.world.scene.beginAnimation(DJSpotLight, 0, transitionInterval, false, 1, callback);
   }
   raiseDJPlatform(raise = true, transitionInterval = 150) {
+    this.DJPlatformRaised = raise;
     let mesh = this.world.scene.getMeshByName("Pedestal.002_Pedestal.002_Blue_15390");
+
+    // If transition duration = 0 jump to final state
+    if(transitionInterval === 0) {
+      mesh.position.y = raise ? -0.84 : -1.004;
+      mesh._scaling.y = raise ? 1 : 1.4;
+      return;
+    }
+
     mesh.animations = [];
 
     let meshPositionAnimation = new BABYLON.Animation("meshPositionAnimation", `position.y`, 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
@@ -236,6 +247,32 @@ export class StageControls {
     mesh.animations.push(meshScalingAnimation);
 
     this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1);
+  }
+  toggleTunnelLights(on = true, transitionInterval = 100) {
+    this.tunnelLightsOn = on;
+    let meshes = [121, 117, 114, 110, 106, 136, 130, 133, 127, 139];
+    meshes = meshes.map(mesh => this.world.scene.getMeshByUniqueID(mesh))
+    meshes.forEach(mesh => {
+      if(transitionInterval === 0) {
+        mesh.visibility = on ? 1 : 0.2;
+      } else {
+        mesh.animations = [];
+        let meshVisibilityAnimation = new BABYLON.Animation("meshVisibilityAnimation", `visibility`, 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+        let positionKeys = [
+          {
+            frame: 0,
+            value: mesh.visibility
+          },
+          {
+            frame: transitionInterval,
+            value: on ? 1 : 0.2
+          },
+        ];
+        meshVisibilityAnimation.setKeys(positionKeys);
+        mesh.animations.push(meshVisibilityAnimation);
+        this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1);
+      }
+    });
   }
   changeMood(moodSetName) {
     if(moodSetName) {
@@ -333,6 +370,9 @@ export class StageControls {
         this.animateDJSpotLight(event.intensity, 50, () => {
           this.raiseDJPlatform(event.intensity > 0);
         });
+        break;
+      case "toggleTunnelLights":
+        this.toggleTunnelLights(event.value);
         break;
     }
 

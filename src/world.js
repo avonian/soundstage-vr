@@ -376,40 +376,6 @@ export class NightClub extends World {
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
-    this.scene.getMeshByName('Pedestal.002_Pedestal.002_Blue_15390').position = new BABYLON.Vector3(-0.124, -1.004, -0.962);
-    this.scene.getMeshByName('Pedestal.002_Pedestal.002_Blue_15390')._scaling.y = 1.400;
-    // turn off lights on platform
-/*
-    this.mainStage = [
-      "Pedestal.002_Pedestal.002_Blue_15390",
-      "DJTableVideo",
-      "DJ_Table_DJ_Table_metal_table_15812",
-      "DJ_Table_DJ_Table_table_15810",
-      "Pedestal.002_Pedestal.002_Blue_15390",
-      "Pedestal.002_Pedestal.002_Emission_2_15348",
-      "Cube",
-      "Cube.1",
-    ]
-    this.mainStage.forEach((m) => {
-       this.scene.getMeshByName(m).position.y -= 0.09;
-    })
-    this.scene.meshes.forEach(mesh => {
-      if (mesh.name.includes("Sampler") || mesh.name.includes("Mixer") || mesh.name.includes("Player") || mesh.name.includes("Display")) {
-        mesh.position.y -= 0.09;
-      }
-    });
-
- */
-    // this.scene.getMeshByName("Pedestal.002_Pedestal.002_Emission_2_15348").material
-    // this.scene.getMeshByName("Pedestal.002_Pedestal.002_Emission_2_15348").material = this.scene.getMeshByName("Pedestal.002_Pedestal.002_Blue_15390").material;
-
-    // collision debug, may very noisy
-    //this.camera1.onCollide = m => {
-    //  if ( m.name.startsWith('Lamp')) {
-    //    console.log('Collided with '+m.checkCollisions, m);
-    //  }
-    //}
-    
     if ( this.afterLoad ) {
       this.afterLoad();
     }
@@ -722,7 +688,9 @@ export class NightClub extends World {
           environmentIntensity: this.scene.environmentIntensity,
           environmentTexture: this.stageControls.activeCubeTexture,
           pedestalColor: this.stageControls.pedestal.material.emissiveColor,
-          DJSpotLightIntensity: this.customizer.DJSpotLightIntensity
+          DJSpotLightIntensity: this.customizer.DJSpotLightIntensity,
+          DJPlatformRaised: this.stageControls.DJPlatformRaised,
+          tunnelLightsOn: this.stageControls.tunnelLightsOn
         }
     };
     return new Promise((resolve,reject) => {
@@ -1237,6 +1205,8 @@ export class NightClub extends World {
     state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
     state.userBeingCasted = this.stageControls.userBeingCasted;
     state.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
+    state.DJPlatformRaised = this.stageControls.DJPlatformRaised;
+    state.tunnelLightsOn = this.stageControls.tunnelLightsOn;
     if(this.customizer) {
       state.DJSpotLightIntensity = this.customizer.DJSpotLight ? this.customizer.DJSpotLight.intensity : false;
     }
@@ -1254,22 +1224,28 @@ export class NightClub extends World {
     this.scene.fogDensity = state.fogDensity;
     this.scene.environmentIntensity = state.environmentIntensity;
 
+    this.stageControls.raiseDJPlatform(state.DJPlatformRaised, 0)
+    this.stageControls.toggleTunnelLights(state.tunnelLightsOn, 0);
+
+    if(state.DJSpotLightIntensity && this.customizer.DJSpotLight) {
+      this.customizer.DJSpotLight.intensity = state.DJSpotLightIntensity;
+    }
+
     if(state.activeMood) {
       let moodSet = this.stageControls.moodSets[state.activeMood];
       this.stageControls.pedestal.material.emissiveColor = new BABYLON.Color3(state.pedestalColor['r'], state.pedestalColor['g'], state.pedestalColor['b']);
       let pedestalColors = [this.stageControls.pedestal.material.emissiveColor, ...moodSet.pedestalColor];
       this.stageControls.animatePedestalColor(pedestalColors, moodSet.pedestalTransitionInterval, moodSet.pedestalWaitInterval, true);
-
-      console.log('djspotlightintensityf', state.DJSpotLightIntensity);
-      if(state.DJSpotLightIntensity && this.customizer.DJSpotLight) {
-        this.customizer.DJSpotLight.intensity = state.DJSpotLightIntensity;
-      }
-
-      setTimeout(() => {
-        document.querySelector('#moodSet').value = state.activeMood;
-        document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity
-      }, 1000);
     }
+
+    /* Update UI */
+    setTimeout(() => {
+      if(state.activeMood) {
+        document.querySelector('#moodSet').value = state.activeMood;
+      }
+      document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
+      document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;
+    }, 1000);
   }
 
   customize() {

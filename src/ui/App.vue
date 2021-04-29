@@ -40,13 +40,16 @@
                 :fog-settings="fogSettings"
                 :showing-user-videos="showUserVideosPanel"
                 :DJSpotLightIntensity="DJSpotLightIntensity"
+                :tunnelLightsOn="tunnelLightsOn"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
                 @changeMood="changeMood"
                 @changeCubeTexture="changeCubeTexture"
                 @changeFog="changeFog"
-                @changeDJSpotLightIntensity="changeDJSpotLightIntensity($event)"/>
+                @changeDJSpotLightIntensity="changeDJSpotLightIntensity($event)"
+                @toggleTunnelLights="toggleTunnelLights"
+                />
         <UserControls v-show="showControls"
                 :debugging="debugging"
                 :recording="recording"
@@ -178,6 +181,7 @@
         moodSets: [],
         fogSettings: [],
         DJSpotLightIntensity: 0,
+        tunnelLightsOn: false,
         showInstrumentation: false,
         graphicsOptions: [
           {
@@ -768,6 +772,11 @@
       changeDJSpotLightIntensity (value) {
         this.DJSpotLightIntensity = value;
         let stageEvent = { action: 'changeDJSpotLightIntensity', intensity: value };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      toggleTunnelLights () {
+        this.tunnelLightsOn = this.tunnelLightsOn !== true;
+        let stageEvent = { action: 'toggleTunnelLights', value: this.tunnelLightsOn };
         world.stageControls.executeAndSend(stageEvent);
       },
       playCameraAnimations(i) {
