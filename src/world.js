@@ -1078,6 +1078,7 @@ export class NightClub extends World {
     if (setting === "high") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");
+      //TODO: Add includedOnlyMeshes to DJ Spotlight too - after model remake
       this.customizer.barLights.forEach(light => {
         this.scene.meshes.forEach(mesh => {
           // TODO: Rewrite function and mesh name after model remake
@@ -1086,7 +1087,7 @@ export class NightClub extends World {
               light.includedOnlyMeshes.push(mesh); // Array of only needed meshes to minimize computations
           }
           // TODO: Rewrite function after model remake
-          if (mesh.name.includes("Room")) {
+          if (mesh.name.includes("Room") || mesh.name.includes("Bar_counter"))  {
             mesh.material.maxSimultaneousLights = maxLights; // Adding more lights to the room materials
             console.log("maxSimultaneousLights = " + maxLights + " for Material ", mesh.material.name);
           }
