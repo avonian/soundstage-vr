@@ -1324,6 +1324,24 @@ export class NightClub extends World {
       }, 10000);
     }
 
+    // Video tables
+    if (event.key === "z") {
+      let leftPodium = this.scene.getMeshByName("Table_Table.003_Base_2_15346");
+      let rightPodium = this.scene.getMeshByName("Table_(3)_Table_Base_2_15346");
+      let videoMesh = this.scene.getMeshByName("WindowVideo");
+      let savedMat = leftPodium.material; // save material to restore after
+      leftPodium.material = videoMesh.material;
+      leftPodium.material.diffuseTexture.vScale = 1;
+      leftPodium.material.emissiveTexture.vScale = 1;
+      leftPodium.material.emissiveTexture.vOffset = 0;
+      rightPodium.material = leftPodium.material;
+      console.log("Video Podium");
+      setTimeout(function () {
+        leftPodium.material = savedMat;
+        rightPodium.material = savedMat;
+      }, 10000);
+    }
+
     if (event.key === ",") {
       let instancedVideo = this.scene.getMeshByName("WindowVideo").createInstance("WindowVideo-Instance");
       instancedVideo.position.x = 2;
