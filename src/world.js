@@ -683,8 +683,7 @@ export class NightClub extends World {
           castUser:null,
           castTarget:'WindowVideo',
           activeMood: this.stageControls.activeMood,
-          fogColor: this.scene.fogColor,
-          fogDensity: this.scene.fogDensity,
+          fogSetting: this.stageControls.fogSetting,
           environmentIntensity: this.scene.environmentIntensity,
           environmentTexture: this.stageControls.activeCubeTexture,
           pedestalColor: this.stageControls.pedestal.material.emissiveColor,
@@ -1209,8 +1208,7 @@ export class NightClub extends World {
     console.log('saving');
     let state = this.worldState.properties;
     state.activeMood = this.stageControls.activeMood;
-    state.fogColor = this.scene.fogColor;
-    state.fogDensity = this.scene.fogDensity;
+    state.fogSetting = this.stageControls.fogSetting;
     state.environmentIntensity = this.scene.environmentIntensity;
     state.environmentTexture = this.stageControls.activeCubeTexture;
     state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
@@ -1230,11 +1228,10 @@ export class NightClub extends World {
     let state = this.worldState.properties;
 
     this.stageControls.activeMood = state.activeMood;
+    this.stageControls.fogSetting = state.fogSetting;
     this.stageControls.activeCubeTexture = state.environmentTexture;
     this.stageControls.changeCubeTexture(state.environmentTexture);
 
-    this.scene.fogColor = new BABYLON.Color3(state.fogColor['r'],state.fogColor['g'],state.fogColor['b']);
-    this.scene.fogDensity = state.fogDensity;
     this.scene.environmentIntensity = state.environmentIntensity;
 
     this.stageControls.raiseDJPlatform(state.DJPlatformRaised, 0)
@@ -1246,6 +1243,9 @@ export class NightClub extends World {
       this.customizer.DJSpotLight.intensity = state.DJSpotLightIntensity;
     }
 
+    if(state.fogSetting) {
+      this.stageControls.animateFog(this.stageControls.fogSettingConfigs[state.fogSetting], 0);
+    }
     if(state.activeMood) {
       let moodSet = this.stageControls.moodSets[state.activeMood];
       this.stageControls.pedestal.material.emissiveColor = new BABYLON.Color3(state.pedestalColor['r'], state.pedestalColor['g'], state.pedestalColor['b']);
@@ -1257,6 +1257,9 @@ export class NightClub extends World {
     setTimeout(() => {
       if(state.activeMood) {
         document.querySelector('#moodSet').value = state.activeMood;
+      }
+      if(state.fogSetting) {
+        document.querySelector('#fogSetting').value = state.fogSetting;
       }
       document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
       document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;

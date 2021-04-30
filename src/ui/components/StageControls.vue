@@ -37,8 +37,8 @@
             <select class="bg-white text-sm text-black mr-3 rounded-md hidden" id="cubeTexture" @change="$emit('changeCubeTexture')">
                 <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
             </select>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')">
-                <option :value="setting" v-for="setting of Object.keys(fogSettings)" :key="setting">{{ setting }}</option>
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')" v-if="fogSettingConfigs">
+                <option :value="setting" v-for="setting of Object.keys(fogSettingConfigs)" :key="setting">{{ setting }}</option>
             </select>
             <select class="bg-white text-sm text-black mr-3 rounded-md" @change="$emit('changeDJSpotLightIntensity', $event.target.value)">
                 <option :value="setting" v-for="setting of [0, 0.1, 0.2, 0.5]" :selected="setting === DJSpotLightIntensity" :key="setting">{{ setting }}</option>
@@ -72,6 +72,6 @@
 <script>
     export default {
       name: "StageControls",
-      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettings', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn']
+      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn']
     }
 </script>

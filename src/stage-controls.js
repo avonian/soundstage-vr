@@ -14,6 +14,7 @@ export class StageControls {
     this.gridFloorOn = false;
     this.gridFloorInterval = false;
     this.moodParticlesOn = false;
+    this.fogSetting = false;
     this.moodParticleSystems = [];
     this.cubeTextures = {
       default: { url: 'https://playground.babylonjs.com/textures/environment.env', environmentIntensity: 1 },
@@ -34,7 +35,7 @@ export class StageControls {
       green: new BABYLON.Color3(0, 1, 0.4),
       indigo: new BABYLON.Color3(0.35, 0, 1)
     }
-    this.fogSettings = {
+    this.fogSettingConfigs = {
       none: {
         color: this.colors['black'],
         fogDensity: 0,
@@ -67,20 +68,21 @@ export class StageControls {
     this.moodSets = {
       'Dim Lights': {
         environmentIntensity: 0.14999999999999925,
+        fogSetting: 'none',
         pedestalColor: [this.colors['skyblue'], this.colors['magenta'], this.colors['green'], this.colors['indigo']],
         pedestalTransitionInterval: 150,
         pedestalWaitInterval: 800
       },
       'Purple Haze': {
         environmentIntensity: 0.14999999999999925,
-        fogSettings: this.fogSettings['purple'],
+        fogSetting: 'purple',
         pedestalColor: [this.colors['skyblue'], this.colors['magenta'], this.colors['green'], this.colors['indigo']],
         pedestalTransitionInterval: 150,
         pedestalWaitInterval: 600
       },
       'The Blues': {
         environmentIntensity: 0.14999999999999925,
-        fogSettings: this.fogSettings['navyBlue'],
+        fogSetting: 'navyBlue',
         pedestalColor: [this.colors['skyblue'], this.colors['magenta'], this.colors['green'], this.colors['indigo']],
         pedestalTransitionInterval: 150,
         pedestalWaitInterval: 600
@@ -141,8 +143,14 @@ export class StageControls {
     this.world.scene.stopAnimation(this.pedestal);
     this.pedestalColorAnimation = this.world.scene.beginAnimation(this.pedestal, 0, frame, loop);
   }
-  animateFog(fogSettings, duration) {
+  animateFog(fogSettingConfig, duration) {
     this.world.scene.animations = [];
+
+    if(duration === 0) {
+      this.world.scene.fogColor = fogSettingConfig.color;
+      this.world.scene.fogDensity = fogSettingConfig.fogDensity;
+      return;
+    }
 
     let fogColorAnimation = new BABYLON.Animation("fogColorAnimation", "fogColor", 30, BABYLON.Animation.ANIMATIONTYPE_COLOR3);
     let colorKeys = [
@@ -152,7 +160,7 @@ export class StageControls {
       },
       {
         frame: duration,
-        value: fogSettings.color
+        value: fogSettingConfig.color
       },
     ];
     fogColorAnimation.setKeys(colorKeys);
@@ -166,7 +174,7 @@ export class StageControls {
       },
       {
         frame: duration,
-        value:  fogSettings.fogDensity
+        value:  fogSettingConfig.fogDensity
       },
     ];
     fogDensityAnimation.setKeys(densityKeys);
@@ -370,8 +378,10 @@ export class StageControls {
       }, moodSet.pedestalTransitionInterval * 2 * 100)
       this.activeMood = moodSetName;
       this.animateEnvironmentIntensity(moodSet.environmentIntensity, 300, () => {
-        if(moodSet.fogSettings) {
-          this.animateFog(moodSet.fogSettings, 300);
+        if(moodSet.fogSetting) {
+          this.fogSetting = moodSet.fogSetting;
+          document.querySelector('#fogSetting').value = this.fogSetting;
+          this.animateFog(this.fogSettingConfigs[moodSet.fogSetting], 300);
         }
       });
       this.world.scene.pedestalColor = moodSet.pedestalColor;
@@ -379,8 +389,10 @@ export class StageControls {
       // tempMesh.material.emissiveColor = this.world.scene.pedestalColor;
     } else {
       this.activeMood = false;
+      this.fogSetting = 'none';
+      document.querySelector('#fogSetting').value = this.fogSetting;
       this.animateEnvironmentIntensity(this.cubeTextures[this.activeCubeTexture]['environmentIntensity'], 300, () => {
-        this.animateFog(this.fogSettings['none'], 300);
+        this.animateFog(this.fogSettingConfigs['none'], 300);
       });
       this.pedestalColorAnimation.stop();
       this.animatePedestalColor([this.pedestal.material.emissiveColor, BABYLON.Color3.White()], 600, 0);
@@ -448,7 +460,8 @@ export class StageControls {
         this.changeMood(event.moodSet);
         break;
       case "changeFog":
-        this.animateFog(this.fogSettings[event.fogSetting], 300);
+        this.fogSetting = event.fogSetting;
+        this.animateFog(this.fogSettingConfigs[event.fogSetting], 300);
         break;
       case "changeDJSpotLightIntensity":
         this.animateDJSpotLight(event.intensity, 50, () => {

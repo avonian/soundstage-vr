@@ -37,7 +37,7 @@
                 :videos="videos"
                 :cube-textures="cubeTextures"
                 :mood-sets="moodSets"
-                :fog-settings="fogSettings"
+                :fogSettingConfigs="fogSettingConfigs"
                 :showing-user-videos="showUserVideosPanel"
                 :DJSpotLightIntensity="DJSpotLightIntensity"
                 :tunnelLightsOn="tunnelLightsOn"
@@ -183,7 +183,7 @@
         showUserVideosPanel: false,
         cubeTextures: [],
         moodSets: [],
-        fogSettings: [],
+        fogSettingConfigs: [],
         DJSpotLightIntensity: 0,
         tunnelLightsOn: false,
         gridFloorOn: false,
@@ -461,7 +461,7 @@
             world.initStageControls((config) => {
               this.moodSets = this.world.stageControls.moodSets;
               this.cubeTextures = this.world.stageControls.cubeTextures;
-              this.fogSettings = this.world.stageControls.fogSettings;
+              this.fogSettingConfigs = this.world.stageControls.fogSettingConfigs;
 
               world.adjustGraphicsQuality(this.userSettings.graphicsQuality);
               if(this.world.customizer.DJSpotLight) {
