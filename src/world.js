@@ -389,6 +389,11 @@ export class NightClub extends World {
     tunnelShield.position.z = 33.207;
     tunnelShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['stage_ramp'] === false;
     tunnelShield.visibility = 0
+
+    let tunnelSegment1 = this.scene.getMeshByName("Cube.3")
+    let tunnelSegment2 = this.scene.getMeshByName("Cube.4")
+    tunnelSegment1.material.environmentIntensity = 0.3;
+    tunnelSegment2.material.environmentIntensity = 0.3;
   }
 
   /**

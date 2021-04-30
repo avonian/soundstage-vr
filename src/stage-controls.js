@@ -262,7 +262,7 @@ export class StageControls {
   }
   toggleTunnelLights(on = true, transitionInterval = 100) {
     this.tunnelLightsOn = on;
-    let meshes = this.world.scene.meshes.filter(mesh => mesh.name.indexOf("Sweep") === 0 && mesh.uniqueId !== 128 && mesh.uniqueId !== 385)
+    let meshes = this.world.scene.meshes.filter(mesh => (mesh.name.indexOf("Sweep") === 0 && mesh.name !== "Sweep.5" && mesh.parent.parent.name !== "logo") || (mesh.name === "Sweep.5" && mesh.parent.parent.name === "Null.1"))
     meshes.forEach(mesh => {
       if(transitionInterval === 0) {
         mesh.visibility = on ? 1 : 0.2;
