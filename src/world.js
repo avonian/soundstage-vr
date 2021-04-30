@@ -1236,7 +1236,12 @@ export class NightClub extends World {
 
     this.stageControls.raiseDJPlatform(state.DJPlatformRaised, 0)
     this.stageControls.toggleTunnelLights(state.tunnelLightsOn, 0);
-    this.stageControls.toggleGridFloor(state.gridFloorOn);
+
+    // Only turn it on if its actually on otherwise trips on itself
+    if(state.gridFloorOn) {
+      this.stageControls.toggleGridFloor(true, 0);
+    }
+
     this.stageControls.toggleMoodParticles(state.moodParticlesOn);
 
     if(state.DJSpotLightIntensity && this.customizer.DJSpotLight) {

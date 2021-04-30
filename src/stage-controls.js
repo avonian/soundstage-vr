@@ -285,12 +285,33 @@ export class StageControls {
       }
     });
   }
-  toggleGridFloor(on = true, speed = 500) {
+  toggleGroundVisibility(on, transitionInterval, callback) {
+    let mesh = this.world.scene.getMeshByName('Room_Room_Base_1_15402');
+    if(transitionInterval === 0) {
+      transitionInterval = 1;
+    }
+    mesh.animations = [];
+    let meshVisibilityAnimation = new BABYLON.Animation("meshVisibilityAnimation", `visibility`, 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+    let positionKeys = [
+      {
+        frame: 0,
+        value: mesh.visibility
+      },
+      {
+        frame: transitionInterval,
+        value: on ? 1 : 0
+      },
+    ];
+    meshVisibilityAnimation.setKeys(positionKeys);
+    mesh.animations.push(meshVisibilityAnimation);
+    this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1, callback);
+  }
+  toggleGridFloor(on = true, transitionInterval = 150, speed = 500) {
 
     this.gridFloorOn = on;
-
     let gridFloor = this.world.scene.getMeshByName("gridFloor");
     if(this.gridFloorOn) {
+
       if (!gridFloor) {
         // need to include materialsLibrary/babylonjs.materials.min.js in public/index.html
         let gridFloorMat = new BABYLON.GridMaterial("gridFloorMat", this.world.scene);
@@ -300,6 +321,7 @@ export class StageControls {
         gridFloor.material = gridFloorMat;
         gridFloor.position.x = 2; // in the center
         gridFloor.position.z = -4;
+        gridFloor.position.y = -.003;
       }
 
       let gridFloorMat = this.world.scene.getMaterialByName("gridFloorMat");
@@ -307,12 +329,15 @@ export class StageControls {
         gridFloorMat.lineColor = BABYLON.Color3.Random();
       }, speed);
       gridFloor.visibility = 1;
+      this.toggleGroundVisibility(false, transitionInterval);
     } else {
-      if(gridFloor) {
-        gridFloor.visibility = 0;
-      }
-      clearInterval(this.gridFloorInterval);
-      this.gridFloorInterval = false;
+      this.toggleGroundVisibility(true, transitionInterval, () => {
+        if(gridFloor) {
+          gridFloor.visibility = 0;
+        }
+        clearInterval(this.gridFloorInterval);
+        this.gridFloorInterval = false;
+      });
     }
 
   }
@@ -472,7 +497,7 @@ export class StageControls {
         this.toggleTunnelLights(event.value);
         break;
       case "toggleGridFloor":
-        this.toggleGridFloor(event.value, event.speed);
+        this.toggleGridFloor(event.value, event.transitionInterval, event.speed);
         break;
       case "toggleMoodParticles":
         this.toggleMoodParticles(event.value, event.speed);

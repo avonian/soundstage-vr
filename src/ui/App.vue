@@ -787,7 +787,7 @@
       },
       toggleGridFloor () {
         this.gridFloorOn = this.gridFloorOn !== true;
-        let stageEvent = { action: 'toggleGridFloor', value: this.gridFloorOn };
+        let stageEvent = { action: 'toggleGridFloor', value: this.gridFloorOn, transitionInterval: 100 };
         world.stageControls.executeAndSend(stageEvent);
       },
       toggleMoodParticles () {
