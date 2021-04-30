@@ -69,6 +69,13 @@ export class Customizer {
                     videoPoster.material.emissiveTexture.video.pause();
                     return;
                   }
+
+                  /* Force to camera 1 */
+                  let vue = document.querySelector("#app")._vnode.component;
+                  let cameraMode = vue.data.cameraModes[0];
+                  vue.data.cameraMode = cameraMode;
+                  vue.data.world.activateCamera(cameraMode[0]);
+
                   videoPoster = pickedMesh.clone("videoPoster-" + pickedMesh.name);
                   videoPoster.material = new BABYLON.StandardMaterial(videoPoster.name + "_mat", this.world.scene);
                   let videoTexture = new BABYLON.VideoTexture(videoPoster.name + "_texture",
