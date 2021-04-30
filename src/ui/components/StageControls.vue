@@ -53,7 +53,16 @@
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                :class="gridFloorOn ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleGridFloor')">
-                Grid Floor
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+            </a>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+               :class="moodParticlesOn ? 'gradient-ultra' : 'bg-gray-500'"
+               @click="$emit('toggleMoodParticles')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
             </a>
             <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
         </div>
@@ -63,6 +72,6 @@
 <script>
     export default {
       name: "StageControls",
-      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettings', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn']
+      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettings', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn']
     }
 </script>

@@ -13,6 +13,8 @@ export class StageControls {
     this.tunnelLightsOn = false;
     this.gridFloorOn = false;
     this.gridFloorInterval = false;
+    this.moodParticlesOn = false;
+    this.moodParticleSystems = [];
     this.cubeTextures = {
       default: { url: 'https://playground.babylonjs.com/textures/environment.env', environmentIntensity: 1 },
       runyon: { url: 'https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env', environmentIntensity: 1.4 },
@@ -252,8 +254,7 @@ export class StageControls {
   }
   toggleTunnelLights(on = true, transitionInterval = 100) {
     this.tunnelLightsOn = on;
-    let meshes = [121, 117, 114, 110, 106, 136, 130, 133, 127, 139];
-    meshes = meshes.map(mesh => this.world.scene.getMeshByUniqueID(mesh))
+    let meshes = this.world.scene.meshes.filter(mesh => mesh.name.indexOf("Sweep") === 0 && mesh.uniqueId !== 128)
     meshes.forEach(mesh => {
       if(transitionInterval === 0) {
         mesh.visibility = on ? 1 : 0.2;
@@ -306,6 +307,56 @@ export class StageControls {
       this.gridFloorInterval = false;
     }
 
+  }
+  toggleMoodParticles(on = true) {
+    this.moodParticlesOn = on;
+
+    if(this.userSettings.graphicsQuality !== 'medium' && this.userSettings.graphicsQuality !== 'high' ) {
+      for(let system of this.moodParticleSystems) {
+        system.stop();
+      }
+      this.moodParticleSystems = [];
+      return;
+    }
+
+    if(!this.moodParticlesOn) {
+      for(let system of this.moodParticleSystems) {
+        system.stop();
+      }
+      this.moodParticleSystems = [];
+      return;
+    }
+
+    // Positions array to move particles emitter
+    let particleSources = [
+      {
+        position: new BABYLON.Vector3(2.23, 3.7, 5.58),
+        rotation: new BABYLON.Vector3(0.624, 3, 0)
+      },
+      {
+        position: new BABYLON.Vector3(2.25, 4.4, -6.5),
+        rotation: new BABYLON.Vector3(0.31, -0.633, 0)
+      },
+      {
+        position: new BABYLON.Vector3(2.013333819018861, 4.7,-1.7649511062161576),
+        rotation: new BABYLON.Vector3(-0.07640118009133463, -0.34017953987188365, 0)
+      }
+    ]
+    for(let particleSource of particleSources) {
+      // For reliability it may be better to use json file for particles instead of snippet - later
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.world.scene, false).then((system) => {
+        //  console.log("partSystemPos moved ")
+        system.minLifeTime = 5;
+        system.maxLifeTime = 15;
+        system.emitRate = 10;
+        system.color1 = new BABYLON.Color3(0, 1, 0);
+        system.color2 = new BABYLON.Color3(1, 0, 1);
+        system.gravity = new BABYLON.Vector3(0, -0.2, 0);
+        system.emitter = particleSource['position'];
+        system.diretion1 = particleSource['rotation'];
+        this.moodParticleSystems.push(system);
+      });
+    }
   }
   changeMood(moodSetName) {
     if(moodSetName) {
@@ -409,6 +460,9 @@ export class StageControls {
         break;
       case "toggleGridFloor":
         this.toggleGridFloor(event.value, event.speed);
+        break;
+      case "toggleMoodParticles":
+        this.toggleMoodParticles(event.value, event.speed);
         break;
     }
 

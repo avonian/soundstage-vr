@@ -42,6 +42,7 @@
                 :DJSpotLightIntensity="DJSpotLightIntensity"
                 :tunnelLightsOn="tunnelLightsOn"
                 :gridFloorOn="gridFloorOn"
+                :moodParticlesOn="moodParticlesOn"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
@@ -51,6 +52,7 @@
                 @changeDJSpotLightIntensity="changeDJSpotLightIntensity($event)"
                 @toggleTunnelLights="toggleTunnelLights"
                 @toggleGridFloor="toggleGridFloor"
+                @toggleMoodParticles="toggleMoodParticles"
                 />
         <UserControls v-show="showControls"
                 :debugging="debugging"
@@ -185,6 +187,7 @@
         DJSpotLightIntensity: 0,
         tunnelLightsOn: false,
         gridFloorOn: false,
+        moodParticlesOn: false,
         showInstrumentation: false,
         graphicsOptions: [
           {
@@ -785,6 +788,11 @@
       toggleGridFloor () {
         this.gridFloorOn = this.gridFloorOn !== true;
         let stageEvent = { action: 'toggleGridFloor', value: this.gridFloorOn };
+        world.stageControls.executeAndSend(stageEvent);
+      },
+      toggleMoodParticles () {
+        this.moodParticlesOn = this.moodParticlesOn !== true;
+        let stageEvent = { action: 'toggleMoodParticles', value: this.moodParticlesOn };
         world.stageControls.executeAndSend(stageEvent);
       },
       playCameraAnimations(i) {
