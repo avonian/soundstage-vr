@@ -1184,6 +1184,50 @@ export class NightClub extends World {
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
     }
+
+    // Poster Configurator
+    // Highlight poster with the left click, disable highlight with the right click
+    if (event.key === "c") {
+      console.clear();
+      console.log(this.customizer);
+      console.log(this.engine.isStencilEnable);
+      console.log(this.customizer.eventConfig);
+      let evConfPosters = this.customizer.eventConfig.posters; 
+      let hl = new BABYLON.HighlightLayer("hl1", this.scene);
+      let hlFlag = false;
+      this.scene.onPointerDown = function (evt, pickResult) {
+        if (evt.button === 0) {
+          if (pickResult.hit) {
+            let mesh = pickResult.pickedMesh;
+            console.log("pickedMesh.name: " + mesh.name);
+            // console.log(evConf.posters);
+            if (!hlFlag) {
+              for (let i = 0; i < evConfPosters.length; i++) {
+                // console.log(evConfPosters[i].name);
+                if (mesh.name === evConfPosters[i].name) {
+                  console.log("BINGO!!!");
+                  hl.addMesh(mesh, BABYLON.Color3.Teal());
+                  console.log(hl);
+                  hlFlag = true;
+                }
+              }
+            }
+          }
+        }
+      } // End onPointerDown
+      this.scene.onPointerUp = (e, pickResult) => {
+        if (e.button === 2) {
+          if (pickResult.hit) {
+            let mesh = pickResult.pickedMesh;
+            console.log("pickedMesh.nameR: " + mesh.name);
+            hl.removeMesh(mesh);
+            hlFlag = false;
+          }
+        }
+      } // End onPointerUp
+      console.log((hl));
+    }
+
   }
 
   startSavingState() {

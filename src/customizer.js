@@ -10,13 +10,32 @@ export class Customizer {
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     for (let i = 0; i < posters.length; i++) {
       if (!this.world.scene.getMeshByName(posters[i].name)) {
+        let galleryPosterFileExtension = posters[i].url.slice((posters[i].url.lastIndexOf(".") - 1 >>> 0) + 2);
         let galleryPoster = BABYLON.MeshBuilder.CreatePlane(posters[i].name, { width: posters[i].width, height: posters[i].height });
         galleryPoster.position.x = posters[i].posX;
         galleryPoster.position.y = posters[i].posY;
         galleryPoster.position.z = posters[i].posZ;
         galleryPoster.rotation.y = BABYLON.Tools.ToRadians(posters[i].rotationY);
         galleryPoster.material = new BABYLON.StandardMaterial(posters[i].name + "_mat", this.world.scene);
-        galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].url, this.world.scene);
+        // Check for images
+        if (galleryPosterFileExtension === 'png' || galleryPosterFileExtension === 'jpg') {
+          galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].url, this.world.scene);
+          galleryPoster.material.emissiveTexture.name = "PosterImage-" + posters[i].name;
+        } 
+        // Check for videos
+        if (galleryPosterFileExtension === 'mp4') {
+          console.log("VIDEO POSTER!");
+          let videoTexture = new BABYLON.VideoTexture("posterVideoTexture-"+i,
+            posters[i].url,
+            this.scene, true, true, null, {
+            autoUpdateTexture: true,
+            autoPlay: true,
+            muted: true,
+            loop: true
+          });
+          videoTexture.vScale = -1;  // otherwise it is flipped vertically
+          galleryPoster.material.emissiveTexture = videoTexture;
+        } 
         galleryPoster.parent = posterGallery;
       }
     }
@@ -81,8 +100,7 @@ export class Customizer {
     this.barLights = [barLight, tealLight, blueLight, barBackLight];
 
     console.log("Lights: ", this.world.scene.lights);
-    // since customizer loads before the model and its meshes, we cannot use here light.includedOnlyMeshes
-    // Press '4' to see it in action at world.js
+
   }
 }
 

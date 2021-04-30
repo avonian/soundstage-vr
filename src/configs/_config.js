@@ -86,7 +86,7 @@ export default {
     'posY': 4.45,
     'posZ': -2,
     'rotationY': -90,
-    'url': 'https://www.soundstage.fm/storage/photos/m682Pgdu3AIjWMAZA6UIjYWy7TKemMkr2D8lG4j4.png'
+      'url': 'https://assets.soundstage.fm/vr/Color-Tiler.mp4'
   }, {
     'name': 'posterLeft_3-4_1',
     'width': 1.8,
@@ -122,8 +122,9 @@ export default {
     'posY': 4.45,
     'posZ': 0,
     'rotationY': 90,
-    'url': 'https://pbs.twimg.com/profile_banners/1153539090777878528/1602776851/1500x500'
-  }, {
+     'url': 'https://assets.soundstage.fm/vr/Ultra.mp4'
+  }, 
+    {
     'name': 'posterCorner_3-4',
     'width': 3,
     'height': 4,
