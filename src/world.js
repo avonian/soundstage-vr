@@ -394,6 +394,15 @@ export class NightClub extends World {
     let tunnelSegment2 = this.scene.getMeshByName("Cube.4")
     tunnelSegment1.material.environmentIntensity = 0.3;
     tunnelSegment2.material.environmentIntensity = 0.3;
+
+    if(this.eventConfig.hideMeshes) {
+      let meshesToDispose = this.eventConfig.hideMeshes.map(name => this.scene.getMeshByName(name));
+      meshesToDispose.forEach(m => {
+        m.material.emissiveTexture.dispose()
+        m.material.dispose();
+        m.dispose();
+      })
+    }
   }
 
   /**

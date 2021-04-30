@@ -17,6 +17,9 @@ export class Customizer {
   }
   initPosters () {
     const posters = this.eventConfig.posters;
+    if(!posters) {
+      return;
+    }
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     let posterMeshes = [];
     this.world.scene.highlightLayer1 = new BABYLON.HighlightLayer("highlightLayer1", this.world.scene);
@@ -43,7 +46,12 @@ export class Customizer {
               new BABYLON.ExecuteCodeAction(
                 BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
                   let pickedMesh = event.meshUnderPointer;
-                  this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+                  var dest = new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z);
+                  var pos = this.world.camera1.position.clone();
+                  var distance = dest.subtract(pos).length();
+                  if ( distance < 4 ) {
+                    this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+                  }
                 })
             )
           galleryPoster.actionManager
@@ -62,7 +70,7 @@ export class Customizer {
                 var dest = new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z);
                 var pos = this.world.camera1.position.clone();
                 var distance = dest.subtract(pos).length();
-                if ( distance < 5 ) {
+                if ( distance < 4 ) {
                   /* Construct video mesh */
                   let videoPoster = this.world.scene.getMeshByName("videoPoster-" + pickedMesh.name);
                   if(videoPoster) {
@@ -110,7 +118,15 @@ export class Customizer {
                     this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 1);
                   }
                   this.world.camera1.applyGravity = false;
-                  dest.x -= pickedMesh.viewerOffset ? pickedMesh.viewerOffset : -3;
+                  if(pickedMesh.rotation._y === -1.5707963267948966) {
+                    dest.x += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                  } else if(pickedMesh.rotation._y === 1.5707963267948966) {
+                    dest.x -= pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                  } else if(pickedMesh.rotation._y === 3.141592653589793) {
+                    dest.z += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                  } else {
+                    return;
+                  }
 
                   this.world.scene.onAfterCameraRenderObservable.add((event) => {
                     if(event._diffPosition._x > 0.001 || event._diffPosition._y > 0.001 || event._diffPosition._z > 0.001) {
