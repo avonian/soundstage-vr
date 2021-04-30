@@ -19,6 +19,7 @@ export class Customizer {
     const posters = this.eventConfig.posters;
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     let posterMeshes = [];
+    this.world.scene.highlightLayer1 = new BABYLON.HighlightLayer("highlightLayer1", this.world.scene);
     for (let i = 0; i < posters.length; i++) {
       if (!this.world.scene.getMeshByName(posters[i].name)) {
         let galleryPoster = BABYLON.MeshBuilder.CreatePlane(posters[i].name, { width: posters[i].width, height: posters[i].height });
@@ -37,6 +38,22 @@ export class Customizer {
           /* If video found make actionable */
           galleryPoster.isPickable = true;
           galleryPoster.actionManager = new BABYLON.ActionManager(this.world.scene);
+          galleryPoster.actionManager
+            .registerAction(
+              new BABYLON.ExecuteCodeAction(
+                BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
+                  let pickedMesh = event.meshUnderPointer;
+                  this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+                })
+            )
+          galleryPoster.actionManager
+            .registerAction(
+              new BABYLON.ExecuteCodeAction(
+                BABYLON.ActionManager.OnPointerOutTrigger, (event) => {
+                  let pickedMesh = event.meshUnderPointer;
+                  this.world.scene.highlightLayer1.removeMesh(pickedMesh, BABYLON.Color3.Teal());
+                })
+            )
           galleryPoster.actionManager
           .registerAction(
             new BABYLON.ExecuteCodeAction(
