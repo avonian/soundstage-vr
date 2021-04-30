@@ -1205,6 +1205,26 @@ export class NightClub extends World {
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
     }
+
+    // for future clear coat
+    if (event.key === "y") {
+      this.scene.onPointerUp = (e, pickResult) => {
+        if (e.button === 2) {
+          if (pickResult.hit) {
+            let mesh = pickResult.pickedMesh;
+            console.clear();
+            console.log("pickedMesh.nameR: " + mesh.name);
+            if (mesh.material._activeEffect.name === 'pbr') {
+              mesh.material.clearCoat.isEnabled = true;
+              console.log("ClearCoat = " + mesh.material.clearCoat.isEnabled);
+            }
+          }
+        }
+      } // End onPointerUp
+
+
+    }
+
   }
 
   startSavingState() {
