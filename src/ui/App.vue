@@ -421,11 +421,6 @@
             this.webcamEnabled = userSettings.enableWebcamFeeds
             this.micEnabled = true
 
-            // Check if they have permission to go backstage
-            if(this.eventConfig.permissions['access_backstage']) {
-              scene.getMeshByName('curtains').checkCollisions = false;
-            }
-
             /* Cache user settings again */
             userSettings.selectedAudioDeviceId = this.userSettings.selectedAudioDeviceId
             userSettings.selectedVideoDeviceId = this.userSettings.selectedVideoDeviceId

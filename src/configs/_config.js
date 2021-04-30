@@ -1,9 +1,9 @@
 export default {
   'role': 'staff',
   'permissions': {
-    'access_backstage': true,
-    'spawn_backstage': false,
-    'access_ramp': true,
+    'access_backstage': false,
+    'spawn_backstage': true,
+    'stage_ramp': true,
     'broadcast': true,
     'moderator': true,
     'stage_controls': true

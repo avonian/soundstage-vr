@@ -129,14 +129,6 @@ export class NightClub extends World {
 
     defaultPipeline.imageProcessingEnabled = false;
     console.log("Render Pipeline: " + defaultPipeline.name);
-//  Adding curtains to close the hole
-    let curtains = BABYLON.MeshBuilder.CreatePlane("curtains",
-      {height:2, width: 3});
-    curtains.position.x = 2;
-    curtains.position.y = 1;
-    curtains.position.z = 5.72;
-    curtains.checkCollisions = true
-    curtains.visibility = 0
   }
 
   async createPhysics() {
@@ -376,10 +368,27 @@ export class NightClub extends World {
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
+    // DJShield for dj platform
+    let DJShield = BABYLON.Mesh.CreateSphere("DJShield");
+    DJShield.position.x = 2.083;
+    DJShield.position.y = 0.910;
+    DJShield.position.z = 4.4;
+    DJShield._scaling.x = 3.3;
+    DJShield._scaling.y = 3.3;
+    DJShield._scaling.z = 3.3;
+    DJShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['stage_ramp'] === false;
+    DJShield.visibility = 0;
     if ( this.afterLoad ) {
       this.afterLoad();
     }
-    
+
+    // Block tunnel entrance
+    let tunnelShield = BABYLON.MeshBuilder.CreateBox("TunnelShield", {height:2, width: 3});
+    tunnelShield.position.x = 2;
+    tunnelShield.position.y = -2;
+    tunnelShield.position.z = 33.207;
+    tunnelShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['stage_ramp'] === false;
+    tunnelShield.visibility = 0
   }
 
   /**
@@ -1258,19 +1267,21 @@ export class NightClub extends World {
       this.stageControls.animatePedestalColor(pedestalColors, moodSet.pedestalTransitionInterval, moodSet.pedestalWaitInterval, true);
     }
 
-    /* Update UI */
-    setTimeout(() => {
-      if(state.activeMood) {
-        document.querySelector('#moodSet').value = state.activeMood;
-      }
-      if(state.fogSetting) {
-        document.querySelector('#fogSetting').value = state.fogSetting;
-      }
-      document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
-      document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;
-      document.querySelector("#app")._vnode.component.data.gridFloorOn = state.gridFloorOn;
-      document.querySelector("#app")._vnode.component.data.moodParticlesOn = state.moodParticlesOn;
-    }, 1000);
+    if(this.permissions.stage_controls) {
+      /* Update UI */
+      setTimeout(() => {
+        if (state.activeMood) {
+          document.querySelector('#moodSet').value = state.activeMood;
+        }
+        if (state.fogSetting) {
+          document.querySelector('#fogSetting').value = state.fogSetting;
+        }
+        document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
+        document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;
+        document.querySelector("#app")._vnode.component.data.gridFloorOn = state.gridFloorOn;
+        document.querySelector("#app")._vnode.component.data.moodParticlesOn = state.moodParticlesOn;
+      }, 1000);
+    }
   }
 
   customize() {
