@@ -234,6 +234,8 @@
       this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
       if (this.eventConfig.permissions['stage_controls']) {
         this.showStageControls = true;
+      }
+      if(this.eventConfig.permissions['stage_controls'] || this.eventConfig.role === 'artist') {
         this.cameraModes.push(['free', 'Free Cam'])
       }
       this.videos = this.eventConfig.videos;
@@ -580,8 +582,16 @@
         if (nextCameraIndex >= this.cameraModes.length) {
           nextCameraIndex = 0
         }
+        // IF switching out of free cam unmute microphone
+        if(this.cameraMode[1] === "Free Cam" && !this.micEnabled) {
+          this.microphoneOnOff();
+        }
         this.cameraMode = this.cameraModes[nextCameraIndex]
         console.log('Activating camera ' + this.cameraMode[1])
+        // If switching to free cam mute microphone
+        if(this.cameraMode[1] === "Free Cam" && this.micEnabled) {
+          this.microphoneOnOff();
+        }
         world.activateCamera(this.cameraMode[0])
         // make sure to move focus to canvas, or HTML UI keeps control of keyboard input
         canvas.focus()
