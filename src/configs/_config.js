@@ -36,9 +36,6 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4',
     'label': 'Flamboyant Lines'
   }, {
-    'url': 'https://assets.soundstage.fm/vr/Loop-1.mp4',
-    'label': 'Loop 1'
-  }, {
     'url': 'https://assets.soundstage.fm/vr/Megapixel.mp4',
     'label': 'Megapixel'
   }, {

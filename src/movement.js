@@ -301,11 +301,32 @@ export class Movement {
     }
 
   }
+  handleMediaViewerKeys(kbInfo) {
+    let video = this.world.viewingMediaMesh.material.emissiveTexture.video;
+    switch (kbInfo.type) {
+      case BABYLON.KeyboardEventTypes.KEYDOWN:
+      case "w":
+      case "W":
+      case "s":
+      case "S":
+      case "a":
+      case "A":
+      case "d":
+      case "D":
+        if(video) {
+          video.pause();
+        }
+        break;
+    }
+  }
   handleKeyboard(kbInfo) {
     if ( this.world.activeCameraType === '1p' ) {
       this.handleUniCamKeys(kbInfo);
     } else if ( this.world.activeCameraType === '3p' ) {
       this.handleArcCamKeys(kbInfo);
+    }
+    if (this.world.viewingMedia) {
+      this.handleMediaViewerKeys(kbInfo);
     }
   }
 

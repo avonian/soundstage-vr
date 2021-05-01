@@ -70,15 +70,16 @@ export class Customizer {
                 var dest = new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z);
                 var pos = this.world.camera1.position.clone();
                 var distance = dest.subtract(pos).length();
+
+                // Only trigger poster viewing if user is close enough
                 if ( distance < 4 ) {
-                  /* Construct video mesh */
+                  // Construct video mesh
                   let videoPoster = this.world.scene.getMeshByName("videoPoster-" + pickedMesh.name);
                   if(videoPoster) {
                     videoPoster.material.emissiveTexture.video.pause();
                     return;
                   }
-
-                  /* Force to camera 1 */
+                  // Switch user to camera1
                   let vue = document.querySelector("#app")._vnode.component;
                   let cameraMode = vue.data.cameraModes[0];
                   vue.data.cameraMode = cameraMode;
@@ -90,34 +91,53 @@ export class Customizer {
                     pickedMesh.video_url,
                     this.world.scene, true, true, null, {
                       autoUpdateTexture: true,
-                      autoPlay: true,
+                      autoPlay: false,
                       muted: false,
                       loop: false
                     });
                   videoTexture.vScale = -1;  // otherwise it is flipped vertically
                   videoPoster.material.emissiveTexture = videoTexture;
+
+                  // Play listener
                   videoTexture.video.addEventListener('play', (event) => {
                     event.target.volume = 0.2;
                     document.querySelector('#audioOutput').volume = 0;
                   });
+
+                  // Pause listener
                   videoTexture.video.addEventListener('pause', (event) => {
-                    if(this.world.camera1.prevPosition) {
-                      this.world.camera1.position = this.world.camera1.prevPosition;
-                      this.world.camera1.rotation = this.world.camera1.prevRotation;
-                      delete this.world.camera1.prevPosition;
-                      delete this.world.camera1.prevRotation;
+                    // Pause fires automatically on first play so if time = 0 don't do anything
+                    if (event.target.currentTime === 0) {
+                      return;
+                    }
+                    if (this.world.camera1.returnPosition) {
+                      if (!this.animateCamera) {
+                        this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 1);
+                      }
+                      VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), this.world.camera1.returnPosition);
+                      this.world.camera1LookAt = this.world.camera1.returnCameraTarget.position;
+                      setTimeout(() => {
+                        this.world.viewingMedia = false;
+                        this.world.viewingMediaMesh = false;
+                        this.world.camera1LookAt = false;
+                        delete this.world.camera1.returnPosition;
+                        delete this.world.camera1.returnCameraTarget;
+                      }, 1500)
                     }
                     this.world.camera1.applyGravity = true;
                     this.disposeVideoPosters();
                     document.querySelector('#audioOutput').volume = 1;
                   });
 
-                  this.world.camera1.prevPosition = this.world.camera1.position.clone();
-                  this.world.camera1.prevRotation = this.world.camera1.rotation.clone();
+                  // Save original camera position so we can return the user to it later
+                  this.world.camera1.returnPosition = this.world.camera1.position.clone();
+                  this.world.camera1.returnCameraTarget = pickedMesh;
                   if (!this.animateCamera) {
                     this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 1);
                   }
                   this.world.camera1.applyGravity = false;
+
+                  // Decide where to 'place' the viewer
                   if(pickedMesh.rotation._y === -1.5707963267948966) {
                     dest.x += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
                   } else if(pickedMesh.rotation._y === 1.5707963267948966) {
@@ -128,15 +148,17 @@ export class Customizer {
                     return;
                   }
 
-                  this.world.scene.onAfterCameraRenderObservable.add((event) => {
-                    if(event._diffPosition._x > 0.001 || event._diffPosition._y > 0.001 || event._diffPosition._z > 0.001) {
-                      videoTexture.video.pause();
-                      this.world.scene.onAfterCameraRenderObservable.clear();
-                    }
-                  })
+                  // Lock target onto poster and aAnimate the camera
+                  VRSPACEUI.updateAnimation(this.animateCamera, pos, dest);
+                  this.world.viewingMedia = true;
+                  this.world.viewingMediaMesh = videoPoster;
+                  this.world.camera1LookAt = pickedMesh.position;
 
-                  this.world.camera1.position = dest;
-                  this.world.camera1.setTarget(new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z));
+                  setTimeout(() => {
+                    // Start playing video
+                    this.world.camera1LookAt = false;
+                    videoTexture.video.play();
+                  }, 1500)
                 }
               }
             )

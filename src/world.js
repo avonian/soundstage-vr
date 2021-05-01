@@ -22,6 +22,9 @@ export class NightClub extends World {
     // cameras
     this.camera1 = null;
     this.camera3 = null;
+    this.viewingMedia = null;
+    this.viewingMediaMesh = null;
+    this.camera1LookAt = null; // used in render loop to decide if we keep focus on a position
     this.activeCameraType = '1p'; // initial camera - 1st person
     // in this space, 0.5 is minimum size that phisically makes sense
     this.videoAvatarSize = 0.25;
@@ -403,6 +406,12 @@ export class NightClub extends World {
         m.dispose();
       })
     }
+
+    this.engine.runRenderLoop(() => {
+      if(this.camera1LookAt) {
+        this.camera1.setTarget(new BABYLON.Vector3(this.camera1LookAt.x, this.camera1LookAt.y, this.camera1LookAt.z));
+      }
+    });
   }
 
   /**
