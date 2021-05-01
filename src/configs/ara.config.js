@@ -1,7 +1,7 @@
 export default {
   'event_slug': 'simlink-friends',
   'alias': 'Ara',
-  'hideMeshes': ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS'],
+  'hideDefaultPosters': true,
   'posters': [
       {
       'name': 'DOGE-AtomicSwap',
