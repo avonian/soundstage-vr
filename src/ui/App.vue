@@ -285,14 +285,11 @@
     },
     methods: {
       async initConfig() {
+        var baseConfig = require('../configs/_config.js').default;
         if(process.env.VUE_APP_DEMO_CONFIG) {
-          var baseConfig = require('../configs/_config.js').default;
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
           this.eventConfig = {...baseConfig, ...customConfig};
           this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
-          if(!this.eventConfig.videos) {
-            this.eventConfig.videos = [{"url": "https://assets.soundstage.fm/vr/Default.mp4", "label": "Default"}];
-          }
           return;
         }
         let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
@@ -311,7 +308,7 @@
           if(data.success) {
             this.eventConfig = data['event_config'];
             if(!this.eventConfig.videos) {
-              this.eventConfig.videos = Videos;
+              this.eventConfig.videos = baseConfig.videos;
             }
           } else {
             this.invalidAccess = true;
