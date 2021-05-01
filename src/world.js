@@ -7,6 +7,7 @@ import DummyAvatar from './dummy-avatar';
 import HoloAvatar from './holo-avatar';
 import Movement from './movement';
 import Customizer from './customizer';
+import * as babelConfig from '../babel.config.js';
 
 // deals with everything inside 3D world
 export class NightClub extends World {
@@ -403,6 +404,12 @@ export class NightClub extends World {
     if ( !mesh.name.startsWith('Lamp')) {
       mesh.checkCollisions = state;    
     }
+    /* MESH RENAMER TO USE AFTER MODEL REMAKE
+    if (mesh.name === 'Armchair_Armchair.006_Blue_15390') {
+      console.log("LAMP!!!", mesh.name);
+      mesh.name = 'Armchair_NEW';
+    }
+    */
   }
 
   handleClick(pointerInfo) {
@@ -1106,10 +1113,10 @@ export class NightClub extends World {
           // TODO: Rewrite function after model remake
           if (mesh.name.includes("Room") || mesh.name.includes("Bar_counter"))  {
             mesh.material.maxSimultaneousLights = maxLights; // Adding more lights to the room materials
-            console.log("maxSimultaneousLights = " + maxLights + " for Material ", mesh.material.name);
+         //   console.log("maxSimultaneousLights = " + maxLights + " for Material ", mesh.material.name);
           }
         });
-        console.log(light.includedOnlyMeshes.length + " Meshes pushed to ", light.name);
+     //   console.log(light.includedOnlyMeshes.length + " Meshes pushed to ", light.name);
         light.parent = allBarLights;
       });
     }
@@ -1221,10 +1228,45 @@ export class NightClub extends World {
           }
         }
       } // End onPointerUp
-
-
     }
 
+    // for future Edge Rendering
+    if (event.key === "e") {
+      this.scene.onPointerUp = (e, pickResult) => {
+        if (e.button === 2) {
+          if (pickResult.hit) {
+            let mesh = pickResult.pickedMesh;
+            console.clear();
+            console.log("pickedMesh.nameR: " + mesh.name);
+            mesh.enableEdgesRendering();
+            mesh.edgesColor.copyFromFloats(0.1, 0.8, 1, 0.7);
+            let edgeWidthCounter = 0;
+            this.scene.registerBeforeRender(function () {
+              if (edgeWidthCounter < 2) {
+                mesh.edgesWidth = edgeWidthCounter;
+                edgeWidthCounter += 0.01;
+              }
+            });
+            
+          }
+        }
+      } // End onPointerUp
+    }
+    // for future Overlay Render
+    if (event.key === "o") {
+      this.scene.onPointerUp = (e, pickResult) => {
+        if (e.button === 2) {
+          if (pickResult.hit) {
+            let mesh = pickResult.pickedMesh;
+            console.clear();
+            console.log("pickedMesh.nameR: " + mesh.name);
+            mesh.renderOverlay = true;
+            mesh.overlayColor = BABYLON.Color3.Purple();
+            mesh.overlayAlpha = 0.4;
+          }
+        }
+      } // End onPointerUp
+    }
   }
 
   startSavingState() {
