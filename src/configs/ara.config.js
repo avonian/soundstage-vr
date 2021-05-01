@@ -93,6 +93,56 @@ export default {
       'rotationY': -90,
       'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack_2.png',
       'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack.mp4'
+    }, {
+      'name': 'Galaxy_B',
+      'width': 2.6,
+      'height': 1.6,
+      'posX': 5.45,
+      'posY': 1.057,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.mp4'
+    },  {
+      'name': 'Galaxy_A',
+      'width': 1,
+      'height': 1.6,
+      'posX': 8,
+      'posY': 1.057,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.mp4'
+    }, {
+      'name': '3D_Shitmoji_NFT',
+      'width': 1.4,
+      'height': 1.6,
+      'posX': -2.196,
+      'posY': 1.057,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/3D_Shitmoji_NFT.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/3D_Shitmoji_NFT.mp4'
+    }, {
+      'name': 'NFT_Club_Sandwich-no lettuce',
+      'width': 1.7,
+      'height': 1.6,
+      'posX': -5,
+      'posY': 1.088,
+      'posZ': -6.641,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/NFT_Club_Sandwich-no lettuce.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/NFT_Club_Sandwich-no lettuce.mp4'
+    } , {
+      'name': 'Space_&_Time',
+      'width': 1,
+      'height': 1.6,
+      'posX': 9.23,
+      'posY': 1.06,
+      'posZ': -4.29,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_&_Time.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_&_Time.mp4'
     }
   ]
 }
