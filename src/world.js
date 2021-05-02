@@ -13,7 +13,7 @@ export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
     //  this.file = 'Night_Club-2903-4.glb';
-    this.file = 'Night_Club-1may+glass.glb';
+    this.file = 'Night_Club-2may-2.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
