@@ -78,8 +78,14 @@
                                                        @change="$emit('setUserSettings', { key: 'useComputerSound', value: $event.target.checked })">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <label for="useComputerSound" class="font-medium text-white">Share computer sound</label>
+                                                <label for="includeAudioInputInMix" class="font-medium text-white">Share computer sound</label>
                                                 <p class="text-white">Use this if you are playing music from a DAW or DJ'ing software.</p>
+                                                <div class="mt-3" v-if="userSettings.useComputerSound">
+                                                    <input id="includeAudioInputInMix" name="includeAudioInputInMix" type="checkbox"
+                                                           class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                           :checked="userSettings.includeAudioInputInMix"
+                                                           @change="$emit('setUserSettings', { key: 'includeAudioInputInMix', value: $event.target.checked })"> <label for="includeAudioInputInMix" class="font-medium text-white ml-2"> Mix in with audio input device.</label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

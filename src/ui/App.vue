@@ -126,7 +126,8 @@
     selectedVideoDeviceId: null,
     trackRotation: true,
     schema: 0.1,
-    useComputerSound: false
+    useComputerSound: false,
+    includeAudioInputInMix: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -268,6 +269,7 @@
       /* Always start stereo flag false just in case */
       userSettings.enableStereo = false
       userSettings.useComputerSound = false
+      userSettings.includeAudioInputInMix = false
       userSettings.computerAudioStream = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
@@ -545,6 +547,9 @@
             this.userSettings.computerAudioStream = false;
           }
         }
+        if (this.cachedUserSettings.includeAudioInputInMix !== this.userSettings.includeAudioInputInMix) {
+          needsAudioRenegotiation = true
+        }
 
         if (world.scene && needsRefresh) {
           var confirmed = confirm('To apply these changes we need to restart the application, do you want to continue?')
@@ -554,8 +559,8 @@
             window.location.reload()
           }
         } else {
-          /* Always save enableStereo false and useComputerSound false to localStorage */
-          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false, computerAudioStream: false, useComputerSound: false } }))
+          /* Always save broadcasting related settings as false localStorage */
+          await localStorage.setItem('userSettings', JSON.stringify({ ...this.userSettings, ...{ enableStereo: false, computerAudioStream: false, useComputerSound: false, includeAudioInputInMix: false } }))
           console.log('saved', await localStorage.getItem('userSettings'))
           userSettings = JSON.parse(JSON.stringify(this.userSettings))
           this.cachedUserSettings = JSON.parse(JSON.stringify(this.userSettings))
@@ -657,10 +662,12 @@
             }
           });
           this.userSettings.useComputerSound = true;
+          this.userSettings.includeAudioInputInMix = true;
           this.userSettings.enableStereo = true;
         } catch (err) {
           this.userSettings.computerAudioStream = false
           this.userSettings.useComputerSound = false;
+          this.userSettings.includeAudioInputInMix = false;
         }
       },
       pollForDevices: async function () {

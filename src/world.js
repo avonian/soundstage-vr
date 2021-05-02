@@ -850,11 +850,14 @@ export class NightClub extends World {
 
       /* Gain node */
       window.audioGainNode = window.audioContext.createGain();
-      window.primaryAudioSourceNode.connect(window.audioGainNode);
       if(computerAudioStream) {
         /* Computer audio source */
         window.computerAudioSourceNode = window.audioContext.createMediaStreamSource(computerAudioStream);
         window.computerAudioSourceNode.connect(window.audioGainNode);
+      }
+      if(!computerAudioStream || (computerAudioStream && this.userSettings.includeAudioInputInMix)) {
+        /* External audio source */
+        window.primaryAudioSourceNode.connect(window.audioGainNode);
       }
 
       /* Connect to destination */
@@ -880,7 +883,6 @@ export class NightClub extends World {
   }
 
   async connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId) {
-
     var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
