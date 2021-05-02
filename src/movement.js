@@ -302,21 +302,23 @@ export class Movement {
 
   }
   handleMediaViewerKeys(kbInfo) {
-    let video = this.world.viewingMediaMesh.material.emissiveTexture.video;
-    switch (kbInfo.type) {
-      case BABYLON.KeyboardEventTypes.KEYDOWN:
-      case "w":
-      case "W":
-      case "s":
-      case "S":
-      case "a":
-      case "A":
-      case "d":
-      case "D":
-        if(video) {
-          video.pause();
-        }
-        break;
+    if (this.world.viewingMediaMesh.material) {
+      let video = this.world.viewingMediaMesh.material.emissiveTexture.video;
+      switch (kbInfo.type) {
+        case BABYLON.KeyboardEventTypes.KEYDOWN:
+        case "w":
+        case "W":
+        case "s":
+        case "S":
+        case "a":
+        case "A":
+        case "d":
+        case "D":
+          if (video) {
+            video.pause();
+          }
+          break;
+      }
     }
   }
   handleKeyboard(kbInfo) {
