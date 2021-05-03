@@ -52,7 +52,7 @@ export default {
       'posZ': -2.908,
       'rotationY': -90,
       'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.png'
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.mp4'
     }, {
       'name': 'CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal',
       'width': 3.15,
