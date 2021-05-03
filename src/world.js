@@ -920,7 +920,6 @@ export class NightClub extends World {
     outputElement.play();
     this.changePlaybackDevice(playbackDeviceId);
 
-    debugger;
     if(this.state === 'Connected') {
       return;
     }
