@@ -33,7 +33,7 @@
 
         <div class="flex items-stretch justify-end pb-12 absolute right-12 bottom-0">
 
-            <div class="flex flex-col items-center justify-center text-sm font-medium rounded-lg text-white mr-6" v-if="canBroadcast && useComputerSound">
+            <div class="flex flex-col items-center justify-center text-sm font-medium rounded-lg text-white mr-6" v-if="useComputerSound && enableStereo">
                 Send Music (F9)
                 <label class="toggle-switch mt-1">
                     <input type="checkbox" :checked="userSettings.sendingMusic" @change="$emit('toggleSendingMusic', $event.target.checked)">
@@ -122,10 +122,10 @@
     export default {
       name: "UserControls",
       components: { InstrumentationPanel },
-      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'canBroadcast', 'useComputerSound', 'sendingMusic'],
+      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic'],
       mounted() {
         document.addEventListener('keydown', (e) => {
-          if(e.code === "F9" && this.canBroadcast && this.useComputerSound) {
+          if(e.code === "F9" && this.enableStereo && this.useComputerSound) {
             this.$emit('toggleSendingMusic', !this.sendingMusic)
           }
         });

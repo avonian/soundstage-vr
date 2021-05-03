@@ -65,7 +65,7 @@
                 :show-emoji-menu="showEmojiMenu"
                 :show-instrumentation="showInstrumentation"
                 :world="world"
-                :can-broadcast="canBroadcast"
+                :enable-stereo="userSettings.enableStereo"
                 :use-computer-sound="userSettings.useComputerSound"
                 :sending-music="userSettings.sendingMusic"
                 @toggleSendingMusic="toggleSendingMusic($event)"
@@ -539,6 +539,9 @@
         }
         if (this.cachedUserSettings.enableStereo !== this.userSettings.enableStereo) {
           needsAudioRenegotiation = true
+          if(this.userSettings.enableStereo === false) {
+            this.userSettings.sendingMusic = false;
+          }
         }
         if (this.cachedUserSettings.selectedAudioDeviceId !== this.userSettings.selectedAudioDeviceId) {
           needsAudioRenegotiation = true
