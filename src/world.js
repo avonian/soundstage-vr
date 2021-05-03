@@ -913,11 +913,6 @@ export class NightClub extends World {
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
     }
 
-    var outputStream = this.hifi.getOutputAudioMediaStream();
-    var outputElement = document.getElementById('audioOutput');
-    // and now bind that output somewhere
-    outputElement.srcObject = outputStream;
-    outputElement.play();
     this.changePlaybackDevice(playbackDeviceId);
 
     if(this.state === 'Connected') {
@@ -926,6 +921,11 @@ export class NightClub extends World {
 
     this.hifi.connectToHiFiAudioAPIServer(this.eventConfig.highFidelity.token, this.eventConfig.highFidelity.url).then(() => {
       console.log('HiFi connected');
+      var outputStream = this.hifi.getOutputAudioMediaStream();
+      var outputElement = document.getElementById('audioOutput');
+      // and now bind that output somewhere
+      outputElement.srcObject = outputStream;
+      outputElement.play();
       // Disable auto-muting while stereo broadcasting
       this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
     });
