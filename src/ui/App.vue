@@ -65,6 +65,10 @@
                 :show-emoji-menu="showEmojiMenu"
                 :show-instrumentation="showInstrumentation"
                 :world="world"
+                :can-broadcast="canBroadcast"
+                :use-computer-sound="userSettings.useComputerSound"
+                :sending-music="userSettings.sendingMusic"
+                @toggleSendingMusic="toggleSendingMusic($event)"
                 @showSettingsPanel="showSettings = true"
                 @toggleDebug="debugOnOff"
                 @startRecording="recordPerformance"
@@ -127,7 +131,8 @@
     trackRotation: true,
     schema: 0.1,
     useComputerSound: false,
-    includeAudioInputInMix: false
+    includeAudioInputInMix: false,
+    sendingMusic: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -331,6 +336,12 @@
       },
       setUserSettings({ key, value }) {
         this.userSettings[key] = value;
+      },
+      toggleSendingMusic(value) {
+        this.userSettings['sendingMusic'] = value;
+        world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId);
+        document.getElementById('audioOutput').volume = value === false ? 1 : 0;
+        console.log('setting to ', document.getElementById('audioOutput').volume)
       },
       preloadVideos: async (videos, loadDefault = false) => {
 
@@ -664,10 +675,12 @@
           this.userSettings.useComputerSound = true;
           this.userSettings.includeAudioInputInMix = true;
           this.userSettings.enableStereo = true;
+          this.userSettings.sendingMusic = false;
         } catch (err) {
           this.userSettings.computerAudioStream = false
           this.userSettings.useComputerSound = false;
           this.userSettings.includeAudioInputInMix = false;
+          this.userSettings.sendingMusic = false;
         }
       },
       pollForDevices: async function () {

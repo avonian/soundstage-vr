@@ -850,13 +850,20 @@ export class NightClub extends World {
 
       /* Gain node */
       window.audioGainNode = window.audioContext.createGain();
-      if(computerAudioStream) {
+
+      // Add computer audio node if sharing computer audio
+      if(computerAudioStream && this.userSettings.sendingMusic) {
         /* Computer audio source */
         window.computerAudioSourceNode = window.audioContext.createMediaStreamSource(computerAudioStream);
         window.computerAudioSourceNode.connect(window.audioGainNode);
       }
-      if(!computerAudioStream || (computerAudioStream && this.userSettings.includeAudioInputInMix)) {
-        /* External audio source */
+
+      // Add external audio node
+      if(!computerAudioStream) { // Include  if it's our primary audio source
+        window.primaryAudioSourceNode.connect(window.audioGainNode);
+      } else if(computerAudioStream && !this.userSettings.sendingMusic) { // Include if sharing computer audio but we're not sending music
+        window.primaryAudioSourceNode.connect(window.audioGainNode);
+      } else if(computerAudioStream && this.userSettings.sendingMusic && this.userSettings.includeAudioInputInMix) { // Include if sharing computer audio, sending music, and mixing in audio device
         window.primaryAudioSourceNode.connect(window.audioGainNode);
       }
 
