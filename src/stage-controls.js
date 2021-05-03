@@ -286,7 +286,7 @@ export class StageControls {
     });
   }
   toggleGroundVisibility(on, transitionInterval, callback) {
-    let mesh = this.world.scene.getMeshByName('Room_Room_Base_1_15402');
+    let mesh = this.world.scene.getMeshByName('Room_Floor_Main');
     if(transitionInterval === 0) {
       transitionInterval = 1;
     }
