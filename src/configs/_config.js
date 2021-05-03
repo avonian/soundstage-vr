@@ -3,7 +3,7 @@ export default {
   'permissions': {
     'access_backstage': true,
     'spawn_backstage': false,
-    'stage_ramp': true,
+    'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
     'stage_controls': true
