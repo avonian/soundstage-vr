@@ -896,6 +896,7 @@ export class NightClub extends World {
         userDataStreamingScope: HighFidelityAudio.HiFiUserDataStreamingScopes.NONE,
         onConnectionStateChanged: (state) => {
           console.log("HiFi state", state);
+          this.state = state;
           if ( "Disconnected" === state && !interval) {
             console.log("Reconnecting to audio server");
             interval = setInterval(() => this.connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId), 5000);
@@ -912,15 +913,20 @@ export class NightClub extends World {
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
     }
 
+    var outputStream = this.hifi.getOutputAudioMediaStream();
+    var outputElement = document.getElementById('audioOutput');
+    // and now bind that output somewhere
+    outputElement.srcObject = outputStream;
+    outputElement.play();
+    this.changePlaybackDevice(playbackDeviceId);
+
+    debugger;
+    if(this.state === 'Connected') {
+      return;
+    }
+
     this.hifi.connectToHiFiAudioAPIServer(this.eventConfig.highFidelity.token, this.eventConfig.highFidelity.url).then(() => {
       console.log('HiFi connected');
-      var outputStream = this.hifi.getOutputAudioMediaStream();
-      var outputElement = document.getElementById('audioOutput');
-      // and now bind that output somewhere
-      outputElement.srcObject = outputStream;
-      outputElement.play();
-      this.changePlaybackDevice(playbackDeviceId);
-
       // Disable auto-muting while stereo broadcasting
       this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
     });
