@@ -930,7 +930,7 @@ export class NightClub extends World {
       this.hifi._inputAudioMediaStream.isStereo = stereo;
     }
 
-    let userDataSubscription = new HighFidelityAudio.UserDataSubscription({
+    let isStereoSubscription = new HighFidelityAudio.UserDataSubscription({
       components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.IsStereo],
       callback: (data) => {
         for(let peer of data) {
@@ -945,7 +945,37 @@ export class NightClub extends World {
       }
     });
 
-    this.hifi.addUserDataSubscription(userDataSubscription);
+    var volumeHighlightLayer = new BABYLON.HighlightLayer("volumeHighlightLayer", this.scene);
+    var alpha = 0;
+    this.scene.registerBeforeRender(() => {
+      alpha += 0.06;
+      volumeHighlightLayer.blurHorizontalSize = 2.5 + Math.cos(alpha) * 0.6 + 0.6;
+      volumeHighlightLayer.blurVerticalSize = 2.5 + Math.sin(alpha / 3) * 0.6 + 0.6;
+    });
+    volumeHighlightLayer.outerGlow = false;
+    let volumeDecibelsSubscription = new HighFidelityAudio.UserDataSubscription({
+      components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.IsStereo, HighFidelityAudio.AvailableUserDataSubscriptionComponents.VolumeDecibels],
+      callback: (data) => {
+        for(var peer of data) {
+          this.worldManager.VRSPACE.scene.forEach(c => {
+            if(c.properties.soundStageUserId === peer.providedUserID) {
+              let clientMesh = this.scene.getMeshByID(`Client ${c.id}`);
+              if(peer.volumeDecibels > -50) {
+                let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
+                volumeHighlightLayer.addMesh(clientMesh, color);
+              } else {
+                volumeHighlightLayer.removeMesh(clientMesh);
+              }
+            }
+          })
+
+        }
+
+      }
+    });
+
+    this.hifi.addUserDataSubscription(isStereoSubscription);
+    this.hifi.addUserDataSubscription(volumeDecibelsSubscription);
 
     this.changePlaybackDevice(playbackDeviceId);
 
