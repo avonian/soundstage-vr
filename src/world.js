@@ -960,7 +960,7 @@ export class NightClub extends World {
           this.worldManager.VRSPACE.scene.forEach(c => {
             if(c.properties.soundStageUserId === peer.providedUserID) {
               let clientMesh = this.scene.getMeshByID(`Client ${c.id}`);
-              if(peer.volumeDecibels > -50) {
+              if(peer.volumeDecibels > -30) {
                 let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
                 volumeHighlightLayer.addMesh(clientMesh, color);
               } else {
