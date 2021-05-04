@@ -450,9 +450,11 @@ export class NightClub extends World {
       return;
     }
     this.trackAvatarRotation = enable;
+    this.worldManager.customOptions.trackAvatarRotation = enable;
     this.worldManager.mediaStreams.clients.forEach( (client) => {
       client.video.applyRotation(this.trackAvatarRotation);
     });
+    
     this.video.applyRotation(this.trackAvatarRotation);
     if ( this.trackAvatarRotation ) {
       this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
