@@ -359,7 +359,7 @@ export class NightClub extends World {
     this.scene.registerBeforeRender(() => this.spatializeAudio());
 
     // media streaming stuff
-    this.mediaStreams = new MediaSoup(this.scene, 'videos', this.userSettings, this.eventConfig);
+    this.mediaStreams = new MediaSoup(this, 'videos', this.userSettings, this.eventConfig);
 
     // stop movement when focus is lost
     this.canvas.onblur = () => {
@@ -671,7 +671,7 @@ export class NightClub extends World {
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage});
+        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage, soundStageUserId: this.eventConfig.alias});
       }
       this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
