@@ -30,7 +30,7 @@ export default {
         height: 100px;
     }
     .faders {
-        opacity: 0.2;
+        opacity: 0.4;
         transition-property: opacity, background-color;
         transition-timing-function: ease-in-out;
         transition-duration: 0.2s;
