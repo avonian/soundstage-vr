@@ -66,6 +66,7 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/Ultra.mp4',
     'label': 'Ultra'
   }],
+  'hideDefaultPosters': true,
   'posters': [
     {
       'name': 'DOGE-AtomicSwap',
