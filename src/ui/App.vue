@@ -69,6 +69,7 @@
                 :use-computer-sound="userSettings.useComputerSound"
                 :sending-music="userSettings.sendingMusic"
                 @toggleSendingMusic="toggleSendingMusic($event)"
+                @setVolume="setVolume($event)"
                 @showSettingsPanel="showSettings = true"
                 @toggleDebug="debugOnOff"
                 @startRecording="recordPerformance"
@@ -132,7 +133,9 @@
     schema: 0.1,
     useComputerSound: false,
     includeAudioInputInMix: false,
-    sendingMusic: false
+    sendingMusic: false,
+    voiceVolume: 50,
+    musicVolume: 50
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -332,6 +335,14 @@
             await localStorage.setItem('alreadyVisited', true)
             this.alreadyVisited = true
           }
+        }
+      },
+      async setVolume({ key, value }) {
+        this.userSettings[key + 'Volume'] = value;
+        world.userSettings[key + 'Volume'] = value;
+        this.saveSettings(true);
+        for(let peer of world.hifi.peers) {
+          world.hifi.updatePeerVolume(peer)
         }
       },
       setUserSettings({ key, value }) {

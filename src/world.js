@@ -895,7 +895,7 @@ export class NightClub extends World {
     var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
-        userDataStreamingScope: HighFidelityAudio.HiFiUserDataStreamingScopes.NONE,
+        userDataStreamingScope: HighFidelityAudio.HiFiUserDataStreamingScopes.Peers,
         onConnectionStateChanged: (state) => {
           console.log("HiFi state", state);
           this.state = state;
@@ -906,14 +906,46 @@ export class NightClub extends World {
             clearInterval(interval);
             interval = null;
           }
+        },
+        onUsersDisconnected: (peers) => {
+          for(let peer of peers) {
+            let currentPeerIndex = this.hifi.peers.findIndex((p) => p.hashedVisitID === peer.hashedVisitID);
+            if(currentPeerIndex > -1) {
+              this.hifi.peers.splice(currentPeerIndex, 1)
+            }
+          }
         }
       });
+      if(!this.hifi.peers) {
+        this.hifi.peers = [];
+      }
+      this.hifi.updatePeerVolume = (peer) => {
+        let peerVolume = peer.isStereo ? parseInt(this.userSettings.musicVolume) / 100 * 3: parseInt(this.userSettings.voiceVolume) / 100;
+        this.hifi.setOtherUserGainForThisConnection(peer.hashedVisitID, peerVolume);
+      }
     }
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
       let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
-      console.log('stereo?', stereo);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
+      this.hifi._inputAudioMediaStream.isStereo = stereo;
     }
+
+    let userDataSubscription = new HighFidelityAudio.UserDataSubscription({
+      components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.IsStereo],
+      callback: (data) => {
+        for(let peer of data) {
+          let currentPeerIndex = this.hifi.peers.findIndex(p => p.hashedVisitID === peer.hashedVisitID);
+          if(currentPeerIndex !== -1) {
+            this.hifi.peers[currentPeerIndex] = peer;
+          } else {
+            this.hifi.peers.push(peer);
+          }
+          this.hifi.updatePeerVolume(peer);
+        }
+      }
+    });
+
+    this.hifi.addUserDataSubscription(userDataSubscription);
 
     this.changePlaybackDevice(playbackDeviceId);
 
@@ -948,7 +980,7 @@ export class NightClub extends World {
     }
     //console.log(changes);
     var pos = {};
-    if(this.userSettings && this.userSettings.enableStereo) {
+    if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
       pos = {
         orientationEuler: {
           pitchDegrees: -7.646941233545094,

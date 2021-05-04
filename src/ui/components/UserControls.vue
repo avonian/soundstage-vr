@@ -40,6 +40,11 @@
                     <span class="toggle-switch-slider round"></span>
                 </label>
             </div>
+            <AudioMixer
+                    class="absolute right-0 bottom-32"
+                    :userSettings="userSettings"
+                    @setVolume="$emit('setVolume', $event)"
+            />
 
             <a
                     href="#"
@@ -107,7 +112,6 @@
             </a>
             <img class="cursor-pointer h-14 w-14" src="../../assets/images/slightly-smiling-face.png"
                  @click="$emit('emojiMenuOnOff')"/>
-
         </div>
 
         <div id="emojis" class="grid p-4 gap-4 grid-cols-6 w-80 absolute bottom-32 right-12 bg-black-200"
@@ -118,10 +122,11 @@
 
 <script>
     import InstrumentationPanel from './InstrumentationPanel'
+    import AudioMixer from './AudioMixer'
 
     export default {
       name: "UserControls",
-      components: { InstrumentationPanel },
+      components: { InstrumentationPanel, AudioMixer },
       props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic'],
       mounted() {
         document.addEventListener('keydown', (e) => {
