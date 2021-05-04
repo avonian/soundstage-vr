@@ -949,22 +949,21 @@ export class NightClub extends World {
     var alpha = 0;
     this.scene.registerBeforeRender(() => {
       alpha += 0.06;
-      volumeHighlightLayer.blurHorizontalSize = 2.5 + Math.cos(alpha) * 0.6 + 0.6;
-      volumeHighlightLayer.blurVerticalSize = 2.5 + Math.sin(alpha / 3) * 0.6 + 0.6;
+      volumeHighlightLayer.blurHorizontalSize = 1 + Math.cos(alpha) * 0.6 + 0.6;
+      volumeHighlightLayer.blurVerticalSize = 1 + Math.sin(alpha / 3) * 0.6 + 0.6;
     });
     volumeHighlightLayer.outerGlow = false;
     let volumeDecibelsSubscription = new HighFidelityAudio.UserDataSubscription({
-      components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.IsStereo, HighFidelityAudio.AvailableUserDataSubscriptionComponents.VolumeDecibels],
+      components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.VolumeDecibels],
       callback: (data) => {
         for(let peer of data) {
           this.worldManager.VRSPACE.scene.forEach(c => {
-            if(c.className === "Client" && c.properties.soundStageUserId === peer.providedUserID) {
+            if(c.className === "Client") {
               let clientMesh = this.scene.getMeshByID(`Client ${c.id}`);
-              if(peer.volumeDecibels > -30) {
+              volumeHighlightLayer.removeMesh(clientMesh);
+              if(c.properties.soundStageUserId === peer.providedUserID && this.hifi.peers.find(p => p.hashedVisitID === peer.hashedVisitID).isStereo === false && peer.volumeDecibels > -30) {
                 let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
                 volumeHighlightLayer.addMesh(clientMesh, color);
-              } else {
-                volumeHighlightLayer.removeMesh(clientMesh);
               }
             }
           })
