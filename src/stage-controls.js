@@ -317,7 +317,7 @@ export class StageControls {
         let gridFloorMat = new BABYLON.GridMaterial("gridFloorMat", this.world.scene);
         gridFloorMat.gridRatio = 0.1;
         gridFloorMat.lineColor = BABYLON.Color3.Purple();
-        gridFloor = BABYLON.MeshBuilder.CreateGround("gridFloor", { width: 20, height: 20 }, this.world.scene);
+        gridFloor = BABYLON.MeshBuilder.CreateGround("gridFloor", { width: 22.5, height: 20 }, this.world.scene);
         gridFloor.material = gridFloorMat;
         gridFloor.position.x = 2; // in the center
         gridFloor.position.z = -4;
