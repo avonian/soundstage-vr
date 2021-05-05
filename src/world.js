@@ -13,7 +13,7 @@ export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
     //  this.file = 'Night_Club-2903-4.glb';
-    this.file = 'Night_Club-3may-big.glb';
+    this.file = 'Night_Club-5may-door.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1224,6 +1224,35 @@ export class NightClub extends World {
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
     }
+    // for future Fire
+    if (event.key === "f") {
+      BABYLON.ParticleHelper.CreateAsync("fire", this.scene).then((set) => {
+        set.systems.forEach(s => {
+          s.emitter = new BABYLON.Vector3(2, 0.1, 2);
+          s.minSize = 0.05;
+          s.maxSize = 0.05;
+          s.disposeOnStop = true;
+        });
+        set.start();
+        
+      });
+      console.log("Fire! ");
+      
+    }
+
+    // Emissive Stairs
+    if (event.key === "m") {
+      let tempMesh = this.scene.getMeshByName("Stairs_Stairs_Emission_2_15348");
+      let aniMesh = this.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
+      // tempMesh.material.emissiveTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
+      console.log("Emissive Stairs! ");
+      this.scene.registerAfterRender(function () {
+        tempMesh.material.emissiveColor = aniMesh.material.emissiveColor
+          });
+
+    }
+
+
   }
 
   startSavingState() {
