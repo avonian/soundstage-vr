@@ -909,15 +909,12 @@ export class NightClub extends World {
         },
         onUsersDisconnected: (peers) => {
           for(let peer of peers) {
-            let currentPeerIndex = this.hifi.peers.findIndex((p) => p.hashedVisitID === peer.hashedVisitID);
-            if(currentPeerIndex > -1) {
-              this.hifi.peers.splice(currentPeerIndex, 1)
-            }
+            delete this.hifi.peers[peer.hashedVisitID];
           }
         }
       });
       if(!this.hifi.peers) {
-        this.hifi.peers = [];
+        this.hifi.peers = {};
       }
       this.hifi.updatePeerVolume = (peer) => {
         let peerVolume = peer.isStereo ? parseInt(this.userSettings.musicVolume) / 100 * 3: parseInt(this.userSettings.voiceVolume) / 100;
@@ -934,12 +931,7 @@ export class NightClub extends World {
       components: [HighFidelityAudio.AvailableUserDataSubscriptionComponents.IsStereo],
       callback: (data) => {
         for(let peer of data) {
-          let currentPeerIndex = this.hifi.peers.findIndex(p => p.hashedVisitID === peer.hashedVisitID);
-          if(currentPeerIndex !== -1) {
-            this.hifi.peers[currentPeerIndex] = peer;
-          } else {
-            this.hifi.peers.push(peer);
-          }
+          this.hifi.peers[peer.hashedVisitID] = peer;
           this.hifi.updatePeerVolume(peer);
         }
       }
@@ -961,7 +953,7 @@ export class NightClub extends World {
             if(c.className === "Client") {
               let clientMesh = this.scene.getMeshByID(`Client ${c.id}`);
               volumeHighlightLayer.removeMesh(clientMesh);
-              if(c.properties.soundStageUserId === peer.providedUserID && this.hifi.peers.find(p => p.hashedVisitID === peer.hashedVisitID).isStereo === false && peer.volumeDecibels > -30) {
+              if(c.properties.soundStageUserId === peer.providedUserID && this.hifi.peers[peer.hashedVisitID].isStereo === false && peer.volumeDecibels > -30) {
                 let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
                 volumeHighlightLayer.addMesh(clientMesh, color);
               }
