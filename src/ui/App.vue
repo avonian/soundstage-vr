@@ -341,8 +341,8 @@
         this.userSettings[key + 'Volume'] = value;
         world.userSettings[key + 'Volume'] = value;
         this.saveSettings(true);
-        for(let peer of world.hifi.peers) {
-          world.hifi.updatePeerVolume(peer)
+        for(let peer of Object.keys(world.hifi.peers)) {
+          world.hifi.updatePeerVolume(world.hifi.peers[peer])
         }
       },
       setUserSettings({ key, value }) {
