@@ -1016,19 +1016,20 @@ export class NightClub extends World {
     }
     //console.log(changes);
     var pos = {};
-    if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
-      pos = {
-        orientationEuler: {
-          pitchDegrees: -7.646941233545094,
-          rollDegrees: 0,
-          yawDegrees: 0
-        },
-        position: {
-          x: 2.1675716757014136,
-          y: 1.079573474549019,
-          z: 4.359327756668091
-        }
+    var stagePos = {
+      orientationEuler: {
+        pitchDegrees: -7.646941233545094,
+        rollDegrees: 0,
+        yawDegrees: 0
+      },
+      position: {
+        x: 2.1675716757014136,
+        y: 1.079573474549019,
+        z: 4.359327756668091
       }
+    }
+    if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
+      pos = stagePos;
     } else if ( this.activeCameraType === '1p' ) {
       this.audioData( pos, this.camera1 );
     } else if ( this.activeCameraType === '3p' ) {
@@ -1037,14 +1038,12 @@ export class NightClub extends World {
       // tracking cam1 because that's where avatar is
       this.audioData( pos, this.camera1, {x:0, y:rotY, z:0});
     } else if ( this.activeCameraType === 'free' ) {
-      if ( this.freeCamSpatialAudio || (document.querySelector('#freeCamSpatialAudio') && document.querySelector('#freeCamSpatialAudio').value === 'true')) {
-        // we can track cameraFree as we track camera1, but soon as camera moves away from the avatar,
-        // sound becomes confusing
-        // so it makes sense only for accurate sound recording
+      if(!document.querySelector('#freeCamSpatialAudio') || document.querySelector('#freeCamSpatialAudio').value === "freecam") {
         this.audioData( pos, this.cameraFree );
-      } else {
-        // otherwise sound tracks avatar position (1st person camera)
+      } else if(document.querySelector('#freeCamSpatialAudio').value === "avatar") {
         this.audioData( pos, this.camera1 );
+      } else {
+        pos = stagePos;
       }
     } else {
       console.log("ERROR: no active camera, can't spatialize audio");

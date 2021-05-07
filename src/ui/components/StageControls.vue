@@ -13,10 +13,12 @@
                @click="$emit('toggleUserVideos')">
                 Casting Panel
             </a>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="freeCamSpatialAudio">
-                <option value="true" selected>Freecam sound tracking</option>
-                <option value="false">Avatar sound tracking</option>
-            </select>
+            <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
+                    <option value="stage" selected>Stage</option>
+                    <option value="freecam">Freecam</option>
+                    <option value="avatar">Avatar</option>
+                </select>
+            </div>
             <select class="bg-white text-sm text-black mr-3 rounded-md" id="easing">
                 <option value="">No easing</option>
                 <option value="PowerEase">Power Ease</option>
