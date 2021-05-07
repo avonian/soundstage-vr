@@ -103,7 +103,7 @@ export class Customizer {
                   // Play listener
                   videoTexture.video.addEventListener('play', (event) => {
                     event.target.volume = 0.2;
-                    document.querySelector('#audioOutput').volume = 0;
+                    document.querySelector('#audioOutput').volume = 0.2;
                   });
 
                   // Pause listener
