@@ -34,6 +34,7 @@ export class Customizer {
         galleryPoster.material = new BABYLON.StandardMaterial(posters[i].name + "_mat", this.world.scene);
         galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].photo_url, this.world.scene);
         galleryPoster.material.emissiveTexture.name = "PosterImage-" + posters[i].name;
+        galleryPoster.material.disableLighting = true
         if(posters[i].video_url) {
           galleryPoster.video_url = posters[i].video_url;
           if(posters[i].viewerOffset) {
@@ -184,6 +185,13 @@ export class Customizer {
     this.DJSpotLight = new BABYLON.SpotLight("DJSpotLight", new BABYLON.Vector3(2, 2, 4.2),
       new BABYLON.Vector3(0.1, -1, 0), BABYLON.Tools.ToRadians(300), 1, this.scene);
     this.DJSpotLight.intensity = 0;
+    let DJSpotLightMeshestoInclude = this.world.scene.meshes.filter(m => {
+      if(m.name.indexOf("Cube") !== -1 || m.name.indexOf("Pedestal.002") !== -1 || m.name.indexOf("DJ_Table") !== -1 || m.name.indexOf("Sampler_") !== -1 || m.name.indexOf("Mixer800") !== -1 || m.name.indexOf("Player.") !== -1) {
+        return m;
+      }
+      return false;
+    });
+    this.DJSpotLight.includedOnlyMeshes = DJSpotLightMeshestoInclude;
     this.DJSpotLight.angle = BABYLON.Tools.ToRadians(300);
     this.DJSpotLight.diffuse = new BABYLON.Color3(80,30, 50)
     this.DJSpotLight.range = 20;

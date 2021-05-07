@@ -559,7 +559,7 @@ export class NightClub extends World {
       this.video.autoAttach = false;
       this.video.camera = this.camera1;
       this.video.autoStart = false;
-      this.video.show();
+      this.video.show(false);
       if ( this.trackAvatarRotation ) {
         this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
       }
