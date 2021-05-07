@@ -228,6 +228,10 @@
           {
             label: "High",
             value: "high"
+          },
+          {
+            label: "Ultra-High",
+            value: "ultra-high"
           }
         ]
       }

@@ -7,7 +7,7 @@ export default {
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
-    'stage_controls': false
+    'stage_controls': true
   },
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'

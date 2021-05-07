@@ -5,6 +5,7 @@ export class Customizer {
     this.world = world;
     this.eventConfig = world.eventConfig;
     this.barLights = [];
+    this.clearCoatMeshes = false;
     this.initPosters();
   }
   disposeVideoPosters() {
@@ -193,7 +194,7 @@ export class Customizer {
         light.dispose()
       });
     }
-    if(this.world.userSettings.graphicsQuality !== 'high') {
+    if(this.world.userSettings.graphicsQuality !== 'high' && this.world.userSettings.graphicsQuality !== 'ultra-high') {
       return;
     }
     if (this.world.scene.getLightByName("PointLight")) {
@@ -234,6 +235,37 @@ export class Customizer {
     console.log("Lights: ", this.world.scene.lights);
     // since customizer loads before the model and its meshes, we cannot use here light.includedOnlyMeshes
     // Press '4' to see it in action at world.js
+  }
+  initClearCoat() {
+    if(!this.clearCoatMeshes) {
+      this.clearCoatMeshes = [
+        'Bar_counter.001_Bar_counter.001_Base_2_15346',
+        'Chair_Chair_Red_15380',
+        'Chair_(1)_Chair.001_Red_15380',
+        'Chair_(2)_Chair.003_Red_15380',
+        'Chair_(3)_Chair.002_Red_15380',
+        'Chair_(2)_Chair.003_Red_15380.2',
+        'Chair_(2)_Chair.003_Red_15380.1',
+        'Lamp_Lamp.001_Base_2_15346',
+        'Lamp_(1)_Lamp_Base_2_15346',
+        'Lamp_(3)_Lamp.004_Base_2_15346',
+        'Lamp_(2)_Lamp.008_Base_2_15346',
+        'Pedestal_Pedestal_Blue_15390',
+        'Pedestal_Pedestal_Blue_15390',
+        'Fencing_Fencing_Base_15926',
+        'Room_Room_Base_15926',
+        'Room_Room_Base_15926.1',
+        'DJ_Table_DJ_Table_table_15810',
+        'Cube',
+        'Cube.1',
+        'Cube.3',
+        'Cube.4',
+        'Boole',
+        'door2-emiss',
+        'PosterVIPR'
+      ].map(m => this.world.scene.getMeshByName(m));
+    }
+    this.clearCoatMeshes.forEach(mesh => mesh.material.clearCoat.isEnabled = this.world.userSettings.graphicsQuality === 'ultra-high')
   }
 }
 

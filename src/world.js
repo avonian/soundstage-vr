@@ -1180,6 +1180,7 @@ export class NightClub extends World {
         aa_samples = 4;
         break;
       case "high":
+      case "ultra-high":
         setVisibility(meshList, true);
         aa_samples = 8;
         break;
@@ -1189,12 +1190,13 @@ export class NightClub extends World {
     pipeline.samples = aa_samples;
     this.customizer.initBarLights();
     this.customizer.initDJSpotLight();
+    this.customizer.initClearCoat();
 
     // Lights optimization
       if (this.scene.getTransformNodeByName("allBarLights")) {
         this.scene.getTransformNodeByName("allBarLights").dispose();
       }
-    if (setting === "high") {
+    if (setting === "high" || setting === "ultra-high") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");
       //TODO: Add includedOnlyMeshes to DJ Spotlight too - after model remake

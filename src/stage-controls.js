@@ -344,7 +344,7 @@ export class StageControls {
   toggleMoodParticles(on = true) {
     this.moodParticlesOn = on;
 
-    if(this.userSettings.graphicsQuality !== 'medium' && this.userSettings.graphicsQuality !== 'high' ) {
+    if(this.userSettings.graphicsQuality === 'low' || this.userSettings.graphicsQuality === 'very-low' ) {
       for(let system of this.moodParticleSystems) {
         system.stop();
       }
