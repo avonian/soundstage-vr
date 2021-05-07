@@ -1,4 +1,5 @@
 export default {
+  'mode': 'dev',
   'role': 'staff',
   'permissions': {
     'access_backstage': true,
@@ -6,11 +7,14 @@ export default {
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
-    'stage_controls': true
+    'stage_controls': false
   },
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },
+  follows: [],
+  mutelist: [],
+  blocklist: [],
   'highFidelity': {
     'url': 'api-pro.highfidelity.com'
   },

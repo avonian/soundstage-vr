@@ -12,6 +12,33 @@ export class HoloAvatar extends VideoAvatar {
       this.mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
     }
 
+    this.mesh.isPickable = true;
+    this.mesh.actionManager = new BABYLON.ActionManager(this.scene);
+    this.mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            pickedMesh.material.diffuseTexture.level = 1.2;
+          })
+      )
+    this.mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOutTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            pickedMesh.material.diffuseTexture.level = 1;
+          })
+      )
+    this.mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            document.querySelector("#app")._vnode.component.data.avatarMenuClientId = pickedMesh.id.replace("Client ", "");
+          })
+      )
+
     this.back = BABYLON.MeshBuilder.CreateDisc("VideoAvatarBackground", {radius:this.radius}, this.scene);
     this.back.position = new BABYLON.Vector3( 0, 0, 0.001);
     this.back.material = new BABYLON.StandardMaterial("BackgroundMat", this.scene);

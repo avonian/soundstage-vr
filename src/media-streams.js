@@ -35,6 +35,8 @@ export class MediaSoup extends MediaStreams {
       videoDiv.classList.add("relative");
       if(peerId) {
         newVideoElement.setAttribute('peerId', peerId);
+        newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
+        newVideoElement.setAttribute('soundStageUserRole', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserRole);
         newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
       }
       let badge = document.createElement('div');

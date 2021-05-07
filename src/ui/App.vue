@@ -17,6 +17,16 @@
         <LocalCamera v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0"
                 :showStageControls="showStageControls"
                 @castSelf="castSelf"/>
+        <AvatarMenu v-if="avatarMenuClientId"
+            :world="world"
+            :client-id="avatarMenuClientId"
+            :follows="eventConfig.follows"
+            :mutelist="eventConfig.mutelist"
+            @closeAvatarMenu="avatarMenuClientId = false"
+            @followUser="followUser($event)"
+            @muteUser="muteUser($event)"
+            @blockUser="blockUser($event)"
+        />
         <SettingsPanel v-if="showSettings"
                 :graphics-options="graphicsOptions"
                 :audio-devices="audioDevices"
@@ -97,6 +107,7 @@
   import StageControls from './components/StageControls'
   import UserControls from './components/UserControls'
   import WelcomeScreen from './components/WelcomeScreen'
+  import AvatarMenu from './components/AvatarMenu'
   import browser from 'browser-detect';
 
   // variables required to use babylon.js:
@@ -151,10 +162,12 @@
       LoadingScreen,
       StageControls,
       UserControls,
-      WelcomeScreen
+      WelcomeScreen,
+      AvatarMenu
     },
     data () {
       return {
+        jwt: '',
         browserSupported: true,
         invalidAccess: false,
         eventConfig: false,
@@ -198,6 +211,7 @@
         gridFloorOn: false,
         moodParticlesOn: false,
         showInstrumentation: false,
+        avatarMenuClientId: false,
         graphicsOptions: [
           {
             label: "Very Low",
@@ -229,6 +243,11 @@
     },
     mounted: async function () {
 
+      this.jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
+        .split('; ')
+        .find(row => row.startsWith('jwt='))
+        .split('=')[1] : false;
+
       /* Check browser */
       if(browser().name === 'safari') {
         this.browserSupported = false;
@@ -257,6 +276,7 @@
       if(!this.eventConfig) {
         return;
       }
+
       /* Preload default video only (just so it's ready on scene start) */
       this.preloadVideos(this.eventConfig.videos, true)
 
@@ -302,16 +322,12 @@
           this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
           return;
         }
-        let jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
-          .split('; ')
-          .find(row => row.startsWith('jwt='))
-          .split('=')[1] : false;
-        if(jwt) {
+        if(this.jwt) {
           let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/verify`, {
             headers: {
               "Content-Type": "application/json; charset=utf-8",
               'Accept': 'application/json',
-              "Authorization": `Bearer ${jwt}`
+              "Authorization": `Bearer ${this.jwt}`
             }
           });
           let data = await response.json();
@@ -835,7 +851,92 @@
         this.cameraMode = this.cameraModes[2];
         world.activateCamera('free');
         world.cineCam.play(i);
-      }
+      },
+      async followUser({ user, value }) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/follow`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            'Accept': 'application/json',
+            "Authorization": `Bearer ${this.jwt}`
+          },
+          'method': 'POST',
+          'body': JSON.stringify({
+            target_user: user,
+            follow: value
+          }),
+        });
+        let data = await response.json();
+        this.eventConfig.follows = data.follows;
+      },
+      async muteUser({ user, value }) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/mute`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            'Accept': 'application/json',
+            "Authorization": `Bearer ${this.jwt}`
+          },
+          'method': 'POST',
+          'body': JSON.stringify({
+            target_user: user,
+            mute: value
+          }),
+        });
+        let data = await response.json();
+        this.eventConfig.mutelist = data.mutelist;
+        for (let hashedVisitID of Object.keys(world.hifi.peers)) {
+          let hiFiPeer = world.hifi.peers[hashedVisitID];
+          if (parseInt(hiFiPeer.providedUserID) === user) {
+            world.hifi.updatePeerVolume(hiFiPeer)
+          }
+        }
+      },
+      async blockUser(user) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        let confirmed = confirm("Are you sure you want to block this user?");
+        if(!confirmed) {
+          return false;
+        }
+        let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/block`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            'Accept': 'application/json',
+            "Authorization": `Bearer ${this.jwt}`
+          },
+          'method': 'POST',
+          'body': JSON.stringify({
+            target_user: user,
+            block: true
+          }),
+        });
+        let data = await response.json();
+        this.eventConfig.blocklist = data.blocklist;
+        // Mute user
+        for (let hashedVisitID of Object.keys(world.hifi.peers)) {
+          let hiFiPeer = world.hifi.peers[hashedVisitID];
+          if (parseInt(hiFiPeer.providedUserID) === user) {
+            world.hifi.updatePeerVolume(hiFiPeer)
+          }
+        }
+        // Dispose avatar
+        let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
+        let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
+        holoAvatar.dispose();
+        this.avatarMenuClientId = false;
+        setTimeout(function() {
+          alert("User has been blocked.\n\nTo undo this action visit your SoundStage profile area.");
+        }, 300);
+      },
     }
   }
 </script>

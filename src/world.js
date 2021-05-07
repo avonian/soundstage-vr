@@ -671,7 +671,7 @@ export class NightClub extends World {
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
       if ( this.video.altImage ) {
-        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage, soundStageUserId: this.eventConfig.alias});
+        this.worldManager.VRSPACE.sendMy("properties", {altImage:this.video.altImage, soundStageUserId: this.eventConfig.user_id, soundStageUserAlias: this.eventConfig.alias, soundStageUserRole: this.eventConfig.role});
       }
       this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
@@ -748,8 +748,12 @@ export class NightClub extends World {
   }
 
   createAvatar(obj) {
+    if(this.eventConfig.blocklist.indexOf(obj.properties.soundStageUserId) !== -1) {
+      return false;
+    }
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
     // obj is the client object sent by the server
+
     if ( obj.properties ) {
       // apply avatar alt image
       if ( obj.properties.altImage ) {
@@ -918,6 +922,9 @@ export class NightClub extends World {
       }
       this.hifi.updatePeerVolume = (peer) => {
         let peerVolume = peer.isStereo ? parseInt(this.userSettings.musicVolume) / 100 * 3: parseInt(this.userSettings.voiceVolume) / 100;
+        if(this.eventConfig.mutelist.indexOf(parseInt(peer.providedUserID)) !== -1 || this.eventConfig.blocklist.indexOf(parseInt(peer.providedUserID)) !== -1) {
+          peerVolume = 0;
+        }
         this.hifi.setOtherUserGainForThisConnection(peer.hashedVisitID, peerVolume);
       }
     }
@@ -952,10 +959,20 @@ export class NightClub extends World {
           this.worldManager.VRSPACE.scene.forEach(c => {
             if(c.className === "Client") {
               let clientMesh = this.scene.getMeshByID(`Client ${c.id}`);
-              volumeHighlightLayer.removeMesh(clientMesh);
-              if(c.properties.soundStageUserId === peer.providedUserID && this.hifi.peers[peer.hashedVisitID].isStereo === false && peer.volumeDecibels > -30) {
-                let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
-                volumeHighlightLayer.addMesh(clientMesh, color);
+              if(clientMesh) {
+                if (this.eventConfig.mutelist.indexOf(c.properties.soundStageUserId) !== -1) {
+                  clientMesh.renderOverlay = true;
+                  clientMesh.overlayAlpha = 0.2;
+                  clientMesh.overlayColor = new BABYLON.Color3(50, 0, 50);
+                  volumeHighlightLayer.addMesh(clientMesh, new BABYLON.Color3(0, 0, 0));
+                } else if (this.eventConfig.mutelist.indexOf(c.properties.soundStageUserId) === -1 && c.properties.soundStageUserId === parseInt(peer.providedUserID) && this.hifi.peers[peer.hashedVisitID].isStereo === false && peer.volumeDecibels > -30) {
+                  clientMesh.renderOverlay = false;
+                  let color = peer.volumeDecibels > -5 ? new BABYLON.Color4(0.5, 0, 0, 0.7) : new BABYLON.Color4(0.35, 0, 1, 0.7);
+                  volumeHighlightLayer.addMesh(clientMesh, color);
+                } else {
+                  clientMesh.renderOverlay = false;
+                  volumeHighlightLayer.removeMesh(clientMesh);
+                }
               }
             }
           })
