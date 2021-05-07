@@ -15,14 +15,6 @@ export class MediaSoup extends MediaStreams {
       document.querySelector("#localVideo").srcObject = new MediaStream([track]);
       document.querySelector("#localVideo").setAttribute('peerId', this.worldManager.VRSPACE.me.id);
     } else {
-
-      let videoElement = document.querySelector(`video[peerid='${peerId}']`);
-      if(videoElement) {
-        // Video element already exists no need to create one (this is the case when users pause/resume video)
-        videoElement.srcObject = new MediaStream([track]);
-        return;
-      }
-
       const newVideoElement = document.createElement("video");
       newVideoElement.muted = true;
       newVideoElement.playsInline = true;
@@ -32,7 +24,7 @@ export class MediaSoup extends MediaStreams {
       newVideoElement.classList.add("vid");
       const mainVideoContainer = document.getElementById(this.htmlElementName);
       const videoDiv = document.createElement('div');
-      videoDiv.classList.add("relative");
+      videoDiv.classList.add("cast-box");
       if(peerId) {
         newVideoElement.setAttribute('peerId', peerId);
         newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
@@ -89,6 +81,10 @@ export class MediaSoup extends MediaStreams {
     roomClient.on(mediasoup.EVENTS.CONSUMER.REMOVE_CONSUMER, (event) => {
       console.log("Video stream stopped");
       var clientId = this.getClientId(event);
+      var videoElement = document.querySelector(`video[peerid='${clientId}']`)
+      if(videoElement) {
+        videoElement.parentNode.remove();
+      }
       for ( var i = 0; i < this.clients.length; i++ ) {
         if ( this.clients[i].id == clientId ) {
           var avatar = this.clients[i].video;

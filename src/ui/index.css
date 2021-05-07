@@ -162,3 +162,17 @@ input:checked + .toggle-switch-slider:before {
 .toggle-switch-slider.round:before {
     border-radius: 50%;
 }
+
+.cast-box {
+    position: relative;
+    min-width: 320px;
+    width: 320px;
+    height: 240px;
+    display: inline-block;
+}
+
+.cast-box video {
+    min-width: 320px;
+    width: 320px;
+    height: 240px;
+}

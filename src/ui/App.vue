@@ -90,7 +90,7 @@
                 @emojiMenuOnOff="emojiMenuOnOff"
                 @focusCanvas="focusCanvas"/>
     </div>
-    <div id="videos" class="flex flex-row" :class="!showUserVideosPanel ? 'hidden' : 'fixed bottom-0 overflow-x-auto'">
+    <div id="videos" :class="!showUserVideosPanel ? 'hidden' : 'flex fixed bottom-0 overflow-x-auto w-full overflow-x-auto'">
         <audio id='audioOutput' class="hidden" controls autoplay></audio>
     </div>
     <!-- Main app end -->
