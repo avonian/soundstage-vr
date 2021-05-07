@@ -177,7 +177,7 @@ export class Customizer {
     if(this.DJSpotLight) {
       this.DJSpotLight.dispose();
     }
-    if(this.world.userSettings.graphicsQuality !== 'medium' && this.world.userSettings.graphicsQuality !== 'high') {
+    if(this.world.userSettings.graphicsQuality === 'very-low' || this.world.userSettings.graphicsQuality === 'low' ) {
       return;
     }
     // Making the light over DJ table
