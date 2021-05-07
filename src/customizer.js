@@ -104,12 +104,17 @@ export class Customizer {
                   videoTexture.video.addEventListener('play', (event) => {
                     event.target.volume = 0.2;
                     document.querySelector('#audioOutput').volume = 0.2;
+                    console.log("Video is playing!");
+                    console.log(videoTexture.video);
                   });
 
                   // Pause listener
                   videoTexture.video.addEventListener('pause', (event) => {
+                    console.log("Video is paused...");
+                    console.log(videoTexture.video);
                     // Pause fires automatically on first play so if time = 0 don't do anything
                     if (event.target.currentTime === 0) {
+                      console.log("event.target.currentTime === 0");
                       return;
                     }
                     if (this.world.camera1.returnPosition) {
@@ -160,7 +165,7 @@ export class Customizer {
                     // Start playing video
                     this.world.camera1LookAt = false;
                     videoTexture.video.play();
-                  }, 1500)
+                  }, 4500)
                 }
               }
             )
