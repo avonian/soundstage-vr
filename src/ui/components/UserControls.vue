@@ -68,6 +68,7 @@
             </a>
 
             <a
+                    id="btn-webcam"
                     href="#"
                     class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-6"
                     @click="$emit('cameraOnOff')" v-if="userSettings.enableWebcamFeeds && videoDevices.length > 0">
@@ -86,6 +87,7 @@
             </a>
 
             <a
+                    id="btn-microphone"
                     href="#"
                     class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-8"
                     @click="$emit('microphoneOnOff')">

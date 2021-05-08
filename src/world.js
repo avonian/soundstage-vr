@@ -1,5 +1,6 @@
 import { World, WorldManager, VRSPACEUI, VRObject, VRSPACE } from './vrspace-babylon.js';
 import CinemaCamera from './cinema-camera';
+import AdminControls from './admin-controls';
 import StageControls from './stage-controls';
 import Emojis from './emojis';
 import MediaSoup from './media-streams';
@@ -407,11 +408,15 @@ export class NightClub extends World {
       })
     }
 
+    // Render loop logic for whenever first person cam is being automatically panned (e.g. to look at posters)
     this.engine.runRenderLoop(() => {
       if(this.camera1LookAt) {
         this.camera1.setTarget(new BABYLON.Vector3(this.camera1LookAt.x, this.camera1LookAt.y, this.camera1LookAt.z));
       }
     });
+
+    // Initialize admin controls
+    this.adminControls = new AdminControls( this );
   }
 
   /**
@@ -633,6 +638,7 @@ export class NightClub extends World {
       trackAvatarRotation: this.trackAvatarRotation,
       emojiEvent: (obj) => this.animateAvatar(obj),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
+      adminEvent: (obj) => this.adminControls.execute(obj.adminEvent),
       properties: (obj) => {
         console.log("Properties:", obj.properties);
       }
@@ -895,7 +901,7 @@ export class NightClub extends World {
     return { audioStream: window.audioStream, stereo }
   }
 
-  async connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId) {
+  async connectHiFi(audioDeviceId, computerAudioStream, playbackDeviceId, forceMute) {
     var interval = null;
     if(!this.hifi) {
       this.hifi = new HighFidelityAudio.HiFiCommunicator({
@@ -984,6 +990,9 @@ export class NightClub extends World {
     this.hifi.addUserDataSubscription(volumeDecibelsSubscription);
 
     this.changePlaybackDevice(playbackDeviceId);
+    if(forceMute) {
+      this.hifi.setInputAudioMuted(true)
+    }
 
     if(this.state === 'Connected') {
       return;

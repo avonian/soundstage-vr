@@ -2,7 +2,7 @@
 <template>
     <Dialog as="div" static class="fixed z-10 inset-0 overflow-y-auto" :open="open">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <DialogOverlay class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
+            <DialogOverlay class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="$emit('close')"/>
 
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -55,13 +55,16 @@
                                         </Switch>
                                     </SwitchGroup>
                                     <div class="flex flex-col" v-if="canModerate">
-                                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-2 shadow-sm px-4 py-2 bg-alt-primary text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('closeAvatarMenu')">
-                                            Mute User
+                                        <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('adminToggleMicrophone', soundStageUserId)" tabindex="-1">
+                                            Toggle Microphone
                                         </button>
-                                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-2 shadow-sm px-4 py-2 bg-alt-primary text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('closeAvatarMenu')">
+                                        <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('adminToggleWebcam', soundStageUserId)" tabindex="-1">
+                                            Toggle Webcam
+                                        </button>
+                                        <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('close')" tabindex="-1">
                                             Kick User
                                         </button>
-                                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-2 shadow-sm px-4 py-2 bg-alt-primary text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('closeAvatarMenu')">
+                                        <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('close')" tabindex="-1">
                                             Ban User
                                         </button>
                                     </div>
@@ -71,7 +74,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:text-sm" @click="$emit('closeAvatarMenu')">
+                    <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:text-sm" @click="$emit('close')">
                         Close
                     </button>
                 </div>
@@ -101,15 +104,14 @@ export default {
         SwitchLabel,
         SwitchDescription
     },
-    props: ['world', 'clientId', 'follows', 'mutelist'],
+    props: ['world', 'clientId', 'follows', 'mutelist', 'canModerate'],
     data() {
         return {
             soundStageUserAlias: '',
             soundStageUserId: '',
             soundStageUserRole: '',
             avatar: '',
-            open: true,
-            canModerate: false
+            open: true
         }
     },
     computed: {

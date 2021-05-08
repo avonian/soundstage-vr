@@ -1,4 +1,9 @@
 <template>
+    <Modal v-if="modal"
+           :title="modal.title"
+           :body="modal.body"
+           @close="hideModal"
+    />
     <InvalidEvent v-if="invalidAccess"/>
     <IncompatibleDevice v-else-if="deviceType === 'mobile'"/>
     <WelcomeScreen v-else-if="!entered"
@@ -22,10 +27,13 @@
             :client-id="avatarMenuClientId"
             :follows="eventConfig.follows"
             :mutelist="eventConfig.mutelist"
-            @closeAvatarMenu="avatarMenuClientId = false"
+            :canModerate="eventConfig.permissions.moderator"
+            @close="avatarMenuClientId = false"
             @followUser="followUser($event)"
             @muteUser="muteUser($event)"
             @blockUser="blockUser($event)"
+            @adminToggleMicrophone="adminToggleMicrophone($event)"
+            @adminToggleWebcam="adminToggleWebcam($event)"
         />
         <SettingsPanel v-if="showSettings"
                 :graphics-options="graphicsOptions"
@@ -108,6 +116,7 @@
   import UserControls from './components/UserControls'
   import WelcomeScreen from './components/WelcomeScreen'
   import AvatarMenu from './components/AvatarMenu'
+  import Modal from './components/Modal'
   import browser from 'browser-detect';
 
   // variables required to use babylon.js:
@@ -163,7 +172,8 @@
       StageControls,
       UserControls,
       WelcomeScreen,
-      AvatarMenu
+      AvatarMenu,
+      Modal
     },
     data () {
       return {
@@ -233,7 +243,8 @@
             label: "Ultra-High",
             value: "ultra-high"
           }
-        ]
+        ],
+        modal: false
       }
     },
     computed: {
@@ -617,7 +628,7 @@
 
           /* Reconnect to hifi after everythings settled */
           if (needsAudioRenegotiation) {
-            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId)
+            world.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId, !this.micEnabled)
           }
 
           this.showSettings = false;
@@ -941,6 +952,25 @@
           alert("User has been blocked.\n\nTo undo this action visit your SoundStage profile area.");
         }, 300);
       },
+      async adminToggleMicrophone(userId) {
+        world.adminControls.toggleUserMic(userId)
+        this.avatarMenuClientId = false;
+        this.showModal("Microphone Toggled.", "The users microphone setting has been toggled.")
+      },
+      async adminToggleWebcam(userId) {
+        world.adminControls.toggleUserWebcam(userId)
+        this.avatarMenuClientId = false;
+        this.showModal("Webcam Toggled.", "The users webcam setting has been toggled.")
+      },
+      showModal(title, body) {
+        this.modal = {
+          title,
+          body
+        }
+      },
+      hideModal() {
+        this.modal = false;
+      }
     }
   }
 </script>
