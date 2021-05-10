@@ -89,6 +89,7 @@ export class Customizer {
 
                   videoPoster = pickedMesh.clone("videoPoster-" + pickedMesh.name);
                   videoPoster.material = new BABYLON.StandardMaterial(videoPoster.name + "_mat", this.world.scene);
+                  videoPoster.material.disableLighting = true;
                   let videoTexture = new BABYLON.VideoTexture(videoPoster.name + "_texture",
                     pickedMesh.video_url,
                     this.world.scene, true, true, null, {
@@ -202,7 +203,7 @@ export class Customizer {
         light.dispose()
       });
     }
-    if(this.world.userSettings.graphicsQuality !== 'high' && this.world.userSettings.graphicsQuality !== 'ultra-high') {
+    if(this.world.userSettings.graphicsQuality !== 'medium' &&   this.world.userSettings.graphicsQuality !== 'high' && this.world.userSettings.graphicsQuality !== 'ultra-high') {
       return;
     }
     if (this.world.scene.getLightByName("PointLight")) {
