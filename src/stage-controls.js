@@ -200,6 +200,9 @@ export class StageControls {
     this.world.scene.beginAnimation(this.world.scene, 0, transitionInterval, false, 1, callback);
   }
   animateDJSpotLight(intensity, transitionInterval, callback) {
+    if(!this.world.customizer.DJSpotLight) {
+      return;
+    }
     let DJSpotLightAnimation = new BABYLON.Animation("DJSpotLightAnimation", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
     let keys = [
       {
@@ -405,7 +408,9 @@ export class StageControls {
       this.animateEnvironmentIntensity(moodSet.environmentIntensity, 300, () => {
         if(moodSet.fogSetting) {
           this.fogSetting = moodSet.fogSetting;
-          document.querySelector('#fogSetting').value = this.fogSetting;
+          if(document.querySelector('#fogSetting')) {
+            document.querySelector('#fogSetting').value = this.fogSetting;
+          }
           this.animateFog(this.fogSettingConfigs[moodSet.fogSetting], 300);
         }
       });
@@ -415,7 +420,9 @@ export class StageControls {
     } else {
       this.activeMood = false;
       this.fogSetting = 'none';
-      document.querySelector('#fogSetting').value = this.fogSetting;
+      if(document.querySelector('#fogSetting')) {
+        document.querySelector('#fogSetting').value = this.fogSetting;
+      }
       this.animateEnvironmentIntensity(this.cubeTextures[this.activeCubeTexture]['environmentIntensity'], 300, () => {
         this.animateFog(this.fogSettingConfigs['none'], 300);
       });
