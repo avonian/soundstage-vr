@@ -2,6 +2,7 @@
     <Modal v-if="modal"
            :title="modal.title"
            :body="modal.body"
+           :callback="modal.callback"
            @close="hideModal"
     />
     <InvalidEvent v-if="invalidAccess"/>
@@ -478,6 +479,7 @@
               document.querySelector('#progress-splash').remove()
               canvas.setAttribute('tabindex', '-1')
               canvas.focus()
+              world.customizer.initAfterLoad();
             }, 2000)
           }
           // by default, World loads scene.gltf from current directory

@@ -3,10 +3,14 @@ import { VRSPACEUI } from './vrspace-babylon'
 export class Customizer {
   constructor (world) {
     this.world = world;
+    this.world.scene.highlightLayer1 = new BABYLON.HighlightLayer("highlightLayer1", this.world.scene);
     this.eventConfig = world.eventConfig;
     this.barLights = [];
     this.clearCoatMeshes = false;
     this.initPosters();
+  }
+  initAfterLoad() {
+    this.initVipDoor();
   }
   disposeVideoPosters() {
     let videoPosters = this.world.scene.meshes.filter(m => m.name.indexOf("videoPoster-") !== - 1);
@@ -23,7 +27,6 @@ export class Customizer {
     }
     let posterGallery = new BABYLON.TransformNode("posterGallery");
     let posterMeshes = [];
-    this.world.scene.highlightLayer1 = new BABYLON.HighlightLayer("highlightLayer1", this.world.scene);
     for (let i = 0; i < posters.length; i++) {
       if (!this.world.scene.getMeshByName(posters[i].name)) {
         let galleryPoster = BABYLON.MeshBuilder.CreatePlane(posters[i].name, { width: posters[i].width, height: posters[i].height });
@@ -276,6 +279,45 @@ export class Customizer {
     // Always clear coat VIP room
     this.world.scene.getMeshByName('Boole').material.clearCoat.isEnabled = true;
     this.world.scene.getMeshByName('door2-emiss').material.clearCoat.isEnabled = true;
+  }
+  initVipDoor() {
+    let doorMesh = this.world.scene.getMeshByName('door2-emiss');
+    doorMesh.isPickable = true;
+    doorMesh.actionManager = new BABYLON.ActionManager(this.world.scene);
+    doorMesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+          })
+      )
+    doorMesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOutTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            this.world.scene.highlightLayer1.removeMesh(pickedMesh, BABYLON.Color3.Teal());
+          })
+      )
+    doorMesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger, (event) => {
+            document.querySelector("#app")._vnode.component.data.modal = {
+              title: "Exit VIP room?",
+              body: "<p class='mb-4'>You are about to exit the VIP room.</p><p class='mb-4'>To return here later you will need reload the web page.</p><p class='mb-4'>Do you want to continue?</p>",
+              callback: () => {
+                this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
+                VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
+                setTimeout(() => {
+                  this.world.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+                }, 100);
+                document.querySelector("#app")._vnode.component.data.modal = false;
+              }
+            }
+          })
+      )
   }
 }
 
