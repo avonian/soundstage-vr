@@ -18,12 +18,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-3" :class="callback ? 'flex flex-row': ''">
-                    <template v-if="callback">
-                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-500 text-base font-medium text-white hover:bg-gray-700 focus:outline-none sm:text-sm mr-2" @click="$emit('close')">
+                <div class="mt-3" :class="confirmCallback ? 'flex flex-row': ''">
+                    <template v-if="confirmCallback">
+                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-500 text-base font-medium text-white hover:bg-gray-700 focus:outline-none sm:text-sm mr-2"
+                            @click="handleCancel">
                             No
                         </button>
-                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:text-sm" @click="callback">
+                        <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:text-sm" @click="confirmCallback">
                             Yes
                         </button>
                     </template>
@@ -44,11 +45,20 @@ import {
 } from '@headlessui/vue'
 
 export default {
-  props: ['title', 'body', 'callback'],
+  props: ['title', 'body', 'confirmCallback', 'cancelCallback'],
   components: {
     Dialog,
     DialogOverlay,
     DialogTitle,
+  },
+  methods: {
+    handleCancel() {
+      if(this.cancelCallback) {
+        this.cancelCallback();
+      } else {
+        this.$emit('close');
+      }
+    }
   }
 }
 </script>

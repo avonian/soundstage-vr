@@ -307,7 +307,7 @@ export class Customizer {
             document.querySelector("#app")._vnode.component.data.modal = {
               title: "Exit VIP room?",
               body: "<p class='mb-4'>You are about to exit the VIP room.</p><p class='mb-4'>To return here later you will need reload the web page.</p><p class='mb-4'>Do you want to continue?</p>",
-              callback: () => {
+              confirmCallback: () => {
                 this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
                 VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
                 setTimeout(() => {

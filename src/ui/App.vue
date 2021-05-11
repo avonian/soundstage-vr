@@ -2,7 +2,8 @@
     <Modal v-if="modal"
            :title="modal.title"
            :body="modal.body"
-           :callback="modal.callback"
+           :confirmCallback="modal.confirmCallback"
+           :cancelCallback="modal.cancelCallback"
            @close="hideModal"
     />
     <InvalidEvent v-if="invalidAccess"/>
@@ -937,40 +938,53 @@
           alert("Disabled in dev mode.");
           return;
         }
-        let confirmed = confirm("Are you sure you want to block this user?");
-        if(!confirmed) {
-          return false;
-        }
-        let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/block`, {
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            'Accept': 'application/json',
-            "Authorization": `Bearer ${this.jwt}`
-          },
-          'method': 'POST',
-          'body': JSON.stringify({
-            target_user: user,
-            block: true
-          }),
-        });
-        let data = await response.json();
-        this.eventConfig.blocklist = data.blocklist;
-
-        // Mute user
-        for (let hashedVisitID of Object.keys(world.hifi.peers)) {
-          let hiFiPeer = world.hifi.peers[hashedVisitID];
-          if (parseInt(hiFiPeer.providedUserID) === user) {
-            world.hifi.updatePeerVolume(hiFiPeer)
-          }
-        }
-        // Dispose avatar
-        let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
-        let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
-        holoAvatar.dispose();
+        let clientId = this.avatarMenuClientId;
         this.avatarMenuClientId = false;
-        setTimeout(() => {
-          this.showModal("The user has been blocked.", "<p class='mb-4'>To undo this action visit your SoundStage profile area.</p>")
-        }, 300);
+
+        let confirmCallback = async () => {
+          let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/block`, {
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              'Accept': 'application/json',
+              "Authorization": `Bearer ${this.jwt}`
+            },
+            'method': 'POST',
+            'body': JSON.stringify({
+              target_user: user,
+              block: true
+            }),
+          });
+          let data = await response.json();
+          this.eventConfig.blocklist = data.blocklist;
+
+          // Mute user
+          for (let hashedVisitID of Object.keys(world.hifi.peers)) {
+            let hiFiPeer = world.hifi.peers[hashedVisitID];
+            if (parseInt(hiFiPeer.providedUserID) === user) {
+              world.hifi.updatePeerVolume(hiFiPeer)
+            }
+          }
+          // Dispose avatar
+          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
+          let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
+          holoAvatar.dispose();
+          this.avatarMenuClientId = false;
+          setTimeout(() => {
+            this.showModal("The user has been blocked.", "<p class='mb-4'>To undo this action visit your SoundStage profile area.</p>")
+          }, 300);
+        };
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Block User",
+          "<p class='mb-4'>If you block this user you will no longer be able to see or hear them.</p><p class='mb-4'>Do you want to continue?</p>",
+          confirmCallback,
+          cancelCallback
+        )
       },
       async adminToggleMicrophone(userId) {
         world.adminControls.toggleUserMic(userId)
@@ -1014,10 +1028,12 @@
           this.showModal("User Banned.", "<p class='mb-4'>The user has been banned from this event.</p>")
         }
       },
-      showModal(title, body) {
+      showModal(title, body, confirmCallback = null, cancelCallback = null) {
         this.modal = {
           title,
-          body
+          body,
+          confirmCallback,
+          cancelCallback
         }
       },
       hideModal() {
