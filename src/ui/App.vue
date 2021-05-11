@@ -972,7 +972,7 @@
           setTimeout(() => {
             this.showModal("The user has been blocked.", "<p class='mb-4'>To undo this action visit your SoundStage profile area.</p>")
           }, 300);
-        };
+        }
 
         let cancelCallback = () => {
           this.modal = false;
@@ -1001,32 +1001,67 @@
           alert("Disabled in dev mode.");
           return;
         }
-        world.adminControls.kickUser(userId)
+
+        let clientId = this.avatarMenuClientId;
         this.avatarMenuClientId = false;
-        this.showModal("User Kicked.", "<p class='mb-4'>The user has been removed from this event.</p>")
+
+        let confirmCallback = async () => {
+          world.adminControls.kickUser(userId)
+          this.avatarMenuClientId = false;
+          this.showModal("User Kicked.", "<p class='mb-4'>The user has been removed from this event.</p>")
+        }
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Kick User",
+          "<p class='mb-4'>Are you sure you want to kick this user from this event?</p>",
+          confirmCallback,
+          cancelCallback
+        )
       },
       async adminBanUser(userId) {
         if(process.env.VUE_APP_DEMO_CONFIG) {
           alert("Disabled in dev mode.");
           return;
         }
-        world.adminControls.banUser(userId)
+        let clientId = this.avatarMenuClientId;
         this.avatarMenuClientId = false;
-        let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/banUser`, {
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            'Accept': 'application/json',
-            "Authorization": `Bearer ${this.jwt}`
-          },
-          'method': 'POST',
-          'body': JSON.stringify({
-            target_user: userId
-          }),
-        });
-        let data = await response.json();
-        if(data.success) {
-          this.showModal("User Banned.", "<p class='mb-4'>The user has been banned from this event.</p>")
+
+        let confirmCallback = async () => {
+          // world.adminControls.banUser(userId)
+          this.avatarMenuClientId = false;
+          let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/banUser`, {
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              'Accept': 'application/json',
+              "Authorization": `Bearer ${this.jwt}`
+            },
+            'method': 'POST',
+            'body': JSON.stringify({
+              target_user: userId
+            }),
+          });
+          let data = await response.json();
+          if(data.success) {
+            this.showModal("User Banned.", "<p class='mb-4'>The user has been banned from this event.</p>")
+          }
         }
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Ban User",
+          "<p class='mb-4'>Are you sure you want to ban this user from this event?</p>",
+          confirmCallback,
+          cancelCallback
+        )
       },
       showModal(title, body, confirmCallback = null, cancelCallback = null) {
         this.modal = {
