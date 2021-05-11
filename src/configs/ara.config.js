@@ -92,6 +92,48 @@ export default {
       'posZ': 36.824,
       'rotationY': 90,
       'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/vertical-poster-5.jpg'
+    },
+    {
+      'name': 'Galaxy_A',
+      'width': 1,
+      'height': 1.6,
+      'posX': 8,
+      'posY': 1.057,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.mp4'
+    }, {
+      'name': 'Electrons',
+      'width': 1,
+      'height': 1.6,
+      'posX': -1.8,
+      'posY': 1.088,
+      'posZ': -8.545,
+      'rotationY': -180,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.mp4'
+    } , {
+      'name': 'Space_&_Time',
+      'width': 1,
+      'height': 1.6,
+      'posX': 9.23,
+      'posY': 1.06,
+      'posZ': -4.29,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.mp4'
+    },
+    {
+      'name': 'Galaxy_B',
+      'width': 2.6,
+      'height': 1.6,
+      'posX': -5,
+      'posY': 1.088,
+      'posZ': -2.908,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.mp4'
     }
   ]
 }
