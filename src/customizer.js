@@ -269,12 +269,13 @@ export class Customizer {
         'Cube.1',
         'Cube.3',
         'Cube.4',
-        'Boole',
-        'door2-emiss',
         'PosterVIPR'
       ].map(m => this.world.scene.getMeshByName(m));
     }
-    this.clearCoatMeshes.forEach(mesh => mesh.material.clearCoat.isEnabled = this.world.userSettings.graphicsQuality === 'ultra-high')
+    this.clearCoatMeshes.forEach(mesh => { if(mesh) { mesh.material.clearCoat.isEnabled = this.world.userSettings.graphicsQuality === 'ultra-high' } })
+    // Always clear coat VIP room
+    this.world.scene.getMeshByName('Boole').material.clearCoat.isEnabled = true;
+    this.world.scene.getMeshByName('door2-emiss').material.clearCoat.isEnabled = true;
   }
 }
 

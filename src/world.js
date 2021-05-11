@@ -400,7 +400,7 @@ export class NightClub extends World {
     tunnelSegment2.material.environmentIntensity = 0.3;
 
     if(this.eventConfig.hideDefaultPosters) {
-      let meshesToDispose = ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS'].map(name => this.scene.getMeshByName(name));
+      let meshesToDispose = ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS', 'PosterVIPR'].map(name => this.scene.getMeshByName(name));
       meshesToDispose.forEach(m => {
         m.material.emissiveTexture.dispose()
         m.material.dispose();
