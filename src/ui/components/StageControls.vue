@@ -26,47 +26,55 @@
                 <option value="SineEase">Sine Ease</option>
             </select>
             <span class="inline-flex" v-if="world && world.cineCam">
-                        <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
-                           @click="$emit('playCameraAnimations', i)"
-                           v-for="i in Object.keys(world.cineCam.animations)" :key="i">
-                            {{ i }}
-                        </a>
-                    </span>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="moodSet" @change="$emit('changeMood')">
-                <option :value=null>None</option>
-                <option :value="moodSet" v-for="moodSet of Object.keys(moodSets)" :key="moodSet">{{ moodSet }}</option>
-            </select>
-            <select class="bg-white text-sm text-black mr-3 rounded-md hidden" id="cubeTexture" @change="$emit('changeCubeTexture')">
-                <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
-            </select>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')" v-if="fogSettingConfigs">
-                <option :value="setting" v-for="setting of Object.keys(fogSettingConfigs)" :key="setting">{{ setting }}</option>
-            </select>
-            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
-               :class="tunnelLightsOn ? 'gradient-ultra' : 'bg-gray-500'"
-               @click="$emit('toggleTunnelLights')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+                   @click="$emit('playCameraAnimations', i)"
+                   v-for="i in Object.keys(world.cineCam.animations)" :key="i">
+                    {{ i }}
+                </a>
+            </span>
+            <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
+               :class="playingIntro ? 'cursor-not-allowed gradient-ultra' : 'cursor-pointer bg-purple-700'"
+               @click="playIntro">
+               {{ playingIntro ? 'Playing...' : 'Play Intro' }}
             </a>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" @change="$emit('changeDJSpotLightIntensity', $event.target.value)">
-                <option :value="setting" v-for="setting of [0, 0.1, 0.2, 0.5]" :selected="setting === DJSpotLightIntensity" :key="setting">{{ setting }}</option>
-            </select>
-            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
-               :class="gridFloorOn ? 'gradient-ultra' : 'bg-gray-500'"
-               @click="$emit('toggleGridFloor')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-            </a>
-            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
-               :class="moodParticlesOn ? 'gradient-ultra' : 'bg-gray-500'"
-               @click="$emit('toggleMoodParticles')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-            </a>
-            <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
+            <div id="environmentControls" class="inline-flex" :class="playingIntro ? 'opacity-50' : ''">
+                <select class="bg-white text-sm text-black mr-3 rounded-md" id="moodSet" @change="$emit('changeMood')">
+                    <option :value=null>None</option>
+                    <option :value="moodSet" v-for="moodSet of Object.keys(moodSets)" :key="moodSet">{{ moodSet }}</option>
+                </select>
+                <select class="bg-white text-sm text-black mr-3 rounded-md hidden" id="cubeTexture" @change="$emit('changeCubeTexture')">
+                    <option :value="cubeTexture" v-for="cubeTexture of Object.keys(cubeTextures)" :key="cubeTexture">{{ cubeTexture }}</option>
+                </select>
+                <select class="bg-white text-sm text-black mr-3 rounded-md" id="DJSpotLightIntensity" @change="$emit('changeDJSpotLightIntensity', $event.target.value)">
+                    <option :value="setting" v-for="setting of [0, 0.1, 0.2, 0.5]" :selected="setting === DJSpotLightIntensity" :key="setting">{{ setting }}</option>
+                </select>
+                <select class="bg-white text-sm text-black mr-3 rounded-md" id="fogSetting" @change="$emit('changeFog')" v-if="fogSettingConfigs">
+                    <option :value="setting" v-for="setting of Object.keys(fogSettingConfigs)" :key="setting">{{ setting }}</option>
+                </select>
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+                   id="tunnelLight"
+                   :class="tunnelLightsOn ? 'gradient-ultra' : 'bg-gray-500'"
+                   @click="$emit('toggleTunnelLights')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </a>
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+                   :class="gridFloorOn ? 'gradient-ultra' : 'bg-gray-500'"
+                   @click="$emit('toggleGridFloor')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                </a>
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+                   :class="moodParticlesOn ? 'gradient-ultra' : 'bg-gray-500'"
+                   @click="$emit('toggleMoodParticles')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                </a>
+                <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
+            </div>
         </div>
     </div>
 </template>
@@ -74,6 +82,73 @@
 <script>
     export default {
       name: "StageControls",
-      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn']
+      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
+      data() {
+        return {
+          playingIntro: false
+        }
+      },
+      methods: {
+        playIntro() {
+          if(this.playingIntro) {
+            return;
+          }
+          this.playingIntro = true;
+
+          if(!document.querySelector("#saveState").checked) {
+            // document.querySelector("#saveState").click();
+          }
+
+          setTimeout(() => {
+            console.log('Dimming lights');
+            document.querySelector('#moodSet').value = 'Dim Lights'
+            this.$emit('changeMood', 'Dim Lights')
+          }, 0);
+
+          setTimeout(() => {
+            console.log('Playing audio/video');
+            this.$emit('activateVideo', 1);
+          }, 30000);
+
+          setTimeout(() => {
+            console.log('Turning on spotlight');
+            document.querySelector('#DJSpotLightIntensity').value = '0.5';
+            this.$emit('changeDJSpotLightIntensity', 0.5)
+          }, 50000);
+
+          setTimeout(() => {
+            console.log('Adding purple fog');
+            document.querySelector('#fogSetting').value = 'purple';
+            this.$emit('changeFog')
+          }, 54000);
+
+          setTimeout(() => {
+            console.log('Turning on tunnel light');
+            document.querySelector('#tunnelLight').click();
+          }, 67000);
+
+          setTimeout(() => {
+            console.log('Adding indigo fog');
+            document.querySelector('#fogSetting').value = 'indigo';
+            this.$emit('changeFog')
+          }, 90000);
+
+          setTimeout(() => {
+            console.log('Back to default video');
+            this.$emit('activateVideo', 0);
+          }, 100000);
+
+          setTimeout(() => {
+            console.log('Adding purple fog');
+            document.querySelector('#fogSetting').value = 'purple';
+            this.$emit('changeFog')
+          }, 120000);
+
+          setTimeout(() => {
+            console.log("Intro sequence complete");
+            this.playingIntro = false;
+          }, 130000);
+        }
+      }
     }
 </script>
