@@ -1032,7 +1032,7 @@
         this.avatarMenuClientId = false;
 
         let confirmCallback = async () => {
-          // world.adminControls.banUser(userId)
+          world.adminControls.banUser(userId)
           this.avatarMenuClientId = false;
           let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/banUser`, {
             headers: {
