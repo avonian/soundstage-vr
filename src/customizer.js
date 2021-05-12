@@ -324,6 +324,7 @@ export class Customizer {
                   VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
                   setTimeout(() => {
                     this.world.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+                    this.animateCamera = false;
                   }, 100);
                   document.querySelector("#app")._vnode.component.data.modal = false;
                 }
