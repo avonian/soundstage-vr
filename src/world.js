@@ -806,6 +806,10 @@ export class NightClub extends World {
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
     document.addEventListener('keydown', (event) => {
+      if(event.key === '/') {
+        this.cineCam.showHideUI(!document.body.querySelector(".ui-hide").classList.contains('hidden'));
+        return;
+      }
       if(event.key === '*') {
         this.cineCam.pauseOnOff();
         return;
