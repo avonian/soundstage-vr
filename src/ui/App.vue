@@ -660,15 +660,21 @@
         if (nextCameraIndex >= this.cameraModes.length) {
           nextCameraIndex = 0
         }
-        // IF switching out of free cam unmute microphone
+        // If switching out of free cam unmute microphone and untoggle billboard mode
         if(this.cameraMode[1] === "Free Cam" && !this.micEnabled) {
           this.microphoneOnOff();
         }
+        if(this.cameraMode[1] === "Free Cam" && !this.userSettings.trackRotation) {
+          this.rotationOnOff();
+        }
         this.cameraMode = this.cameraModes[nextCameraIndex]
         console.log('Activating camera ' + this.cameraMode[1])
-        // If switching to free cam mute microphone
+        // If switching to free cam mute microphone and toggle billboard mode
         if(this.cameraMode[1] === "Free Cam" && this.micEnabled) {
           this.microphoneOnOff();
+        }
+        if(this.cameraMode[1] === "Free Cam" && this.userSettings.trackRotation) {
+          this.rotationOnOff();
         }
         world.activateCamera(this.cameraMode[0])
         // make sure to move focus to canvas, or HTML UI keeps control of keyboard input
@@ -885,6 +891,12 @@
       playCameraAnimations(i) {
         this.cameraMode = this.cameraModes[2];
         world.activateCamera('free');
+        if(this.micEnabled) {
+          this.microphoneOnOff();
+        }
+        if(this.userSettings.trackRotation) {
+          this.rotationOnOff();
+        }
         world.cineCam.play(i);
       },
       async followUser({ user, value }) {
