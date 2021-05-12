@@ -282,6 +282,7 @@ export class Customizer {
   }
   initVipDoor() {
     let doorMesh = this.world.scene.getMeshByName('door2-emiss');
+    var doorPosition = {"x":"5.91","y":"-1.92","z":"34.69"}
     doorMesh.isPickable = true;
     doorMesh.actionManager = new BABYLON.ActionManager(this.world.scene);
     doorMesh.actionManager
@@ -289,7 +290,13 @@ export class Customizer {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
             let pickedMesh = event.meshUnderPointer;
-            this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+            var dest = new BABYLON.Vector3(doorPosition.x, doorPosition.y, doorPosition.z);
+            var pos = this.world.camera1.position.clone();
+            var distance = dest.subtract(pos).length();
+
+            if ( distance < 4 ) {
+              this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+            }
           })
       )
     doorMesh.actionManager
@@ -304,16 +311,22 @@ export class Customizer {
       .registerAction(
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger, (event) => {
-            document.querySelector("#app")._vnode.component.data.modal = {
-              title: "Exit VIP room?",
-              body: "<p class='mb-4'>You are about to exit the VIP room.</p><p class='mb-4'>To return here later you will need reload the web page.</p><p class='mb-4'>Do you want to continue?</p>",
-              confirmCallback: () => {
-                this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
-                VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
-                setTimeout(() => {
-                  this.world.camera1.setTarget(new BABYLON.Vector3(0,3,0));
-                }, 100);
-                document.querySelector("#app")._vnode.component.data.modal = false;
+            var dest = new BABYLON.Vector3(doorPosition.x, doorPosition.y, doorPosition.z);
+            var pos = this.world.camera1.position.clone();
+            var distance = dest.subtract(pos).length();
+
+            if ( distance < 4 ) {
+              document.querySelector("#app")._vnode.component.data.modal = {
+                title: "Exit VIP room?",
+                body: "<p class='mb-4'>You are about to exit the VIP room.</p><p class='mb-4'>To return here later you will need reload the web page.</p><p class='mb-4'>Do you want to continue?</p>",
+                confirmCallback: () => {
+                  this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
+                  VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
+                  setTimeout(() => {
+                    this.world.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+                  }, 100);
+                  document.querySelector("#app")._vnode.component.data.modal = false;
+                }
               }
             }
           })
