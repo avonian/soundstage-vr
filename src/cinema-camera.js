@@ -195,16 +195,16 @@ export class CinemaCamera {
     this.startDelay = startDelay ? startDelay : this.defaultStartDelay;
     let frames = this.buildAnimationFrames(this.animations[animationNumber]);
 
-    let callback = () => {
-      this.nextAnimationTimeout = setTimeout(() => {
-        var autoLoopIndex = this.autoLoopSequence.indexOf(animationNumber);
+    let callback = function() {
+      this.nextAnimationTimeout = setTimeout(function () {
+        var autoLoopIndex = this.autoLoopSequence.indexOf(parseInt(animationNumber));
         var nextAnimation = this.autoLoopSequence[autoLoopIndex + 1];
         if(nextAnimation) {
           this.play(nextAnimation)
         } else {
           this.play(this.autoLoopSequence[0])
         }
-      }, 10000)
+      }.bind(this), 10000)
     }
 
     this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback.bind(this));
