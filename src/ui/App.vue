@@ -354,6 +354,7 @@
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
           this.eventConfig = {...baseConfig, ...customConfig};
           this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
+          this.eventConfig.highFidelity.spaceId = process.env.VUE_APP_HIGH_FIDELITY_SPACE_ID;
           return;
         }
         if(this.jwt) {

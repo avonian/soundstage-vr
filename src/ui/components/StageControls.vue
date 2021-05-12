@@ -76,6 +76,18 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
+        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-12" v-if="showStageControls && mixerConnected">
+            Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
+                <option value=false>None</option>
+                <option v-for="audioTrack of audioTracks" :key="audioTrack">{{ audioTrack }}</option>
+            </select>
+            <div v-if="waitingForMixer">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -85,11 +97,47 @@
       props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
       data() {
         return {
-          playingIntro: false
+          playingIntro: false,
+          mixerConnected: false,
+          audioTracks: false,
+          activeAudioTrack: false,
+          waitingForMixer: false
         }
       },
+      async mounted() {
+        setTimeout(this.connectToMixer, 5000);
+      },
       methods: {
-        playIntro() {
+        async connectToMixer() {
+          if(this.waitingForMixer) {
+            setTimeout(this.connectToMixer, 5000)
+            return;
+          }
+          try {
+            let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/connect`, {
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Accept': 'application/json'
+              },
+              'method': 'POST',
+              'body': JSON.stringify({
+                token: process.env.VUE_APP_MIXER_TOKEN,
+                spaceId: this.world.eventConfig.highFidelity.spaceId
+              }),
+            });
+            let data = await response.json();
+            if(data.success) {
+              this.audioTracks = data.tracks;
+              this.mixerConnected = true;
+              this.activeAudioTrack = data.activeTrack;
+            }
+            // Do it again to keep in sync with mixer service
+            setTimeout(this.connectToMixer, 5000);
+          } catch(err) {
+            console.log(err);
+          }
+        },
+        async playIntro() {
           if(this.playingIntro) {
             return;
           }
@@ -99,55 +147,118 @@
             // document.querySelector("#saveState").click();
           }
 
+          let stop = this.stopAudioTrack();
+
           setTimeout(() => {
             console.log('Dimming lights');
             document.querySelector('#moodSet').value = 'Dim Lights'
             this.$emit('changeMood', 'Dim Lights')
           }, 0);
 
-          setTimeout(() => {
-            console.log('Playing audio/video');
-            this.$emit('activateVideo', 1);
+          setTimeout(async () => {
+            await this.switchAudioTrack("Kill-Paris-Intro.mp3", true);
+            setTimeout(() => {
+              console.log('Playing audio/video');
+              this.$emit('activateVideo', 1);
+            }, 0);
+
+            setTimeout(() => {
+              console.log('Turning on spotlight');
+              document.querySelector('#DJSpotLightIntensity').value = '0.5';
+              this.$emit('changeDJSpotLightIntensity', 0.5)
+            }, 20000);
+
+            setTimeout(() => {
+              console.log('Adding purple fog');
+              document.querySelector('#fogSetting').value = 'purple';
+              this.$emit('changeFog')
+            }, 24000);
+
+            setTimeout(() => {
+              console.log('Turning on tunnel light');
+              document.querySelector('#tunnelLight').click();
+            }, 37000);
+
+            setTimeout(() => {
+              console.log('Adding indigo fog');
+              document.querySelector('#fogSetting').value = 'indigo';
+              this.$emit('changeFog')
+            }, 60000);
+
+            setTimeout(() => {
+              console.log('Back to default video');
+              this.$emit('activateVideo', 0);
+            }, 70000);
+
+            setTimeout(() => {
+              console.log('Adding purple fog');
+              document.querySelector('#fogSetting').value = 'purple';
+              this.$emit('changeFog')
+            }, 90000);
+
+            setTimeout(() => {
+              console.log("Intro sequence complete");
+              this.playingIntro = false;
+            }, 100000);
+
           }, 30000);
-
-          setTimeout(() => {
-            console.log('Turning on spotlight');
-            document.querySelector('#DJSpotLightIntensity').value = '0.5';
-            this.$emit('changeDJSpotLightIntensity', 0.5)
-          }, 50000);
-
-          setTimeout(() => {
-            console.log('Adding purple fog');
-            document.querySelector('#fogSetting').value = 'purple';
-            this.$emit('changeFog')
-          }, 54000);
-
-          setTimeout(() => {
-            console.log('Turning on tunnel light');
-            document.querySelector('#tunnelLight').click();
-          }, 67000);
-
-          setTimeout(() => {
-            console.log('Adding indigo fog');
-            document.querySelector('#fogSetting').value = 'indigo';
-            this.$emit('changeFog')
-          }, 90000);
-
-          setTimeout(() => {
-            console.log('Back to default video');
-            this.$emit('activateVideo', 0);
-          }, 100000);
-
-          setTimeout(() => {
-            console.log('Adding purple fog');
-            document.querySelector('#fogSetting').value = 'purple';
-            this.$emit('changeFog')
-          }, 120000);
-
-          setTimeout(() => {
-            console.log("Intro sequence complete");
-            this.playingIntro = false;
-          }, 130000);
+        },
+        async stopAudioTrack() {
+          return new Promise(async (resolve) => {
+            try {
+              let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/stop`, {
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                  'Accept': 'application/json'
+                },
+                'method': 'POST',
+                'body': JSON.stringify({
+                  token: process.env.VUE_APP_MIXER_TOKEN,
+                  spaceId: this.world.eventConfig.highFidelity.spaceId
+                }),
+              });
+              resolve();
+            } catch(err) {
+              console.log(err);
+              resolve();
+            }
+          })
+        },
+        async startAudioTrack(broadcast = false) {
+          return new Promise(async (resolve) => {
+            try {
+              let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/start`, {
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                  'Accept': 'application/json'
+                },
+                'method': 'POST',
+                'body': JSON.stringify({
+                  token: process.env.VUE_APP_MIXER_TOKEN,
+                  spaceId: this.world.eventConfig.highFidelity.spaceId,
+                  audioTrack: this.activeAudioTrack,
+                  broadcast: broadcast
+                }),
+              });
+              resolve();
+            } catch(err) {
+              console.log(err);
+              resolve();
+            }
+          })
+        },
+        async switchAudioTrack(event, broadcast = false) {
+          let audioTrack = typeof(event) === 'string' ? event : event.target.value;
+          return new Promise(async (resolve) => {
+            this.activeAudioTrack = audioTrack;
+            this.waitingForMixer = true;
+            await this.stopAudioTrack();
+            if(this.activeAudioTrack !== 'false') {
+              await this.startAudioTrack(broadcast);
+            }
+            this.waitingForMixer = false;
+            resolve();
+          });
         }
       }
     }
