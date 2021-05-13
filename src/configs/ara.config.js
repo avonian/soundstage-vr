@@ -4,7 +4,7 @@ export default {
   'hideDefaultPosters': true,
   'permissions': {
     'access_backstage': true,
-    'spawn_backstage': true,
+    'spawn_backstage': false,
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
@@ -84,7 +84,7 @@ export default {
       'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-galaxy-logo.jpg',
     },
     {
-      'name': 'VerticalPoster53',
+      'name': 'VerticalPoster5',
       'width': 1.6,
       'height': 1.85,
       'posX': 5.826,
@@ -94,46 +94,90 @@ export default {
       'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/vertical-poster-5.jpg'
     },
     {
-      'name': 'Galaxy_A',
-      'width': 1,
+      'name': 'GalaxiesBetweenUs',
+      'width': 1.6,
       'height': 1.6,
-      'posX': 8,
+      'posX': 6,
       'posY': 1.057,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/galaxies-between-us.jpg',
     }, {
-      'name': 'Electrons',
-      'width': 1,
+      'name': 'LanscapePoster1',
+      'width': 2.6,
       'height': 1.6,
-      'posX': -1.8,
+      'posX': -2.91,
       'posY': 1.088,
       'posZ': -8.545,
       'rotationY': -180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.mp4'
-    } , {
-      'name': 'Space_&_Time',
-      'width': 1,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-poster-1.jpg'
+    }, {
+      'name': 'GalaxiesWithinUs',
+      'width': 1.4,
       'height': 1.6,
       'posX': 9.23,
       'posY': 1.06,
       'posZ': -4.29,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/galaxies-within.jpg'
     },
     {
-      'name': 'Galaxy_B',
+      'name': 'LanscapeGalaxyLogo',
       'width': 2.6,
       'height': 1.6,
       'posX': -5,
       'posY': 1.088,
       'posZ': -2.908,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.mp4'
-    }
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-galaxy-logo.jpg'
+    },
+    {
+      'name': 'LandscapePoster2',
+      'width': 4,
+      'height': 2.4,
+      'posX': 2.16,
+      'posY': 4.44,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-poster-2.jpg'
+    },
+    {
+      'name': 'LandscapePoster4',
+      'width': 4,
+      'height': 2.4,
+      'posX': -5,
+      'posY': 4.44,
+      'posZ': 0.57,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-poster-4.jpg'
+    },
+    {
+      'name': 'PhotoVertical1',
+      'width': 1.6,
+      'height': 2.4,
+      'posX': -5,
+      'posY': 4.44,
+      'posZ': -5.55,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/photo-vertical-1.jpg'
+    }, {
+      'name': 'PhotoLandscape1',
+      'width': 3.6,
+      'height': 2.4,
+      'posX': 9.23,
+      'posY': 4.44,
+      'posZ': 0,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/photo-landscape-1.jpg'
+    }, {
+      'name': 'PhotoVertical2',
+      'width': 1.6,
+      'height': 2.4,
+      'posX': 9.23,
+      'posY': 4.44,
+      'posZ': -5.9,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/photo-vertical-2.jpg'
+    },
   ]
 }
