@@ -87,6 +87,7 @@
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </div>
+            <div class="flex items-center text-lg" v-else>Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
         </div>
     </div>
 </template>
@@ -101,7 +102,8 @@
           mixerConnected: false,
           audioTracks: false,
           activeAudioTrack: false,
-          waitingForMixer: false
+          waitingForMixer: false,
+          loop: false
         }
       },
       async mounted() {
@@ -139,6 +141,7 @@
               this.audioTracks = data.tracks;
               this.mixerConnected = true;
               this.activeAudioTrack = data.activeTrack;
+              this.loop = data.loop;
             }
           } catch(err) {
             console.log(err);
@@ -244,7 +247,31 @@
                   token: this.getMixerToken(),
                   spaceId: this.world.eventConfig.highFidelity.spaceId,
                   audioTrack: this.activeAudioTrack,
-                  broadcast: broadcast
+                  broadcast: broadcast,
+                  loop: this.loop
+                }),
+              });
+              resolve();
+            } catch(err) {
+              console.log(err);
+              resolve();
+            }
+          })
+        },
+        async toggleLooping() {
+          this.loop = this.loop !== true;
+          return new Promise(async (resolve) => {
+            try {
+              let response = await fetch(`${this.getMixerUrl()}/update`, {
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                  'Accept': 'application/json'
+                },
+                'method': 'POST',
+                'body': JSON.stringify({
+                  token: this.getMixerToken(),
+                  spaceId: this.world.eventConfig.highFidelity.spaceId,
+                  loop: this.loop
                 }),
               });
               resolve();
