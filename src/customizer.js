@@ -277,11 +277,11 @@ export class Customizer {
     }
     this.clearCoatMeshes.forEach(mesh => { if(mesh) { mesh.material.clearCoat.isEnabled = this.world.userSettings.graphicsQuality === 'ultra-high' } })
     // Always clear coat VIP room
-    this.world.scene.getMeshByName('Boole').material.clearCoat.isEnabled = true;
-    this.world.scene.getMeshByName('door2-emiss').material.clearCoat.isEnabled = true;
+    this.world.scene.getMeshByName('Cube.5').material.clearCoat.isEnabled = true;
+    this.world.scene.getMeshByName('Cube.6').material.clearCoat.isEnabled = true;
   }
   initVipDoor() {
-    let doorMesh = this.world.scene.getMeshByName('door2-emiss');
+    let doorMesh = this.world.scene.getMeshByName('Cube.5');
     var doorPosition = {"x":"5.91","y":"-1.92","z":"34.69"}
     doorMesh.isPickable = true;
     doorMesh.actionManager = new BABYLON.ActionManager(this.world.scene);

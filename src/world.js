@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
-    this.file = 'Night_Club-5may-21-25b.glb';
+    this.file = 'Night_Club-13may.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1321,6 +1321,16 @@ export class NightClub extends World {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
+    }
+    // for VIP portal door
+    if (event.key === "v") {
+      let tempMesh = this.scene.getMeshByName("portal-door-top");
+      let tempMeshEmiss = this.scene.getMeshByName("portal-door-emissive");
+      console.log("portal-door 1");
+      tempMesh.visibility = 0;
+      tempMesh.isPickable = false;
+      tempMeshEmiss.visibility = 0;
+      tempMeshEmiss.isPickable = false;
     }
   }
 
