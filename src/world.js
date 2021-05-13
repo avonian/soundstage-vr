@@ -887,7 +887,7 @@ export class NightClub extends World {
       window.audioGainNode.connect(audioStreamDestination);
 
       /* Apply custom value */
-      window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
+      // window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
 
       window.audioStream = audioStreamDestination.stream;
 
@@ -941,7 +941,10 @@ export class NightClub extends World {
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
       let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
-      this.hifi._inputAudioMediaStream.isStereo = stereo;
+      await this.hifi.setInputAudioMediaStream(audioStream, stereo);
+      let gain = stereo ? 1 + (this.userSettings.stereoGainBoost / 100) : 1;
+      this.hifi.updateUserDataAndTransmit({ isStereo: stereo, hiFiGain: gain})
+      this.hifi._inputAudioMediaStream.isStereo = stereo; // even though this isn't needed for hifi we do it because spatializeAudio looks for this (will revisit)
     }
 
     let isStereoSubscription = new HighFidelityAudio.UserDataSubscription({
