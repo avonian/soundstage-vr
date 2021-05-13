@@ -1,13 +1,13 @@
 <template>
     <div class="stage ui-hide">
-        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0" v-if="showStageControls">
+        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0">
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
                v-for="(video, i) of videos" @click="$emit('activateVideo', i)" :key="video">
                 {{ video.label }}
             </a>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0" v-if="showStageControls">
+        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0">
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                :class="showingUserVideos ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleUserVideos')">
@@ -76,7 +76,7 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
-        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-12" v-if="showStageControls && mixerConnected">
+        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-12" v-if="mixerConnected">
             Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
                 <option value=false>None</option>
                 <option v-for="audioTrack of audioTracks" :key="audioTrack">{{ audioTrack }}</option>
@@ -94,7 +94,7 @@
 <script>
     export default {
       name: "StageControls",
-      props: ['showStageControls', 'activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
+      props: ['activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
       data() {
         return {
           playingIntro: false,

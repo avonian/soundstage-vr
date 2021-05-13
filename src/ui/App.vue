@@ -53,8 +53,9 @@
                 @save="saveSettings"/>
         <LoadingScreen/>
         <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
-        <StageControls v-show="showControls"
-                :show-stage-controls="showStageControls"
+        <StageControls
+                v-if="showStageControls"
+                v-show="showControls"
                 :active-video="activeVideo"
                 :world="world"
                 :videos="videos"
