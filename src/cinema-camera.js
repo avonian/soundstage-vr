@@ -189,6 +189,10 @@ export class CinemaCamera {
   }
   play(animationNumber, startDelay) {
 
+    if(document.querySelector("#autoloop-sequence") && document.querySelector("#autoloop-sequence").value !== '') {
+      this.autoLoopSequence = document.querySelector("#autoloop-sequence").value.replace(/' '/g,'').split(",");
+    }
+
     this.stopAnimationChain();
     this.camera.animations = [];
 
