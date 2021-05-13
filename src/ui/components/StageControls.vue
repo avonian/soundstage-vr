@@ -109,10 +109,6 @@
       },
       methods: {
         async connectToMixer() {
-          if(this.waitingForMixer) {
-            setTimeout(this.connectToMixer, 5000)
-            return;
-          }
           try {
             let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/connect`, {
               headers: {
@@ -125,14 +121,19 @@
                 spaceId: this.world.eventConfig.highFidelity.spaceId
               }),
             });
+            // Set next poll interval
+            setTimeout(this.connectToMixer, 5000);
+            // If we have a mixer transition in effect return immediately and poll later
+            if(this.waitingForMixer) {
+              return;
+            }
+            // If no active transition in effect it's afe to update the mixer status with what's being reported back
             let data = await response.json();
             if(data.success) {
               this.audioTracks = data.tracks;
               this.mixerConnected = true;
               this.activeAudioTrack = data.activeTrack;
             }
-            // Do it again to keep in sync with mixer service
-            setTimeout(this.connectToMixer, 5000);
           } catch(err) {
             console.log(err);
           }
