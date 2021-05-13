@@ -1039,9 +1039,9 @@ export class NightClub extends World {
         yawDegrees: 0
       },
       position: {
-        x: 2.1675716757014136,
-        y: 1.079573474549019,
-        z: 4.359327756668091
+        x: -2.1,
+        y: 1.2,
+        z: 4.8
       }
     }
     if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
