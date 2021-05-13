@@ -108,16 +108,22 @@
         setTimeout(this.connectToMixer, 5000);
       },
       methods: {
+        getMixerUrl() {
+          return process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.world.eventConfig.mixerUrl;
+        },
+        getMixerToken() {
+          return process.env.VUE_APP_MIXER_TOKEN ? process.env.VUE_APP_MIXER_TOKEN : this.world.eventConfig.mixerToken;
+        },
         async connectToMixer() {
           try {
-            let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/connect`, {
+            let response = await fetch(`${this.getMixerUrl()}/connect`, {
               headers: {
                 "Content-Type": "application/json; charset=utf-8",
                 'Accept': 'application/json'
               },
               'method': 'POST',
               'body': JSON.stringify({
-                token: process.env.VUE_APP_MIXER_TOKEN,
+                token:  this.getMixerToken(),
                 spaceId: this.world.eventConfig.highFidelity.spaceId
               }),
             });
@@ -207,14 +213,14 @@
         async stopAudioTrack() {
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/stop`, {
+              let response = await fetch(`${this.getMixerUrl()}/stop`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
                 },
                 'method': 'POST',
                 'body': JSON.stringify({
-                  token: process.env.VUE_APP_MIXER_TOKEN,
+                  token: this.getMixerToken(),
                   spaceId: this.world.eventConfig.highFidelity.spaceId
                 }),
               });
@@ -228,14 +234,14 @@
         async startAudioTrack(broadcast = false) {
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${process.env.VUE_APP_MIXER_URL}/start`, {
+              let response = await fetch(`${this.getMixerUrl()}/start`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
                 },
                 'method': 'POST',
                 'body': JSON.stringify({
-                  token: process.env.VUE_APP_MIXER_TOKEN,
+                  token: this.getMixerToken(),
                   spaceId: this.world.eventConfig.highFidelity.spaceId,
                   audioTrack: this.activeAudioTrack,
                   broadcast: broadcast
