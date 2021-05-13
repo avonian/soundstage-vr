@@ -101,7 +101,7 @@
                                             </div>
                                             <div class="ml-3 text-sm">
                                                 <label for="enableStereo" class="font-medium text-white">Broadcast
-                                                    in Stereo</label>
+                                                    in stereo</label>
                                                 <p class="text-white">Turn this on when you are ready to perform
                                                     for the venue.</p>
                                             </div>
@@ -179,7 +179,7 @@
                                 </div>
                                 <div class="col-span-2">
                                     <label class="block text-sm font-medium leading-5 text-white">
-                                        Video Settings
+                                        Other Settings
                                     </label>
                                     <div class="mt-4 space-y-4">
                                         <div class="relative flex items-start">
@@ -192,7 +192,7 @@
                                             </div>
                                             <div class="ml-3 text-sm">
                                                 <label for="enableWebcamFeeds" class="font-medium text-white">Enable
-                                                    Webcam Feeds</label>
+                                                    webcam feeds</label>
                                                 <p class="text-white">Turning this off will disable webcam feeds
                                                     and may improve performance on older computers.</p>
                                             </div>
@@ -206,9 +206,23 @@
                                             </div>
                                             <div class="ml-3 text-sm">
                                                 <label for="enableVisuals" class="font-medium text-white">Enable
-                                                    Visuals</label>
+                                                    visuals</label>
                                                 <p class="text-white">Turning off visuals can improve
                                                     performance on olders computers.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 space-y-4">
+                                        <div class="relative flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="soundOnJoin" name="enableVisuals" type="checkbox"
+                                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                                       :checked="userSettings.soundOnJoin"
+                                                       @change="$emit('setUserSettings', { key: 'soundOnJoin', value: $event.target.checked })">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="soundOnJoin" class="font-medium text-white">Ring when users connect</label>
+                                                <p class="text-white">Play a sound when a new user connects to the space.</p>
                                             </div>
                                         </div>
                                     </div>

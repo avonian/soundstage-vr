@@ -1,7 +1,7 @@
 import { VideoAvatar } from './vrspace-babylon.js';
 
 export class HoloAvatar extends VideoAvatar {
-  show(pickable = true) {
+  show(otherUser = true) {
     super.show();
     this.mesh.ellipsoid = new BABYLON.Vector3(this.radius, this.radius+this.avatarHeight, this.radius);
     this.mesh.position = new BABYLON.Vector3( 0, this.radius+this.avatarHeight, 0);
@@ -12,7 +12,7 @@ export class HoloAvatar extends VideoAvatar {
       this.mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
     }
 
-    if(pickable) {
+    if(otherUser) {
       this.mesh.isPickable = true;
       this.mesh.actionManager = new BABYLON.ActionManager(this.scene);
       this.mesh.actionManager
@@ -39,6 +39,10 @@ export class HoloAvatar extends VideoAvatar {
               document.querySelector("#app")._vnode.component.data.avatarMenuClientId = pickedMesh.id.replace("Client ", "");
             })
         )
+      if(document.querySelector("#app")._vnode.component.data.userSettings.soundOnJoin) {
+        var ring = new Audio('http://assets.soundstage.fm/vr/user-joined.mp3');
+        ring.play();
+      }
     }
 
     this.back = BABYLON.MeshBuilder.CreateDisc("VideoAvatarBackground", {radius:this.radius}, this.scene);

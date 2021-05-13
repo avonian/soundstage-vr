@@ -162,7 +162,8 @@
     includeAudioInputInMix: false,
     sendingMusic: false,
     voiceVolume: 50,
-    musicVolume: 50
+    musicVolume: 50,
+    soundOnJoin: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -334,6 +335,7 @@
       userSettings.useComputerSound = false
       userSettings.includeAudioInputInMix = false
       userSettings.computerAudioStream = false
+      userSettings.soundOnJoin = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
