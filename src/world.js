@@ -944,9 +944,21 @@ export class NightClub extends World {
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
       let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
-      await this.hifi.setInputAudioMediaStream(audioStream, stereo);
-      let gain = stereo ? 1 + (this.userSettings.stereoGainBoost / 100) : 1;
-      this.hifi.updateUserDataAndTransmit({ isStereo: stereo, hiFiGain: gain})
+
+      let voiceSettings = {
+        isStereo: false,
+        hiFiGain: 1,
+        userAttenuation: 0
+      };
+      let stereoSettings = {
+        isStereo: true,
+        hiFiGain: 0.2 + (this.userSettings.stereoGainBoost / 100),
+        userAttenuation: 0.0000001,
+        userRolloff: 999999,
+        volumeThreshold: -96
+      };
+      let settings = stereo ? stereoSettings : voiceSettings;
+      this.hifi.updateUserDataAndTransmit(settings)
       this.hifi._inputAudioMediaStream.isStereo = stereo; // even though this isn't needed for hifi we do it because spatializeAudio looks for this (will revisit)
     }
 
@@ -1015,8 +1027,6 @@ export class NightClub extends World {
       // and now bind that output somewhere
       outputElement.srcObject = outputStream;
       outputElement.play();
-      // Disable auto-muting while stereo broadcasting
-      this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
     });
   }
 

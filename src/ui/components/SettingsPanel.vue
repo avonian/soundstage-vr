@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-0 overflow-hidden z-10">
+    <div class="fixed inset-0 overflow-hidden z-50">
         <div class="absolute inset-0 overflow-hidden">
             <!--
               Background overlay, show/hide based on slide-over state.

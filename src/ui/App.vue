@@ -68,6 +68,8 @@
                 :tunnelLightsOn="tunnelLightsOn"
                 :gridFloorOn="gridFloorOn"
                 :moodParticlesOn="moodParticlesOn"
+                :event-config="eventConfig"
+                :attenuation="attenuation"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
@@ -78,6 +80,7 @@
                 @toggleTunnelLights="toggleTunnelLights"
                 @toggleGridFloor="toggleGridFloor"
                 @toggleMoodParticles="toggleMoodParticles"
+                @applyAcoustics="applyAcoustics($event)"
                 />
         <UserControls v-show="showControls"
                 :debugging="debugging"
@@ -257,7 +260,8 @@
           }
         ],
         modal: false,
-        app_url: process.env.VUE_APP_API_URL
+        app_url: process.env.VUE_APP_API_URL,
+        attenuation: ''
       }
     },
     computed: {
@@ -1117,6 +1121,28 @@
       },
       hideModal() {
         this.modal = false;
+      },
+      async applyAcoustics(attenuation) {
+        if(attenuation === '') {
+          return;
+        }
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.eventConfig.event_slug}/updateAudioSpace`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            'Accept': 'application/json',
+            "Authorization": `Bearer ${this.jwt}`
+          },
+          'method': 'POST',
+          'body': JSON.stringify({
+            spaceId: this.eventConfig.highFidelity.spaceId,
+            attenuation: attenuation
+          }),
+        });
+        this.attenuation = attenuation;
       }
     }
   }

@@ -1,13 +1,13 @@
 <template>
     <div class="stage ui-hide">
-        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0 z-50">
+        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0 z-40">
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
                v-for="(video, i) of videos" @click="$emit('activateVideo', i)" :key="video">
                 {{ video.label }}
             </a>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0 z-40">
+        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0 z-30">
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                :class="showingUserVideos ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleUserVideos')">
@@ -57,12 +57,12 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-12 z-30">
+        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-12 z-20">
             <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
-                <option value="stage" selected>Stage</option>
-                <option value="freecam">Freecam</option>
-                <option value="avatar">Avatar</option>
-            </select>
+                    <option value="stage" selected>Stage</option>
+                    <option value="freecam">Freecam</option>
+                    <option value="avatar">Avatar</option>
+                </select>
             </div>
             <select class="bg-white text-sm text-black mr-3 rounded-md" id="easing">
                 <option value="">No easing</option>
@@ -72,14 +72,14 @@
             </select>
             <span class="inline-flex" v-if="world && world.cineCam">
                 <input type="text" class="rounded-lg mr-3 text-black" value="0,1,2,3,4,5,6,7,8,9" id="autoloop-sequence" style="width: 100px;"/>
-                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 bg-indigo-500"
                    @click="$emit('playCameraAnimations', i)"
                    v-for="i in Object.keys(world.cineCam.animations)" :key="i">
                     {{ i }}
                 </a>
             </span>
         </div>
-        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24 z-20">
+        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24 z-10">
             <div class="inline-flex mr-3 items-center justify-center" v-if="mixerConnected">
                 Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
                     <option value=false>None</option>
@@ -114,6 +114,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg> Entrance
             </a>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
+               @click="$emit('applyAcoustics', attenuation === 0.00001 ? 0.5 : 0.00001)" :class="attenuation === 0.00001 ? 'gradient-ultra' : 'bg-gray-500'">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg> Acoustics Boost
+            </a>
         </div>
     </div>
 </template>
@@ -123,7 +129,7 @@
 
     export default {
       name: "StageControls",
-      props: ['activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
+      props: ['activeVideo', 'world', 'eventConfig', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn', 'attenuation'],
       data() {
         return {
           playingIntro: false,
@@ -131,30 +137,36 @@
           audioTracks: false,
           activeAudioTrack: false,
           waitingForMixer: false,
-          loop: false
+          loop: false,
+          attenuationOptions: [
+            {
+              value: 0.00001,
+              label: 'Boost Energy',
+            },
+            {
+              value: 0.5,
+              label: 'Normal',
+            }
+          ],
+          mixerUrl: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.eventConfig.mixerUrl,
+          mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.eventConfig.mixerToken,
         }
       },
       async mounted() {
         setTimeout(this.connectToMixer, 5000);
       },
       methods: {
-        getMixerUrl() {
-          return process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.world.eventConfig.mixerUrl;
-        },
-        getMixerToken() {
-          return process.env.VUE_APP_MIXER_TOKEN ? process.env.VUE_APP_MIXER_TOKEN : this.world.eventConfig.mixerToken;
-        },
         async connectToMixer() {
           try {
-            let response = await fetch(`${this.getMixerUrl()}/connect`, {
+            let response = await fetch(`${this.mixerUrl}/connect`, {
               headers: {
                 "Content-Type": "application/json; charset=utf-8",
                 'Accept': 'application/json'
               },
               'method': 'POST',
               'body': JSON.stringify({
-                token:  this.getMixerToken(),
-                spaceId: this.world.eventConfig.highFidelity.spaceId
+                token:  this.mixerToken,
+                spaceId: this.eventConfig.highFidelity.spaceId
               }),
             });
             // Set next poll interval
@@ -244,15 +256,15 @@
         async stopAudioTrack() {
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${this.getMixerUrl()}/stop`, {
+              let response = await fetch(`${this.mixerUrl}/stop`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
                 },
                 'method': 'POST',
                 'body': JSON.stringify({
-                  token: this.getMixerToken(),
-                  spaceId: this.world.eventConfig.highFidelity.spaceId
+                  token: this.mixerToken,
+                  spaceId: this.eventConfig.highFidelity.spaceId
                 }),
               });
               resolve();
@@ -265,15 +277,15 @@
         async startAudioTrack(broadcast = false) {
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${this.getMixerUrl()}/start`, {
+              let response = await fetch(`${this.mixerUrl}/start`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
                 },
                 'method': 'POST',
                 'body': JSON.stringify({
-                  token: this.getMixerToken(),
-                  spaceId: this.world.eventConfig.highFidelity.spaceId,
+                  token: this.mixerToken,
+                  spaceId: this.eventConfig.highFidelity.spaceId,
                   audioTrack: this.activeAudioTrack,
                   broadcast: broadcast,
                   loop: this.loop
@@ -290,15 +302,15 @@
           this.loop = this.loop !== true;
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${this.getMixerUrl()}/update`, {
+              let response = await fetch(`${this.mixerUrl}/update`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
                 },
                 'method': 'POST',
                 'body': JSON.stringify({
-                  token: this.getMixerToken(),
-                  spaceId: this.world.eventConfig.highFidelity.spaceId,
+                  token: this.mixerToken,
+                  spaceId: this.eventConfig.highFidelity.spaceId,
                   loop: this.loop
                 }),
               });
