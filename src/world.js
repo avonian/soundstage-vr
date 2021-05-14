@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
-    this.file = 'Night_Club-13may23-28.glb';
+    this.file = 'Night_Club-14may.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1237,7 +1237,7 @@ export class NightClub extends World {
     }
     console.log("BarLights ", this.customizer.barLights);
     console.log("Graphics quality: " + setting);
-    this.scene.getMeshByName("Sweep.2").isVisible = false; // Tunnel threshold for collisions
+    this.scene.getMeshByName("Sweep.1").isVisible = false; // Tunnel threshold for collisions
 
     // Mood Particles
     this.stageControls.toggleMoodParticles(this.stageControls.moodParticlesOn);

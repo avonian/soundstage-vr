@@ -14,10 +14,10 @@ export class Customizer {
     this.initVipExit();
 
     // Reposition some furniture
-    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Base_2_15346').position.x = 0.102;
-    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Emission_2_15348').position.x = 0.102;
-    this.world.scene.getMeshByName('Table_Table.003_Base_2_15346').position.x = 0.3;
-    this.world.scene.getMeshByName('Table_Table.003_Emission_2_15348').position.x = 0.3;
+    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Base_2_15346').position.x = 0.34;
+    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Emission_2_15348').position.x = 0.34;
+    this.world.scene.getMeshByName('Table_Table.003_Base_2_15346').position.x = 0.37;
+    this.world.scene.getMeshByName('Table_Table.003_Emission_2_15348').position.x = 0.37;
     this.world.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.x = 0.3;
     this.world.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.x = 0.3;
     this.world.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.z = 2;
@@ -289,8 +289,8 @@ export class Customizer {
     }
     this.clearCoatMeshes.forEach(mesh => { if(mesh) { mesh.material.clearCoat.isEnabled = this.world.userSettings.graphicsQuality === 'ultra-high' } })
     // Always clear coat VIP room
-    this.world.scene.getMeshByName('Cube.5').material.clearCoat.isEnabled = true;
-    this.world.scene.getMeshByName('Cube.6').material.clearCoat.isEnabled = true;
+    this.world.scene.getMeshByName('Boole').material.clearCoat.isEnabled = true;
+    this.world.scene.getMeshByName('door2-emiss').material.clearCoat.isEnabled = true;
   }
   initVipEntrance() {
     let vipEntrance = this.world.scene.getMeshByName('portal-door-top');
@@ -303,12 +303,14 @@ export class Customizer {
     var doorPosition = { "x": "8.598", "y": "0.756", "z": "-8.659"};
     vipEntrance._rotationQuaternion._w = 6.123233995736766e-17;
     vipEntrance._rotationQuaternion._y = 1;
-    vipEntrance.position.x = 6.21;
+    vipEntrance.position.x = 6.14;
+    vipEntrance.position.y = -0.054;
     vipEntrance.position.z = 2.95;
     vipEntranceEmissive._rotationQuaternion._w = 6.123233995736766e-17;
     vipEntranceEmissive._rotationQuaternion._y = 1;
-    vipEntranceEmissive.position.x = 6.215;
-    vipEntranceEmissive.position.z = 2.95;
+    vipEntranceEmissive.position.x = 6.205;
+    vipEntranceEmissive.position.y = -0.057;
+    vipEntranceEmissive.position.z = 2.950;
 
     vipEntrance.isPickable = true;
     vipEntrance.actionManager = new BABYLON.ActionManager(this.world.scene);
@@ -354,7 +356,7 @@ export class Customizer {
       )
   }
   initVipExit() {
-    let doorMesh = this.world.scene.getMeshByName('Cube.5');
+    let doorMesh = this.world.scene.getMeshByName('door2-emiss');
     var doorPosition = {"x":"5.91","y":"-1.92","z":"34.69"}
     doorMesh.isPickable = true;
     doorMesh.actionManager = new BABYLON.ActionManager(this.world.scene);

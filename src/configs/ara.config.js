@@ -2,7 +2,7 @@ export default {
   'event_slug': 'simlink-friends',
   'alias': 'Ara',
   'hideDefaultPosters': true,
-  'warnRecording': false,
+  'warnRecording': true,
   'permissions': {
     'access_backstage': true,
     'spawn_backstage': false,
