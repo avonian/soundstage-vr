@@ -398,7 +398,7 @@
           }
         }
 
-        if(this.eventConfig.warn_recording) {
+        if(this.eventConfig.warnRecording) {
           let confirmCallback = () => {
             this.modal = false;
             enterCallback();
