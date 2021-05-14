@@ -10,7 +10,8 @@ export class Customizer {
     this.initPosters();
   }
   initAfterLoad() {
-    this.initVipDoor();
+    this.initVipEntrance();
+    this.initVipExit();
   }
   disposeVideoPosters() {
     let videoPosters = this.world.scene.meshes.filter(m => m.name.indexOf("videoPoster-") !== - 1);
@@ -280,7 +281,68 @@ export class Customizer {
     this.world.scene.getMeshByName('Cube.5').material.clearCoat.isEnabled = true;
     this.world.scene.getMeshByName('Cube.6').material.clearCoat.isEnabled = true;
   }
-  initVipDoor() {
+  initVipEntrance() {
+    let vipEntrance = this.world.scene.getMeshByName('portal-door-top');
+    let vipEntranceEmissive = this.world.scene.getMeshByName('portal-door-emissive');
+    if(!this.eventConfig.permissions.access_backstage) {
+      vipEntrance.dispose();
+      vipEntranceEmissive.dispose();
+      return;
+    }
+    var doorPosition = { "x": "8.598", "y": "0.756", "z": "-8.659"};
+    vipEntrance._rotationQuaternion._w = 6.123233995736766e-17;
+    vipEntrance._rotationQuaternion._y = 1;
+    vipEntrance.position.x = 6.21;
+    vipEntrance.position.z = 2.95;
+    vipEntranceEmissive._rotationQuaternion._w = 6.123233995736766e-17;
+    vipEntranceEmissive._rotationQuaternion._y = 1;
+    vipEntranceEmissive.position.x = 6.215;
+    vipEntranceEmissive.position.z = 2.95;
+
+    vipEntrance.isPickable = true;
+    vipEntrance.actionManager = new BABYLON.ActionManager(this.world.scene);
+    vipEntrance.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            var dest = new BABYLON.Vector3(doorPosition.x, doorPosition.y, doorPosition.z);
+            var pos = this.world.camera1.position.clone();
+            var distance = dest.subtract(pos).length();
+
+            if (distance < 4) {
+              this.world.scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+            }
+          })
+      )
+    vipEntrance.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOutTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            this.world.scene.highlightLayer1.removeMesh(pickedMesh, BABYLON.Color3.Teal());
+          })
+      )
+    vipEntrance.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger, (event) => {
+            var dest = new BABYLON.Vector3(doorPosition.x, doorPosition.y, doorPosition.z);
+            var pos = this.world.camera1.position.clone();
+            var distance = dest.subtract(pos).length();
+
+            if (distance < 4) {
+              this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
+              VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263));
+              setTimeout(() => {
+                this.world.camera1.setTarget(new BABYLON.Vector3(-1.52,-1.69,36.54));
+                this.animateCamera = false;
+              }, 100);
+            }
+          })
+      )
+  }
+  initVipExit() {
     let doorMesh = this.world.scene.getMeshByName('Cube.5');
     var doorPosition = {"x":"5.91","y":"-1.92","z":"34.69"}
     doorMesh.isPickable = true;
@@ -316,19 +378,12 @@ export class Customizer {
             var distance = dest.subtract(pos).length();
 
             if ( distance < 4 ) {
-              document.querySelector("#app")._vnode.component.data.modal = {
-                title: "Exit VIP room?",
-                body: "<p class='mb-4'>You are about to exit the VIP room.</p><p class='mb-4'>To return here later you will need reload the web page.</p><p class='mb-4'>Do you want to continue?</p>",
-                confirmCallback: () => {
-                  this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
-                  VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11, this.world.videoAvatarSize*2+this.world.avatarHeight, -7));
-                  setTimeout(() => {
-                    this.world.camera1.setTarget(new BABYLON.Vector3(0,3,0));
-                    this.animateCamera = false;
-                  }, 100);
-                  document.querySelector("#app")._vnode.component.data.modal = false;
-                }
-              }
+              this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
+              VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575));
+              setTimeout(() => {
+                this.world.camera1.setTarget(new BABYLON.Vector3(0,1,-5));
+                this.animateCamera = false;
+              }, 100);
             }
           })
       )
