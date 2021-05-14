@@ -433,14 +433,19 @@ export class StageControls {
     }
   }
   play( videoIndex ) {
-    let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
-    this.world.properties.WindowVideo = videoIndex;
-    this.executeAndSend(playTableEvent);
+    let target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
+    if(target === 'all' || target === 'WindowVideo') {
+      let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
+      this.world.properties.WindowVideo = videoIndex;
+      this.executeAndSend(playTableEvent);
+    }
 
-    let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
-    this.world.properties.DJTableVideo = videoIndex;
-    this.executeAndSend(playWindowEvent);
-    this.world.shareProperties();
+    if(target === 'all' || target === 'DJTableVideo') {
+      let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
+      this.world.properties.DJTableVideo = videoIndex;
+      this.executeAndSend(playWindowEvent);
+      this.world.shareProperties();
+    }
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };

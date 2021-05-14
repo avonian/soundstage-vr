@@ -1,6 +1,11 @@
 <template>
     <div class="stage ui-hide">
         <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0 z-40">
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="videoTarget">
+                <option value='all'>All Displays</option>
+                <option value='DJTableVideo'>DJ Table</option>
+                <option value='WindowVideo'>Big Screen</option>
+            </select>
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
                v-for="(video, i) of videos" @click="$emit('activateVideo', i)" :key="video">
