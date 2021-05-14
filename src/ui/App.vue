@@ -4,6 +4,7 @@
            :body="modal.body"
            :confirmCallback="modal.confirmCallback"
            :cancelCallback="modal.cancelCallback"
+           :size="modal.size"
            @close="hideModal"
     />
     <InvalidEvent v-if="invalidAccess"/>
@@ -255,7 +256,8 @@
             value: "ultra-high"
           }
         ],
-        modal: false
+        modal: false,
+        app_url: process.env.VUE_APP_API_URL
       }
     },
     computed: {
@@ -295,6 +297,7 @@
       if(!this.eventConfig) {
         return;
       }
+
       this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
       if (this.eventConfig.permissions['stage_controls']) {
         this.showStageControls = true;
@@ -382,7 +385,11 @@
         }
       },
       apply: async function () {
-        if (!this.entered) {
+        if (this.entered) {
+          return;
+        }
+
+        var enterCallback = async () => {
           this.enterWorld()
           if (!this.alreadyVisited) {
             this.showHelp = true
@@ -390,6 +397,26 @@
             this.alreadyVisited = true
           }
         }
+
+        if(this.eventConfig.warn_recording) {
+          let confirmCallback = () => {
+            this.modal = false;
+            enterCallback();
+          }
+          let cancelCallback = () => {
+            this.modal = false;
+          }
+          this.showModal(
+            "Important notice - you may appear in recordings of this event.",
+            `<p class='mb-4'>Today's event will be broadcast in an internet live stream and images will be recorded for use in future promotional materials for SoundStage.</p><p class='mb-4'>By accessing this event you accept that your video and/or audio feeds may be captured and used by SoundStage for the aforementioned purposes.</p><p class='mb-4'>Although it is not our intention to record you specifically, it is possible that you might appear in recordings as any other audience member.</p><p class='mb-4'>Please note that even after connecting, you still have the ability to turn off your webcam and/or microphone to avoid appearing in these recordings.</p><p class='mb-4'>If this is not agreeable, please <a href="${this.app_url}/contact-us" class="text-magenta" tabindex="-1">contact us</a> and we will be happy to issue a refund for your ticket.</p><p class='mb-4'>Would you like to continue?</p>`,
+            confirmCallback,
+            cancelCallback,
+            'sm:max-w-xl'
+          );
+        } else {
+          enterCallback();
+        }
+
       },
       async setVolume({ key, value }) {
         this.userSettings[key + 'Volume'] = value;
@@ -1079,12 +1106,13 @@
           cancelCallback
         )
       },
-      showModal(title, body, confirmCallback = null, cancelCallback = null) {
+      showModal(title, body, confirmCallback = null, cancelCallback = null, size) {
         this.modal = {
           title,
           body,
           confirmCallback,
-          cancelCallback
+          cancelCallback,
+          size
         }
       },
       hideModal() {

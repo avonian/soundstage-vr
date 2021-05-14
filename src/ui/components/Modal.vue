@@ -6,7 +6,7 @@
 
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-alt-primary rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+            <div class="inline-block align-bottom bg-alt-primary rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6" :class="size ? size : 'sm:max-w-sm'">
                 <div class="flex flex-col items-center">
                     <div class="text-center w-full">
                         <DialogTitle as="h3" class="text-lg leading-6 font-medium text-white">
@@ -45,7 +45,7 @@ import {
 } from '@headlessui/vue'
 
 export default {
-  props: ['title', 'body', 'confirmCallback', 'cancelCallback'],
+  props: ['title', 'body', 'confirmCallback', 'cancelCallback', 'size'],
   components: {
     Dialog,
     DialogOverlay,
