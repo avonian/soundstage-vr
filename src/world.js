@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
-    this.file = 'Night_Club-13may.glb';
+    this.file = 'Night_Club-13may23-28.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
