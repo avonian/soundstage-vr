@@ -262,6 +262,7 @@ export class Customizer {
   initClearCoat() {
     if(!this.clearCoatMeshes) {
       this.clearCoatMeshes = [
+        'portal-door-top',
         'Bar_counter.001_Bar_counter.001_Base_2_15346',
         'Chair_Chair_Red_15380',
         'Chair_(1)_Chair.001_Red_15380',
