@@ -13,26 +13,6 @@
                @click="$emit('toggleUserVideos')">
                 Casting Panel
             </a>
-            <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
-                    <option value="stage" selected>Stage</option>
-                    <option value="freecam">Freecam</option>
-                    <option value="avatar">Avatar</option>
-                </select>
-            </div>
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="easing">
-                <option value="">No easing</option>
-                <option value="PowerEase">Power Ease</option>
-                <option value="CubicEase">Cubic Ease</option>
-                <option value="SineEase">Sine Ease</option>
-            </select>
-            <span class="inline-flex" v-if="world && world.cineCam">
-                <input type="text" class="rounded-lg mr-3 text-black" value="0,1,2,3,4,5,6,7,8,9" id="autoloop-sequence" style="width: 100px;"/>
-                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
-                   @click="$emit('playCameraAnimations', i)"
-                   v-for="i in Object.keys(world.cineCam.animations)" :key="i">
-                    {{ i }}
-                </a>
-            </span>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="playingIntro ? 'cursor-not-allowed gradient-ultra' : 'cursor-pointer bg-purple-700'"
                @click="playIntro">
@@ -77,23 +57,70 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
-        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-12" v-if="mixerConnected">
-            Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
-                <option value=false>None</option>
-                <option v-for="audioTrack of audioTracks" :key="audioTrack">{{ audioTrack }}</option>
+        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-12">
+            <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
+                <option value="stage" selected>Stage</option>
+                <option value="freecam">Freecam</option>
+                <option value="avatar">Avatar</option>
             </select>
-            <div v-if="waitingForMixer">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
             </div>
-            <div class="flex items-center text-lg" v-else>Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="easing">
+                <option value="">No easing</option>
+                <option value="PowerEase">Power Ease</option>
+                <option value="CubicEase">Cubic Ease</option>
+                <option value="SineEase">Sine Ease</option>
+            </select>
+            <span class="inline-flex" v-if="world && world.cineCam">
+                <input type="text" class="rounded-lg mr-3 text-black" value="0,1,2,3,4,5,6,7,8,9" id="autoloop-sequence" style="width: 100px;"/>
+                <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+                   @click="$emit('playCameraAnimations', i)"
+                   v-for="i in Object.keys(world.cineCam.animations)" :key="i">
+                    {{ i }}
+                </a>
+            </span>
+        </div>
+        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24">
+            <div class="inline-flex mr-3" v-if="mixerConnected">
+                Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
+                    <option value=false>None</option>
+                    <option v-for="audioTrack of audioTracks" :key="audioTrack">{{ audioTrack }}</option>
+                </select>
+                <div v-if="waitingForMixer">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div class="flex items-center text-lg" v-else>Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+            </div>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+               @click="teleport({ x: 8.3985268, y: -3.4950000, z: -17.364640 })">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg> Outside
+            </a>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+               @click="teleport({ x:5.006, y: -2.509445424, z: 34.471093 })">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg> VIP
+            </a>
+            <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
+               @click="teleport({ x:11.4346767, y: 0.64357063, z: -7.233532 })">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg> Entrance
+            </a>
         </div>
     </div>
 </template>
 
 <script>
+    import { VRSPACEUI } from '../../vrspace-babylon'
+
     export default {
       name: "StageControls",
       props: ['activeVideo', 'world', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn'],
@@ -294,6 +321,13 @@
             this.waitingForMixer = false;
             resolve();
           });
+        },
+        teleport(location) {
+          this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 100);
+          VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), new BABYLON.Vector3(location.x, location.y, location.z));
+          setTimeout(() => {
+            this.animateCamera = false;
+          }, 100);
         }
       }
     }
