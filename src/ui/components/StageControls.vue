@@ -115,7 +115,7 @@
                 </svg> Entrance
             </a>
             <a class="cursor-pointer glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
-               @click="$emit('applyAcoustics', attenuation === 0.00001 ? 0.5 : 0.00001)" :class="attenuation === 0.00001 ? 'gradient-ultra' : 'bg-gray-500'">
+               @click="toggleAttenuation" :class="attenuation === 0.00001 ? 'gradient-ultra' : 'bg-gray-500'">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg> Acoustics Boost
@@ -152,8 +152,13 @@
           mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.eventConfig.mixerToken,
         }
       },
-      async mounted() {
+      mounted() {
         setTimeout(this.connectToMixer, 5000);
+        document.addEventListener('keydown', (e) => {
+          if(e.code === "F8") {
+            this.toggleAttenuation();
+          }
+        });
       },
       methods: {
         async connectToMixer() {
@@ -340,6 +345,9 @@
           setTimeout(() => {
             this.animateCamera = false;
           }, 100);
+        },
+        toggleAttenuation() {
+          this.$emit('applyAcoustics', this.attenuation === 0.00001 ? 0.5 : 0.00001)
         }
       }
     }

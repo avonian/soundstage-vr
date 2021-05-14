@@ -1126,6 +1126,7 @@
         if(attenuation === '') {
           return;
         }
+        this.attenuation = attenuation;
         if(process.env.VUE_APP_DEMO_CONFIG) {
           alert("Disabled in dev mode.");
           return;
@@ -1142,7 +1143,6 @@
             attenuation: attenuation
           }),
         });
-        this.attenuation = attenuation;
       }
     }
   }
