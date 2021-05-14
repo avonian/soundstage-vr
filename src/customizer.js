@@ -12,6 +12,16 @@ export class Customizer {
   initAfterLoad() {
     this.initVipEntrance();
     this.initVipExit();
+
+    // Reposition some furniture
+    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Base_2_15346').position.x = 0.102;
+    this.world.scene.getMeshByName('Sofa.001_Sofa.001_Emission_2_15348').position.x = 0.102;
+    this.world.scene.getMeshByName('Table_Table.003_Base_2_15346').position.x = 0.3;
+    this.world.scene.getMeshByName('Table_Table.003_Emission_2_15348').position.x = 0.3;
+    this.world.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.x = 0.3;
+    this.world.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.x = 0.3;
+    this.world.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.z = 2;
+    this.world.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.z = 2;
   }
   disposeVideoPosters() {
     let videoPosters = this.world.scene.meshes.filter(m => m.name.indexOf("videoPoster-") !== - 1);
