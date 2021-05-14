@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
-    this.file = 'Night_Club-5may-21-25b.glb';
+    this.file = 'Night_Club-13may23-28.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -145,12 +145,15 @@ export class NightClub extends World {
 
     // First person camera:
 
-    let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, this.videoAvatarSize*2+this.avatarHeight, -7);
-    this.camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575);
+    this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(0,1,-5);
+
+    this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     this.camera1.maxZ = 100000;
     this.camera1.minZ = 0;
-    this.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+
+    this.camera1.setTarget(this.spawnTarget);
     this.camera1.applyGravity = true;
     this.camera1.speed = 0.07;
     //in this space, 0.5 is minimum size that phisically makes sense, thus avatarSize*2:
@@ -1234,7 +1237,7 @@ export class NightClub extends World {
     }
     console.log("BarLights ", this.customizer.barLights);
     console.log("Graphics quality: " + setting);
-    this.scene.getMeshByName("Sweep.1").isVisible = false; // Tunnel threshold for collisions
+    this.scene.getMeshByName("Sweep.2").isVisible = false; // Tunnel threshold for collisions
 
     // Mood Particles
     this.stageControls.toggleMoodParticles(this.stageControls.moodParticlesOn);
@@ -1324,6 +1327,16 @@ export class NightClub extends World {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
+    }
+    // for VIP portal door
+    if (event.key === "v") {
+      let tempMesh = this.scene.getMeshByName("portal-door-top");
+      let tempMeshEmiss = this.scene.getMeshByName("portal-door-emissive");
+      console.log("portal-door 1");
+      tempMesh.visibility = 0;
+      tempMesh.isPickable = false;
+      tempMeshEmiss.visibility = 0;
+      tempMeshEmiss.isPickable = false;
     }
   }
 
