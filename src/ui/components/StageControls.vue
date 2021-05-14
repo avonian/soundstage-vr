@@ -80,7 +80,7 @@
             </span>
         </div>
         <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24">
-            <div class="inline-flex mr-3" v-if="mixerConnected">
+            <div class="inline-flex mr-3 items-center justify-center" v-if="mixerConnected">
                 Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
                     <option value=false>None</option>
                     <option v-for="audioTrack of audioTracks" :key="audioTrack">{{ audioTrack }}</option>
@@ -182,7 +182,7 @@
           this.playingIntro = true;
 
           if(!document.querySelector("#saveState").checked) {
-            // document.querySelector("#saveState").click();
+            document.querySelector("#saveState").click();
           }
 
           let stop = this.stopAudioTrack();
