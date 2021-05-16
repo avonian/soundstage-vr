@@ -1,8 +1,7 @@
 export default {
-  'event_slug': 'simlink-friends',
+  'event_slug': 'kill-paris-vr-party',
   'alias': 'Ara',
   'hideDefaultPosters': true,
-  'warnRecording': true,
   'permissions': {
     'access_backstage': true,
     'spawn_backstage': false,
