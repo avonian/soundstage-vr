@@ -163,15 +163,15 @@ export default {
       'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack_3.png',
       'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack.mp4'
     }, {
-      'name': 'Space_Time',
+      'name': 'Protons Neutrons',
       'width': 1,
       'height': 1.6,
       'posX': 4.87,
       'posY': 1.057,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.mp4'
     },  {
       'name': 'Galaxy_A',
       'width': 1,
@@ -192,16 +192,16 @@ export default {
       'rotationY': -180,
       'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
       'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.mp4'
-    } , {
-      'name': 'Neutrons',
+    }, {
+      'name': 'Space Time',
       'width': 1,
       'height': 1.6,
       'posX': 9.23,
       'posY': 1.06,
       'posZ': -4.29,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
+      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.mp4'
     }
   ]
 }

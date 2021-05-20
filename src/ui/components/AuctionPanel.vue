@@ -34,13 +34,13 @@
                     <div class="pb-1 sm:pb-6">
                         <div>
                             <div class="relative h-80">
-                                <img class="absolute h-full w-full object-cover" src="https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png" alt="">
+                                <img class="absolute h-full w-full object-cover" src="https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.png" alt="">
                             </div>
                             <div class="mt-6 px-4 sm:mt-8 sm:flex sm:items-end sm:px-6">
                                 <div class="sm:flex-1">
                                     <div>
                                         <div class="flex items-center">
-                                            <h3 class="font-bold text-xl text-white sm:text-2xl">Space & Time</h3>
+                                            <h3 class="font-bold text-xl text-white sm:text-2xl">Protons & Neutrons</h3>
                                         </div>
                                         <p class="text-sm text-magenta">@luigitasso</p>
                                     </div>
@@ -63,7 +63,7 @@
                                 </dt>
                                 <dd class="mt-1 text-gray-200 sm:col-span-2">
                                     <p>
-                                        Space & Time is an audiovisual NFT from Luigi Tasso that's being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.
+                                        Protons & Neutrons is an audiovisual NFT from Luigi Tasso that's being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.
                                     </p>
                                 </dd>
                             </div>
