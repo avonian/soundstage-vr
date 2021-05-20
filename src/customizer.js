@@ -94,7 +94,7 @@ export class Customizer {
                     pickedMesh.video_url,
                     this.world.scene, true, true, null, {
                       autoUpdateTexture: true,
-                      autoPlay: false,
+                      autoPlay: true,
                       muted: false,
                       loop: false
                     });
@@ -160,7 +160,7 @@ export class Customizer {
                   setTimeout(() => {
                     // Start playing video
                     this.world.camera1LookAt = false;
-                    videoTexture.video.play();
+                    //videoTexture.video.play();
                   }, 1500)
                 }
               }
