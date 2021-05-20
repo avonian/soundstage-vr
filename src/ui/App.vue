@@ -2,9 +2,13 @@
     <Modal v-if="modal"
            :title="modal.title"
            :body="modal.body"
+           :confirmCallback="modal.confirmCallback"
+           :cancelCallback="modal.cancelCallback"
+           :size="modal.size"
            @close="hideModal"
     />
     <InvalidEvent v-if="invalidAccess"/>
+    <Banned v-else-if="userBanned"/>
     <IncompatibleDevice v-else-if="deviceType === 'mobile'"/>
     <WelcomeScreen v-else-if="!entered"
         :browser-supported="browserSupported"
@@ -34,6 +38,8 @@
             @blockUser="blockUser($event)"
             @adminToggleMicrophone="adminToggleMicrophone($event)"
             @adminToggleWebcam="adminToggleWebcam($event)"
+            @adminKickUser="adminKickUser($event)"
+            @adminBanUser="adminBanUser($event)"
         />
         <SettingsPanel v-if="showSettings"
                 :graphics-options="graphicsOptions"
@@ -48,8 +54,9 @@
                 @save="saveSettings"/>
         <LoadingScreen/>
         <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
-        <StageControls v-show="showControls"
-                :show-stage-controls="showStageControls"
+        <StageControls
+                v-if="showStageControls"
+                v-show="showControls"
                 :active-video="activeVideo"
                 :world="world"
                 :videos="videos"
@@ -61,6 +68,8 @@
                 :tunnelLightsOn="tunnelLightsOn"
                 :gridFloorOn="gridFloorOn"
                 :moodParticlesOn="moodParticlesOn"
+                :event-config="eventConfig"
+                :attenuation="attenuation"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
                 @playCameraAnimations="playCameraAnimations($event)"
@@ -71,6 +80,7 @@
                 @toggleTunnelLights="toggleTunnelLights"
                 @toggleGridFloor="toggleGridFloor"
                 @toggleMoodParticles="toggleMoodParticles"
+                @applyAcoustics="applyAcoustics($event)"
                 />
         <UserControls v-show="showControls"
                 :debugging="debugging"
@@ -107,6 +117,7 @@
 <script>
   import Nightclub from '../world.js'
   import InvalidEvent from './components/InvalidEvent';
+  import Banned from './components/Banned';
   import QuickStart from './components/QuickStart';
   import IncompatibleDevice from './components/IncompatibleDevice'
   import LocalCamera from './components/LocalCamera'
@@ -155,7 +166,8 @@
     includeAudioInputInMix: false,
     sendingMusic: false,
     voiceVolume: 50,
-    musicVolume: 50
+    musicVolume: 50,
+    soundOnJoin: false
   }
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -164,6 +176,7 @@
     name: 'App',
     components: {
       InvalidEvent,
+      Banned,
       QuickStart,
       IncompatibleDevice,
       LocalCamera,
@@ -222,6 +235,8 @@
         moodParticlesOn: false,
         showInstrumentation: false,
         avatarMenuClientId: false,
+        userKicked: window.location.href.indexOf("kicked") !== -1,
+        userBanned: window.location.href.indexOf("banned") !== -1,
         graphicsOptions: [
           {
             label: "Very Low",
@@ -244,7 +259,9 @@
             value: "ultra-high"
           }
         ],
-        modal: false
+        modal: false,
+        app_url: process.env.VUE_APP_API_URL,
+        attenuation: ''
       }
     },
     computed: {
@@ -257,6 +274,16 @@
       }
     },
     mounted: async function () {
+
+      if(this.userKicked) {
+        this.showModal("You've been removed from the space.", "<p class='mb-4'>A moderator has deemed it necessary to temporarily remove you from this event.</p><p class='mb-4'>You are allowed to rejoin, but we ask that you please be mindful of your behavior moving forward.</p>");
+        window.history.replaceState({},window.document.title,window.location.href.replace("&kicked","").replace("?kicked",""));
+      }
+
+      if(this.userBanned) {
+        window.history.replaceState({},window.document.title,window.location.href.replace("&banned","").replace("?banned",""));
+        return;
+      }
 
       this.jwt = document.cookie.indexOf("jwt") !== -1 ? document.cookie
         .split('; ')
@@ -274,6 +301,7 @@
       if(!this.eventConfig) {
         return;
       }
+
       this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
       if (this.eventConfig.permissions['stage_controls']) {
         this.showStageControls = true;
@@ -314,6 +342,7 @@
       userSettings.useComputerSound = false
       userSettings.includeAudioInputInMix = false
       userSettings.computerAudioStream = false
+      userSettings.soundOnJoin = false
       this.userSettings = JSON.parse(JSON.stringify(userSettings))
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
@@ -335,6 +364,7 @@
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
           this.eventConfig = {...baseConfig, ...customConfig};
           this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
+          this.eventConfig.highFidelity.spaceId = process.env.VUE_APP_HIGH_FIDELITY_SPACE_ID;
           return;
         }
         if(this.jwt) {
@@ -359,7 +389,11 @@
         }
       },
       apply: async function () {
-        if (!this.entered) {
+        if (this.entered) {
+          return;
+        }
+
+        var enterCallback = async () => {
           this.enterWorld()
           if (!this.alreadyVisited) {
             this.showHelp = true
@@ -367,6 +401,26 @@
             this.alreadyVisited = true
           }
         }
+
+        if(this.eventConfig.warnRecording) {
+          let confirmCallback = () => {
+            this.modal = false;
+            enterCallback();
+          }
+          let cancelCallback = () => {
+            this.modal = false;
+          }
+          this.showModal(
+            "Important notice - you may appear in recordings of this event.",
+            `<p class='mb-4'>Today's event will be broadcast in an internet live stream and images will be recorded for use in future promotional materials for SoundStage.</p><p class='mb-4'>By accessing this event you accept that your video and/or audio feeds may be captured and used by SoundStage for the aforementioned purposes.</p><p class='mb-4'>Although it is not our intention to record you specifically, it is possible that you might appear in recordings as any other audience member.</p><p class='mb-4'>Please note that even after connecting, you still have the ability to turn off your webcam and/or microphone to avoid appearing in these recordings.</p><p class='mb-4'>If this is not agreeable, please <a href="${this.app_url}/contact-us" class="text-magenta" tabindex="-1">contact us</a> and we will be happy to issue a refund for your ticket.</p><p class='mb-4'>Would you like to continue?</p>`,
+            confirmCallback,
+            cancelCallback,
+            'sm:max-w-xl'
+          );
+        } else {
+          enterCallback();
+        }
+
       },
       async setVolume({ key, value }) {
         this.userSettings[key + 'Volume'] = value;
@@ -461,6 +515,7 @@
               document.querySelector('#progress-splash').remove()
               canvas.setAttribute('tabindex', '-1')
               canvas.focus()
+              world.customizer.initAfterLoad();
             }, 2000)
           }
           // by default, World loads scene.gltf from current directory
@@ -640,15 +695,21 @@
         if (nextCameraIndex >= this.cameraModes.length) {
           nextCameraIndex = 0
         }
-        // IF switching out of free cam unmute microphone
+        // If switching out of free cam unmute microphone and untoggle billboard mode
         if(this.cameraMode[1] === "Free Cam" && !this.micEnabled) {
           this.microphoneOnOff();
         }
+        if(this.cameraMode[1] === "Free Cam" && !this.userSettings.trackRotation) {
+          this.rotationOnOff();
+        }
         this.cameraMode = this.cameraModes[nextCameraIndex]
         console.log('Activating camera ' + this.cameraMode[1])
-        // If switching to free cam mute microphone
+        // If switching to free cam mute microphone and toggle billboard mode
         if(this.cameraMode[1] === "Free Cam" && this.micEnabled) {
           this.microphoneOnOff();
+        }
+        if(this.cameraMode[1] === "Free Cam" && this.userSettings.trackRotation) {
+          this.rotationOnOff();
         }
         world.activateCamera(this.cameraMode[0])
         // make sure to move focus to canvas, or HTML UI keeps control of keyboard input
@@ -865,6 +926,12 @@
       playCameraAnimations(i) {
         this.cameraMode = this.cameraModes[2];
         world.activateCamera('free');
+        if(this.micEnabled) {
+          this.microphoneOnOff();
+        }
+        if(this.userSettings.trackRotation) {
+          this.rotationOnOff();
+        }
         world.cineCam.play(i);
       },
       async followUser({ user, value }) {
@@ -918,11 +985,153 @@
           alert("Disabled in dev mode.");
           return;
         }
-        let confirmed = confirm("Are you sure you want to block this user?");
-        if(!confirmed) {
-          return false;
+        let clientId = this.avatarMenuClientId;
+        this.avatarMenuClientId = false;
+
+        let confirmCallback = async () => {
+          let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/block`, {
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              'Accept': 'application/json',
+              "Authorization": `Bearer ${this.jwt}`
+            },
+            'method': 'POST',
+            'body': JSON.stringify({
+              target_user: user,
+              block: true
+            }),
+          });
+          let data = await response.json();
+          this.eventConfig.blocklist = data.blocklist;
+
+          // Mute user
+          for (let hashedVisitID of Object.keys(world.hifi.peers)) {
+            let hiFiPeer = world.hifi.peers[hashedVisitID];
+            if (parseInt(hiFiPeer.providedUserID) === user) {
+              world.hifi.updatePeerVolume(hiFiPeer)
+            }
+          }
+          // Dispose avatar
+          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
+          let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
+          holoAvatar.dispose();
+          this.avatarMenuClientId = false;
+          setTimeout(() => {
+            this.showModal("The user has been blocked.", "<p class='mb-4'>To undo this action visit your SoundStage profile area.</p>")
+          }, 300);
         }
-        let response = await fetch(`${process.env.VUE_APP_API_URL}/profile/block`, {
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Block User",
+          "<p class='mb-4'>If you block this user you will no longer be able to see or hear them.</p><p class='mb-4'>Do you want to continue?</p>",
+          confirmCallback,
+          cancelCallback
+        )
+      },
+      async adminToggleMicrophone(userId) {
+        world.adminControls.toggleUserMic(userId)
+        this.avatarMenuClientId = false;
+        this.showModal("Microphone Toggled.", "<p class='mb-4'>The users microphone setting has been toggled.</p>")
+      },
+      async adminToggleWebcam(userId) {
+        world.adminControls.toggleUserWebcam(userId)
+        this.avatarMenuClientId = false;
+        this.showModal("Webcam Toggled.", "<p class='mb-4'>The users webcam setting has been toggled.</p>")
+      },
+      async adminKickUser(userId) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+
+        let clientId = this.avatarMenuClientId;
+        this.avatarMenuClientId = false;
+
+        let confirmCallback = async () => {
+          world.adminControls.kickUser(userId)
+          this.avatarMenuClientId = false;
+          this.showModal("User Kicked.", "<p class='mb-4'>The user has been removed from this event.</p>")
+        }
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Kick User",
+          "<p class='mb-4'>Are you sure you want to kick this user from this event?</p>",
+          confirmCallback,
+          cancelCallback
+        )
+      },
+      async adminBanUser(userId) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        let clientId = this.avatarMenuClientId;
+        this.avatarMenuClientId = false;
+
+        let confirmCallback = async () => {
+          world.adminControls.banUser(userId)
+          this.avatarMenuClientId = false;
+          let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/banUser`, {
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              'Accept': 'application/json',
+              "Authorization": `Bearer ${this.jwt}`
+            },
+            'method': 'POST',
+            'body': JSON.stringify({
+              target_user: userId
+            }),
+          });
+          let data = await response.json();
+          if(data.success) {
+            this.showModal("User Banned.", "<p class='mb-4'>The user has been banned from this event.</p>")
+          }
+        }
+
+        let cancelCallback = () => {
+          this.modal = false;
+          this.avatarMenuClientId = clientId;
+        }
+
+        this.showModal(
+          "Ban User",
+          "<p class='mb-4'>Are you sure you want to ban this user from this event?</p>",
+          confirmCallback,
+          cancelCallback
+        )
+      },
+      showModal(title, body, confirmCallback = null, cancelCallback = null, size) {
+        this.modal = {
+          title,
+          body,
+          confirmCallback,
+          cancelCallback,
+          size
+        }
+      },
+      hideModal() {
+        this.modal = false;
+      },
+      async applyAcoustics(attenuation) {
+        if(attenuation === '') {
+          return;
+        }
+        this.attenuation = attenuation;
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.eventConfig.event_slug}/updateAudioSpace`, {
           headers: {
             "Content-Type": "application/json; charset=utf-8",
             'Accept': 'application/json',
@@ -930,46 +1139,10 @@
           },
           'method': 'POST',
           'body': JSON.stringify({
-            target_user: user,
-            block: true
+            spaceId: this.eventConfig.highFidelity.spaceId,
+            attenuation: attenuation
           }),
         });
-        let data = await response.json();
-        this.eventConfig.blocklist = data.blocklist;
-        // Mute user
-        for (let hashedVisitID of Object.keys(world.hifi.peers)) {
-          let hiFiPeer = world.hifi.peers[hashedVisitID];
-          if (parseInt(hiFiPeer.providedUserID) === user) {
-            world.hifi.updatePeerVolume(hiFiPeer)
-          }
-        }
-        // Dispose avatar
-        let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
-        let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
-        holoAvatar.dispose();
-        this.avatarMenuClientId = false;
-        setTimeout(function() {
-          alert("User has been blocked.\n\nTo undo this action visit your SoundStage profile area.");
-        }, 300);
-      },
-      async adminToggleMicrophone(userId) {
-        world.adminControls.toggleUserMic(userId)
-        this.avatarMenuClientId = false;
-        this.showModal("Microphone Toggled.", "The users microphone setting has been toggled.")
-      },
-      async adminToggleWebcam(userId) {
-        world.adminControls.toggleUserWebcam(userId)
-        this.avatarMenuClientId = false;
-        this.showModal("Webcam Toggled.", "The users webcam setting has been toggled.")
-      },
-      showModal(title, body) {
-        this.modal = {
-          title,
-          body
-        }
-      },
-      hideModal() {
-        this.modal = false;
       }
     }
   }

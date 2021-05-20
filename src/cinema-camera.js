@@ -91,7 +91,7 @@ export class CinemaCamera {
       2500: {"position":{"_x":8.069870792404346,"_y":1.0500232098477533,"_z":-4.766294851415272},"rotation":{"_x":0.051664574268398905,"_y":-0.6955063511428636,"_z":0}}
     }
 
-    // Reverse panoramic entrance to the left side
+    // Panoramic behind DJ
     this.animations[7] = {
       0: {"position":{"_x":8.67783698284091,"_y":1.3437483999015625,"_z":5.658542332119999},"rotation":{"_x":0.05186080617876933,"_y":-2.4143524702760613,"_z":0}},
       3000: {"position":{"_x":-4.428034873689916,"_y":1.374658707615629,"_z":5.673964767528411},"rotation":{"_x":0.018040232815208477,"_y":-3.730873577932433,"_z":0}}
@@ -115,10 +115,45 @@ export class CinemaCamera {
       0: cameraLocations.entrance,
       1000: cameraLocations.dj_from_the_bar,
       1800: {"position": {_isDirty: true, _x: 2.146117235439716, _y: 1.1943042196913987, _z: 2.5539031191146067}, "rotation": {_isDirty: true, _x: 0.03145491368223644, _y: -0.002670104918247234, _z: 0}},
-    };
+    }
     this.animations['Delete'] = {
-      0: {"position": {_isDirty: true, _x: 2.146117235439716, _y: 1.1943042196913987, _z: 2.5539031191146067}, "rotation": {_isDirty: true, _x: 0.03145491368223644, _y: -0.002670104918247234, _z: 0}},
-      1200: {"position": {_isDirty: true, _x: 2.168240283987669, _y: 4.97209498652936, _z: -7.88401117568601}, "rotation": {_isDirty: true, _x: 0.2214687683273271, _y: 0.014055259785063744, _z: 0} },
+      0: {"position":{"_isDirty":true,"_x":1.9395190946587675,"_y":5.160068262353645,"_z":-8.2696052792186},"rotation":{"_isDirty":true,"_x":0.24642075231332902,"_y":-0.0074007281515483005,"_z":0}},
+      600: {"position":{"_isDirty":true,"_x":2.038070732116679,"_y":1.6419935765379092,"_z":3.339420288906358},"rotation":{"_isDirty":true,"_x":0.24642075231332902,"_y":-0.0074007281515483005,"_z":0}},
+      1100: {"position":{"_isDirty":true,"_x":2.03,"_y":-1.691469161291151,"_z":14.7027337300417},"rotation":{"_isDirty":true,"_x":0.1294264264713332,"_y":-0.02096403607742966,"_z":0}},
+      1800: {"position":{"_isDirty":true,"_x":2.2887862595772344,"_y":-2.0109472465716154,"_z":33.21934985890574},"rotation":{"_isDirty":true,"_x":-0.05487164301885303,"_y":-6.293482274251859 + 6.2873,"_z":0}}
+    }
+
+    this.animations['PageUp'] = {
+      0: {"position":{"_isDirty":true,"_x":1.9395190946587675,"_y":5.160068262353645,"_z":-8.2696052792186},"rotation":{"_isDirty":true,"_x":0.24642075231332902,"_y":-0.0074007281515483005,"_z":0}},
+      600: {"position":{"_isDirty":true,"_x":2.038070732116679,"_y":1.6419935765379092,"_z":3.339420288906358},"rotation":{"_isDirty":true,"_x":0.24642075231332902,"_y":-0.0074007281515483005,"_z":0}},
+      1100: {"position":{"_isDirty":true,"_x":2.03,"_y":-1.691469161291151,"_z":14.7027337300417},"rotation":{"_isDirty":true,"_x":0.1294264264713332,"_y":-0.02096403607742966,"_z":0}},
+      1800: {"position":{"_isDirty":true,"_x":2.2887862595772344,"_y":-2.0109472465716154,"_z":33.21934985890574},"rotation":{"_isDirty":true,"_x":-0.05487164301885303,"_y":-6.293482274251859 + 6.2873,"_z":0}},
+      2100: {"position":{"_isDirty":true,"_x":0.2547010067807756,"_y":-2.0109472465875347,"_z":33.59393169575195},"rotation":{"_isDirty":true,"_x":-0.06626607591513599,"_y":-5.814486763427032 + 6.2873,"_z":0}},
+      2330: {"position":{"_isDirty":true,"_x":-0.7205212096997367,"_y":-2.0109472466327247,"_z":34.344687858252925},"rotation":{"_isDirty":true,"_x":-0.04933983675343261,"_y":-5.349608651432931 + 6.2873,"_z":0}},
+      2550: {"position":{"_isDirty":true,"_x":-1.3106881256245109,"_y":-2.0109472466338016,"_z":35.551011793066955},"rotation":{"_isDirty":true,"_x":-0.04575420019373735,"_y":-4.904082486752284 + 6.2873,"_z":0}},
+      2800: {"position":{"_isDirty":true,"_x":-1.4101219643868887,"_y":-2.0109472466269787,"_z":36.88018176353104},"rotation":{"_isDirty":true,"_x":-0.0469574038201771,"_y":-4.55196343402601 + 6.2873,"_z":0}},
+      3200: {"position":{"_isDirty":true,"_x":-0.5926464981996197,"_y":-2.0109472466571643,"_z":38.6544281795857},"rotation":{"_isDirty":true,"_x":-0.04836812935661411,"_y":-3.8194649892056467 + 6.2873,"_z":0}},
+      //1650: {"position":{"_isDirty":true,"_x":0.1993388433425757,"_y":-2.0109472466498652,"_z":39.132348114690124},"rotation":{"_isDirty":true,"_x":-0.06253849127055786,"_y":-3.316167530223296,"_z":0}},
+      3700: {"position":{"_isDirty":true,"_x":2.1455345338303466,"_y":-2.0109472466409613,"_z":39.20320501003402},"rotation":{"_isDirty":true,"_x":-0.06253849127055786,"_y":-3.136636880340385 + 6.28732,"_z":0}},
+      3800: {"position":{"_x":2.0499726788635653,"_y":-2.1777192712307554,"_z":36.6986384170193},"rotation":{"_x":-0.009194905390009198,"_y":-3.1550966077990497 + 6.28732,"_z":0}},
+      4400: {"position":{"_x":2.071731389224853,"_y":-2.162902796766129,"_z":20.58853095272788},"rotation":{"_x":-0.009194905390009198,"_y":-3.1550966077990497 + 6.28732,"_z":0}},
+    }
+
+    this.animations['PageDown'] = {
+      0: {"position":{"_x":11,"_y":1.3,"_z":-7},"rotation":{"_x":0,"_y":-1.0164888305933453,"_z":0}},
+      1000: {"position":{"_isDirty":true,"_x":2.1251189967526076,"_y":1.2208771854601852,"_z":-6.238300720821172},"rotation":{"_isDirty":true,"_x":0.03147837159750585,"_y":-0.020810469065661526,"_z":0}},
+      1600: {"position":{"_isDirty":true,"_x":2.038070732116679,"_y":1.6419935765379092,"_z":3.339420288906358},"rotation":{"_isDirty":true,"_x":0.24642075231332902,"_y":-0.0074007281515483005,"_z":0}},
+      2100: {"position":{"_isDirty":true,"_x":2.03,"_y":-1.691469161291151,"_z":14.7027337300417},"rotation":{"_isDirty":true,"_x":0.1294264264713332,"_y":-0.02096403607742966,"_z":0}},
+      2800: {"position":{"_isDirty":true,"_x":2.2887862595772344,"_y":-2.0109472465716154,"_z":33.21934985890574},"rotation":{"_isDirty":true,"_x":-0.05487164301885303,"_y":-6.293482274251859 + 6.2873,"_z":0}},
+      3100: {"position":{"_isDirty":true,"_x":0.2547010067807756,"_y":-2.0109472465875347,"_z":33.59393169575195},"rotation":{"_isDirty":true,"_x":-0.06626607591513599,"_y":-5.814486763427032 + 6.2873,"_z":0}},
+      3330: {"position":{"_isDirty":true,"_x":-0.7205212096997367,"_y":-2.0109472466327247,"_z":34.344687858252925},"rotation":{"_isDirty":true,"_x":-0.04933983675343261,"_y":-5.349608651432931 + 6.2873,"_z":0}},
+      3550: {"position":{"_isDirty":true,"_x":-1.3106881256245109,"_y":-2.0109472466338016,"_z":35.551011793066955},"rotation":{"_isDirty":true,"_x":-0.04575420019373735,"_y":-4.904082486752284 + 6.2873,"_z":0}},
+      3800: {"position":{"_isDirty":true,"_x":-1.4101219643868887,"_y":-2.0109472466269787,"_z":36.88018176353104},"rotation":{"_isDirty":true,"_x":-0.0469574038201771,"_y":-4.55196343402601 + 6.2873,"_z":0}},
+      4200: {"position":{"_isDirty":true,"_x":-0.5926464981996197,"_y":-2.0109472466571643,"_z":38.6544281795857},"rotation":{"_isDirty":true,"_x":-0.04836812935661411,"_y":-3.8194649892056467 + 6.2873,"_z":0}},
+      //1650: {"position":{"_isDirty":true,"_x":0.1993388433425757,"_y":-2.0109472466498652,"_z":39.132348114690124},"rotation":{"_isDirty":true,"_x":-0.06253849127055786,"_y":-3.316167530223296,"_z":0}},
+      4700: {"position":{"_isDirty":true,"_x":2.1455345338303466,"_y":-2.0109472466409613,"_z":39.20320501003402},"rotation":{"_isDirty":true,"_x":-0.06253849127055786,"_y":-3.136636880340385 + 6.28732,"_z":0}},
+      4800: {"position":{"_x":2.0499726788635653,"_y":-2.1777192712307554,"_z":36.6986384170193},"rotation":{"_x":-0.009194905390009198,"_y":-3.1550966077990497 + 6.28732,"_z":0}},
+      5400: {"position":{"_x":2.071731389224853,"_y":-2.162902796766129,"_z":20.58853095272788},"rotation":{"_x":-0.009194905390009198,"_y":-3.1550966077990497 + 6.28732,"_z":0}},
     }
 
     this.autoLoopSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -189,22 +224,26 @@ export class CinemaCamera {
   }
   play(animationNumber, startDelay) {
 
+    if(document.querySelector("#autoloop-sequence") && document.querySelector("#autoloop-sequence").value !== '') {
+      this.autoLoopSequence = document.querySelector("#autoloop-sequence").value.replace(/' '/g,'').split(",").map(n => isNaN(n) ? n : parseInt(n));
+    }
+
     this.stopAnimationChain();
     this.camera.animations = [];
 
     this.startDelay = startDelay ? startDelay : this.defaultStartDelay;
     let frames = this.buildAnimationFrames(this.animations[animationNumber]);
 
-    let callback = () => {
-      this.nextAnimationTimeout = setTimeout(() => {
-        var autoLoopIndex = this.autoLoopSequence.indexOf(animationNumber);
+    let callback = function() {
+      this.nextAnimationTimeout = setTimeout(function () {
+        var autoLoopIndex = this.autoLoopSequence.indexOf(parseInt(animationNumber));
         var nextAnimation = this.autoLoopSequence[autoLoopIndex + 1];
         if(nextAnimation) {
           this.play(nextAnimation)
         } else {
           this.play(this.autoLoopSequence[0])
         }
-      }, 10000)
+      }.bind(this), 10000)
     }
 
     this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback.bind(this));

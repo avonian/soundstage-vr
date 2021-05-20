@@ -10,6 +10,14 @@ export class AdminControls {
     let event = { action: 'toggleUserWebcam', soundStageUserId: soundStageUserId };
     this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
   }
+  kickUser(soundStageUserId) {
+    let event = { action: 'kickUser', soundStageUserId: soundStageUserId };
+    this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
+  }
+  banUser(soundStageUserId) {
+    let event = { action: 'banUser', soundStageUserId: soundStageUserId };
+    this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
+  }
   async execute( event ) {
     switch(event.action) {
       case 'toggleUserMic':
@@ -32,6 +40,16 @@ export class AdminControls {
             }
           }
           document.querySelector("#btn-webcam").click();
+        }
+        break;
+      case 'kickUser':
+        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+          window.location.href += (window.location.href.indexOf("?") === -1 ? "?" : "&") + 'kicked';
+        }
+        break;
+      case 'banUser':
+        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+          window.location.href += (window.location.href.indexOf("?") === -1 ? "?" : "&") + 'banned';
         }
         break;
     }

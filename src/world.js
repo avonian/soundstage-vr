@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(eventConfig, userSettings) {
     super();
-    this.file = 'Night_Club-5may-21-25b.glb';
+    this.file = 'Night_Club-14may.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -145,12 +145,15 @@ export class NightClub extends World {
 
     // First person camera:
 
-    let spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(2.130480415252164, -2.4808838319778443, 38.82915151558704) : new BABYLON.Vector3(11, this.videoAvatarSize*2+this.avatarHeight, -7);
-    this.camera1 = new BABYLON.UniversalCamera("First Person Camera", spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575);
+    this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(0,1,-5);
+
+    this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     this.camera1.maxZ = 100000;
     this.camera1.minZ = 0;
-    this.camera1.setTarget(new BABYLON.Vector3(0,3,0));
+
+    this.camera1.setTarget(this.spawnTarget);
     this.camera1.applyGravity = true;
     this.camera1.speed = 0.07;
     //in this space, 0.5 is minimum size that phisically makes sense, thus avatarSize*2:
@@ -400,7 +403,7 @@ export class NightClub extends World {
     tunnelSegment2.material.environmentIntensity = 0.3;
 
     if(this.eventConfig.hideDefaultPosters) {
-      let meshesToDispose = ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS'].map(name => this.scene.getMeshByName(name));
+      let meshesToDispose = ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS', 'PosterVIPR'].map(name => this.scene.getMeshByName(name));
       meshesToDispose.forEach(m => {
         m.material.emissiveTexture.dispose()
         m.material.dispose();
@@ -806,6 +809,10 @@ export class NightClub extends World {
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
     document.addEventListener('keydown', (event) => {
+      if(event.key === '/') {
+        this.cineCam.showHideUI(!document.body.querySelector(".ui-hide").classList.contains('hidden'));
+        return;
+      }
       if(event.key === '*') {
         this.cineCam.pauseOnOff();
         return;
@@ -883,7 +890,7 @@ export class NightClub extends World {
       window.audioGainNode.connect(audioStreamDestination);
 
       /* Apply custom value */
-      window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
+      // window.audioGainNode.gain.setValueAtTime(1 + (this.userSettings.stereoGainBoost / 100), window.audioContext.currentTime);
 
       window.audioStream = audioStreamDestination.stream;
 
@@ -937,7 +944,22 @@ export class NightClub extends World {
     if ( this.mediaStreams.audioSource && this.mediaStreams.startAudio ) {
       let { audioStream, stereo } = await this.getAudioStreamSettings(audioDeviceId, computerAudioStream);
       await this.hifi.setInputAudioMediaStream(audioStream, stereo);
-      this.hifi._inputAudioMediaStream.isStereo = stereo;
+
+      let voiceSettings = {
+        isStereo: false,
+        hiFiGain: 1,
+        userAttenuation: 0
+      };
+      let stereoSettings = {
+        isStereo: true,
+        hiFiGain: 0.2 + (this.userSettings.stereoGainBoost / 100),
+        userAttenuation: 0.0000001,
+        userRolloff: 999999,
+        volumeThreshold: -96
+      };
+      let settings = stereo ? stereoSettings : voiceSettings;
+      this.hifi.updateUserDataAndTransmit(settings)
+      this.hifi._inputAudioMediaStream.isStereo = stereo; // even though this isn't needed for hifi we do it because spatializeAudio looks for this (will revisit)
     }
 
     let isStereoSubscription = new HighFidelityAudio.UserDataSubscription({
@@ -1005,8 +1027,6 @@ export class NightClub extends World {
       // and now bind that output somewhere
       outputElement.srcObject = outputStream;
       outputElement.play();
-      // Disable auto-muting while stereo broadcasting
-      this.hifi._currentHiFiAudioAPIData.volumeThreshold = this.userSettings.enableStereo ? -96 : null
     });
   }
 
@@ -1032,9 +1052,9 @@ export class NightClub extends World {
         yawDegrees: 0
       },
       position: {
-        x: 2.1675716757014136,
-        y: 1.079573474549019,
-        z: 4.359327756668091
+        x: -2.1,
+        y: 1.2,
+        z: 4.8
       }
     }
     if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
@@ -1317,6 +1337,16 @@ export class NightClub extends World {
         tempMesh.material.albedoTexture.uOffset +=0.003;
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
+    }
+    // for VIP portal door
+    if (event.key === "v") {
+      let tempMesh = this.scene.getMeshByName("portal-door-top");
+      let tempMeshEmiss = this.scene.getMeshByName("portal-door-emissive");
+      console.log("portal-door 1");
+      tempMesh.visibility = 0;
+      tempMesh.isPickable = false;
+      tempMeshEmiss.visibility = 0;
+      tempMeshEmiss.isPickable = false;
     }
   }
 
