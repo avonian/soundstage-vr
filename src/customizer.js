@@ -133,6 +133,7 @@ export class Customizer {
                       }
                       VRSPACEUI.updateAnimation(this.animateCamera, this.world.camera1.position.clone(), this.world.camera1.returnPosition);
                       this.world.camera1LookAt = this.world.camera1.returnCameraTarget.position;
+                      document.querySelector("#auction-panel").classList.remove('opacity-100');
                       setTimeout(() => {
                         this.world.viewingMedia = false;
                         this.world.viewingMediaMesh = false;
@@ -174,6 +175,7 @@ export class Customizer {
                   setTimeout(() => {
                     // Start playing video
                     this.world.camera1LookAt = false;
+                    document.querySelector("#auction-panel").classList.add('opacity-100');
                     videoTexture.video.play();
                   }, 1500)
                 }
