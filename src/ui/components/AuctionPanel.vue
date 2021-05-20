@@ -12,7 +12,7 @@
             To: "translate-x-full"
         -->
         <div class="w-screen max-w-md">
-            <div class="h-full flex flex-col bg-alt-primary shadow-xl overflow-y-scroll">
+            <div class="h-full flex flex-col bg-alt-primary shadow-xl overflow-y-hidden">
                 <div class="px-4 py-6 sm:px-6">
                     <div class="flex items-start justify-between">
                         <h2 id="slide-over-heading" class="text-lg font-medium text-white">
