@@ -21,7 +21,7 @@
         @connect="apply"/>
     <!-- Main app start -->
     <div class="min-h-screen" v-else>
-        <AuctionPanel/>
+        <Showcase/>
         <QuickStart v-if="showHelp"
                 @continue="showHelp = false"/>
         <LocalCamera v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0"
@@ -129,7 +129,7 @@
   import WelcomeScreen from './components/WelcomeScreen'
   import AvatarMenu from './components/AvatarMenu'
   import Modal from './components/Modal'
-  import AuctionPanel from './components/AuctionPanel'
+  import Showcase from './components/Showcase'
   import browser from 'browser-detect';
 
   // variables required to use babylon.js:
@@ -188,7 +188,7 @@
       UserControls,
       WelcomeScreen,
       AvatarMenu,
-      AuctionPanel,
+      Showcase,
       Modal
     },
     data () {
