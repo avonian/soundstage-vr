@@ -197,6 +197,10 @@ export default {
         'author': 'Luigi Tasso',
         'image': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
         'description': '<p>Galaxy A is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
+        'auction': {
+          'price': '0.15 ETH',
+          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
+        }
       }
     }, {
       'name': 'Electrons',
@@ -212,6 +216,10 @@ export default {
         'title': 'Electrons',
         'author': 'Luigi Tasso',
         'description': '<p>Electrons is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
+        'auction': {
+          'price': '0.15 ETH',
+          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
+        }
       }
     }, {
       'name': 'Space Time',
@@ -227,6 +235,10 @@ export default {
         'title': 'Spacce & Time',
         'author': 'Luigi Tasso',
         'description': '<p>Space & Time is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
+        'auction': {
+          'price': '0.15 ETH',
+          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
+        }
       }
     }
   ]

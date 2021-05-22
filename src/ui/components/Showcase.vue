@@ -47,7 +47,7 @@
                                     <div class="showcase-auction">
                                         <div class="flex items-center"><div class="font-normal text-white mt-3">Current Bid: <span class="font-bold" id="showcase-price"></span></div></div>
                                         <div class="mt-4 flex flex-wrap space-y-3 sm:space-y-0 sm:space-x-3 showcase-auction">
-                                            <a href="" id="showcase-cta" class="flex-shrink-0 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:flex-1">
+                                            <a href="" target="_blank" id="showcase-cta" class="flex-shrink-0 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:flex-1">
                                                 Place a Bid
                                             </a>
                                         </div>
