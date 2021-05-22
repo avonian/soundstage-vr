@@ -108,7 +108,7 @@ export class Customizer {
                     pickedMesh.video_url,
                     this.world.scene, true, true, null, {
                       autoUpdateTexture: true,
-                      autoPlay: false,
+                      autoPlay: true,
                       muted: false,
                       loop: false
                     });
