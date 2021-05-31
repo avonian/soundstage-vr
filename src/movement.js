@@ -70,6 +70,9 @@ export class Movement {
 
   // keyboard event handler - camera rotation control, 3rd person movement
   handleUniCamKeys(kbInfo) {
+    if(this.disableMovement) {
+      return;
+    }
     switch (kbInfo.type) {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
         //console.log("KEY DOWN: ", kbInfo.event.key);
@@ -127,6 +130,9 @@ export class Movement {
   }
 
   handleArcCamKeys(kbInfo) {
+    if(this.disableMovement) {
+      return;
+    }
     switch (kbInfo.type) {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
         //console.log("KEY DOWN: ", kbInfo.event.key, " directions: "+this.movingDirections);
@@ -302,20 +308,13 @@ export class Movement {
 
   }
   handleMediaViewerKeys(kbInfo) {
-    if (this.world.viewingMediaMesh.material) {
-      let video = this.world.viewingMediaMesh.material.emissiveTexture.video;
-      switch (kbInfo.type) {
-        case BABYLON.KeyboardEventTypes.KEYDOWN:
-        case "w":
-        case "W":
-        case "s":
-        case "S":
-        case "a":
-        case "A":
-        case "d":
-        case "D":
-          if (video) {
-            video.pause();
+    if (this.world.viewingMedia && this.disableMovement === true) {
+      switch (kbInfo.event.key) {
+        case "Escape":
+          try {
+            this.world.viewingMediaMesh.material.emissiveTexture.video.pause();
+          } catch (error) {
+            this.world.customizer.returnToStartingPosition();
           }
           break;
       }
@@ -449,6 +448,24 @@ export class Movement {
     this.movementDirection = this.movementTarget.subtract(avatar.position);
     console.log("Moving from "+avatar.position+" to "+this.movementTarget+" direction "+this.movementDirection);
     this.movingToTarget = true;
+  }
+
+  enableKeys() {
+    this.world.camera1.keysDown = [83]; // S
+    this.world.camera1.keysLeft = [65]; // A
+    this.world.camera1.keysRight = [68]; // D
+    this.world.camera1.keysUp = [87]; // W
+    this.world.camera1.keysUpward = [32]; // space
+    this.disableMovement = false;
+  }
+
+  disableKeys() {
+    this.world.camera1.keysDown = [];
+    this.world.camera1.keysLeft = [];
+    this.world.camera1.keysRight = [];
+    this.world.camera1.keysUp = [];
+    this.world.camera1.keysUpward = [];
+    this.disableMovement = true;
   }
 
 }

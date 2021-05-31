@@ -1,3 +1,5 @@
+import Utilities from './utilities'
+
 export class CinemaCamera {
   constructor (camera, scene, defaultStartDelay = 200) {
     this.camera = camera;
@@ -201,7 +203,7 @@ export class CinemaCamera {
       if(event.key !== "Escape") {
         return;
       } else {
-        this.showHideUI(false)
+        Utilities.showHideUI(false)
       }
     }
     if(this.activeAnimation) {
@@ -247,19 +249,9 @@ export class CinemaCamera {
     }
 
     this.activeAnimation = this.scene.beginAnimation(this.camera, 0, frames[frames.length - 1] + this.startDelay, false, 1, callback.bind(this));
-    this.showHideUI();
+    Utilities.showHideUI();
     document.removeEventListener('keydown', this.stopAnimationChain.bind(this))
     document.addEventListener('keydown', this.stopAnimationChain.bind(this));
-  }
-  showHideUI(hide = true) {
-    var controls = document.body.querySelectorAll(".ui-hide");
-    for(var el of controls) {
-      if(hide) {
-        el.classList.add('hidden');
-      } else {
-        el.classList.remove('hidden');
-      }
-    }
   }
 }
 

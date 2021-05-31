@@ -161,11 +161,7 @@ export class NightClub extends World {
     this.camera1.ellipsoidOffset = new BABYLON.Vector3(0, this.videoAvatarSize + this.avatarHeight, 0);
     this.camera1.checkCollisions = true;
 
-    this.camera1.keysDown = [83]; // S
-    this.camera1.keysLeft = [65]; // A
-    this.camera1.keysRight = [68]; // D
-    this.camera1.keysUp = [87]; // W
-    this.camera1.keysUpward = [32]; // space
+    this.movement.enableKeys();
     console.log("1st Person Camera:")
     console.log(this.camera1);
 

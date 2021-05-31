@@ -71,6 +71,10 @@
             </div>
         </div>
     </div>
+
+    <div id="showcase-message" class="fixed bottom-0 flex justify-center w-full transform transition ease-in-out duration-500 sm:duration-700 z-50 translate-y-0 translate-y-full">
+        <div class="mb-14 rounded-lg px-3 py-2 text-2xl">To exit press the "Escape" key.</div>
+    </div>
 </template>
 
 <script>
@@ -78,8 +82,19 @@
 export default {
   methods: {
     exit() {
-      document.querySelector("#app")._vnode.component.data.world.viewingMediaMesh.material.emissiveTexture.video.pause();
+      var world = document.querySelector("#app")._vnode.component.data.world;
+      try {
+        world.viewingMediaMesh.material.emissiveTexture.video.pause();
+      } catch (error) {
+        world.customizer.returnToStartingPosition();
+      }
     }
   }
 }
 </script>
+
+<style scoped>
+    #showcase-message > div {
+        background-color: rgba(0,0,0, 0.35);
+    }
+</style>
