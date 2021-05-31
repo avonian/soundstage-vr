@@ -7,7 +7,7 @@ export default {
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
-    'stage_controls': false
+    'stage_controls': true
   },
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
@@ -249,6 +249,9 @@ export default {
           'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
         }
       }
-    }
+    },
+    {"name": "LandscapePoster3", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 3.1, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/landscape-poster-3.jpg", "rotationY": -90},
+    {"name": "LansdscapeGalaxyLogo", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 3.25, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/landscape-galaxy-logo.jpg", "rotationY": 0},
+    {"name": "VerticalPoster5", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.6, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/vertical-poster-5.jpg", "rotationY": 90}
   ]
 }
