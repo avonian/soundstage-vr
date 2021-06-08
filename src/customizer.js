@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './vrspace-babylon'
+import { VRSPACEUI } from './vrspace'
 import Utilities from './utilities'
 
 export class Customizer {

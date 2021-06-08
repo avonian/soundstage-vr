@@ -1,4 +1,3 @@
-import { VideoAvatar } from './vrspace-babylon.js';
 import HoloAvatar from './holo-avatar'
 
 export class DummyAvatar extends HoloAvatar {

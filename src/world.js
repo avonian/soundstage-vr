@@ -1,4 +1,4 @@
-import { World, WorldManager, VRSPACEUI, VRObject, VRSPACE } from './vrspace-babylon.js';
+import { World, WorldManager, VRSPACEUI, VRSPACE } from './vrspace';
 import CinemaCamera from './cinema-camera';
 import AdminControls from './admin-controls';
 import StageControls from './stage-controls';

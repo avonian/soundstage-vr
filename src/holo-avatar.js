@@ -1,4 +1,4 @@
-import { VideoAvatar } from './vrspace-babylon.js';
+import { VideoAvatar } from './vrspace';
 
 export class HoloAvatar extends VideoAvatar {
   show(otherUser = true) {

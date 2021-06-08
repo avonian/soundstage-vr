@@ -130,7 +130,7 @@
 </template>
 
 <script>
-    import { VRSPACEUI } from '../../vrspace-babylon'
+    import { VRSPACEUI } from '../../vrspace'
 
     export default {
       name: "StageControls",
