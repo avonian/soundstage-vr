@@ -1,4 +1,4 @@
-import { World, WorldManager, VRSPACEUI, VRSPACE } from './vrspace';
+import { World, WorldManager, VRSPACEUI, VRSPACE } from '@avonian/vrspace-frontend';
 import CinemaCamera from './cinema-camera';
 import AdminControls from './admin-controls';
 import StageControls from './stage-controls';

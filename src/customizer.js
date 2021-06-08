@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './vrspace'
+import { VRSPACEUI } from '@avonian/vrspace-frontend'
 import Utilities from './utilities'
 
 export class Customizer {

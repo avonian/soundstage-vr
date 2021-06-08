@@ -130,7 +130,7 @@
 </template>
 
 <script>
-    import { VRSPACEUI } from '../../vrspace'
+    import { VRSPACEUI } from '@avonian/vrspace-frontend'
 
     export default {
       name: "StageControls",

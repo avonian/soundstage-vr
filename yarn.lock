@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@avonian/vrspace-frontend@1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@avonian/vrspace-frontend/1.0.0/6eb303717b39b9e21c66087a974875baf5945f8184baae44bc55dac6630d0e17#c9234f224b1d826958453f09c48466b1dfb35a87"
+  integrity sha512-sqs1gNLr8xYE8Wbgy7evhUwP1q/OAyjw6eNCCfiNSQbghYwNOWeIjc6on0Zvl7ljCUTBn6c34Kbya73GwfC3PA==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13":
   version "7.12.13"
   resolved "https://registry.npm.taobao.org/@babel/code-frame/download/@babel/code-frame-7.12.13.tgz#dcfc826beef65e75c50e21d3837d7d95798dd658"

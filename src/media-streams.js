@@ -1,5 +1,5 @@
 import mediasoup from './mediasoup';
-import { MediaStreams } from './vrspace';
+import { MediaStreams } from '@avonian/vrspace-frontend';
 
 export class MediaSoup extends MediaStreams {
 

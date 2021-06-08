@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './vrspace';
+import { VRSPACEUI } from '@avonian/vrspace-frontend';
 
 export class Emoji {
   constructor( filename, baseUrl, scene ) {
