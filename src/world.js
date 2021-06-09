@@ -379,7 +379,8 @@ export class NightClub extends World {
     DJShield._scaling.x = 3.3;
     DJShield._scaling.y = 3.3;
     DJShield._scaling.z = 3.3;
-    DJShield.checkCollisions = this.permissions.stage_controls !== true && this.permissions['access_tunnel'] !== true;
+    //DJShield.checkCollisions = this.permissions.stage_controls !== true && this.permissions['access_tunnel'] !== true;
+    DJShield.checkCollisions = false;
     DJShield.visibility = 0;
     if ( this.afterLoad ) {
       this.afterLoad();
@@ -390,7 +391,8 @@ export class NightClub extends World {
     tunnelShield.position.x = 2;
     tunnelShield.position.y = -2;
     tunnelShield.position.z = 33.207;
-    tunnelShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['access_tunnel'] !== true;
+    // tunnelShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['access_tunnel'] !== true;
+    tunnelShield.checkCollisions = false;
     tunnelShield.visibility = 0
 
     let tunnelSegment1 = this.scene.getMeshByName("Cube.3")
