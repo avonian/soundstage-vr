@@ -1,4 +1,4 @@
-import { VideoAvatar } from '@avonian/vrspace-frontend';
+import { VideoAvatar } from '@avonian/vrspace-frontend/src/lib/index-min';
 
 export class HoloAvatar extends VideoAvatar {
   show(otherUser = true) {
