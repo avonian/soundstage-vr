@@ -396,9 +396,9 @@ export class Customizer {
     let vipEntrance = this.world.scene.getMeshByName('portal-door-top');
     let vipEntranceEmissive = this.world.scene.getMeshByName('portal-door-emissive');
     if(!this.eventConfig.permissions.access_backstage) {
-      vipEntrance.dispose();
-      vipEntranceEmissive.dispose();
-      return;
+      //vipEntrance.dispose();
+      //vipEntranceEmissive.dispose();
+      //return;
     }
     var doorPosition = { "x": "8.598", "y": "0.756", "z": "-8.659"};
     vipEntrance._rotationQuaternion._w = 6.123233995736766e-17;

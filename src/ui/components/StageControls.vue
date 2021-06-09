@@ -207,7 +207,7 @@
             document.querySelector("#saveState").click();
           }
 
-          let stop = this.stopAudioTrack();
+          //let stop = this.stopAudioTrack();
 
           setTimeout(() => {
             console.log('Dimming lights');
@@ -216,7 +216,7 @@
           }, 0);
 
           setTimeout(async () => {
-            await this.switchAudioTrack("Kill-Paris-Intro.mp3", true);
+            await this.switchAudioTrack("Intro.mp3", true);
             setTimeout(() => {
               console.log('Playing audio/video');
               this.$emit('activateVideo', 1);
@@ -261,7 +261,7 @@
               this.playingIntro = false;
             }, 100000);
 
-          }, 30000);
+          }, 0);
         },
         async stopAudioTrack() {
           return new Promise(async (resolve) => {
