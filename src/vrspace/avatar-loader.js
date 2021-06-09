@@ -7,7 +7,6 @@ var avatars = [];
 
 export class AvatarLoader extends AvatarSelection {
   createSelection() {
-    this.indicator = new LoadProgressIndicator(scene, this.camera);
     this.manager = new BABYLON.GUI.GUI3DManager(scene);
     VRSPACEUI.debug = true;
     VRSPACEUI.listMatchingFiles( '../content/char/', (folders) => {
@@ -54,7 +53,8 @@ export class AvatarLoader extends AvatarSelection {
         indicator.remove(avatar);
 
         avatar.setPosition(pos);
-        avatar.setRotation( new BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y,Math.PI+angle));
+        // CHECKME GLTF characters are facing the user when loaded
+        avatar.setRotation( new BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y,angle));
 
         if ( callback ) {
           callback( avatar );
@@ -67,8 +67,8 @@ export class AvatarLoader extends AvatarSelection {
   
   createAvatarUI(avatar, manager) {
 
-    var pos = avatar.rootMesh.position;
-    var rot = avatar.rootMesh.rotationQuaternion.multiply(new BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y,Math.PI));
+    var pos = avatar.parentMesh.position;
+    var rot = avatar.parentMesh.rotationQuaternion;
 
     var text = new BABYLON.GUI.TextBlock();
     text.text = "Avatar: "+avatar.folder.name;
