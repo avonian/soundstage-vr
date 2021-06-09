@@ -216,7 +216,7 @@
           }, 0);
 
           setTimeout(async () => {
-            await this.switchAudioTrack("Intro.mp3", true);
+            await this.switchAudioTrack("Kill-Paris-Intro.mp3", true);
             setTimeout(() => {
               console.log('Playing audio/video');
               this.$emit('activateVideo', 1);
