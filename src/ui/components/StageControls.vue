@@ -207,7 +207,7 @@
             document.querySelector("#saveState").click();
           }
 
-          let stop = this.stopAudioTrack();
+          //let stop = this.stopAudioTrack();
 
           setTimeout(() => {
             console.log('Dimming lights');
@@ -261,7 +261,7 @@
               this.playingIntro = false;
             }, 100000);
 
-          }, 30000);
+          }, 0);
         },
         async stopAudioTrack() {
           return new Promise(async (resolve) => {
