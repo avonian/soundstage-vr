@@ -130,7 +130,7 @@
 </template>
 
 <script>
-    import { VRSPACEUI } from '../../vrspace'
+    import { VRSPACEUI } from '../../vrspace/index-min'
 
     export default {
       name: "StageControls",

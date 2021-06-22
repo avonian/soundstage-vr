@@ -1,4 +1,4 @@
-import { VideoAvatar } from './vrspace';
+import { VideoAvatar } from './vrspace/index-min';
 
 export class HoloAvatar extends VideoAvatar {
   show(otherUser = true) {

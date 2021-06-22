@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './vrspace';
+import { VRSPACEUI } from './vrspace/index-min';
 
 export class Emoji {
   constructor( filename, baseUrl, scene ) {

@@ -1,5 +1,5 @@
 import mediasoup from './mediasoup';
-import { MediaStreams } from './vrspace';
+import { MediaStreams } from './vrspace/index-min';
 
 export class MediaSoup extends MediaStreams {
 

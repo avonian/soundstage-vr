@@ -1,27 +1,55 @@
+import { VRSPACEUI } from './vrspace-ui.js';
+/**
+GLTF 3D Avatar.
+Once GLTF file is loaded, skeleton is inspected for existing arms, legs and head that can be animated.
+Animation groups are also inspected and optionally modified.
+Optional fixes can be applied to an avatar, typically position of an avatar, or changing the animation.
+ */
 export class Avatar {
+  /**
+  @param scene
+  @param folder ServerFolder with the content
+  @param shadowGenerator optional to cast shadows
+   */
   constructor(scene, folder, shadowGenerator) {
     // parameters
     this.scene = scene;
+    /** ServerFolder with content path */
     this.folder = folder;
+    /** Optional ShadowGenerator */
     this.shadowGenerator = shadowGenerator;
+    /** Mirror mode, default true. (Switch left/right side) */
     this.mirror = true;
+    /** Animation frames per second, default 10 */
     this.fps = 10;
+    /** Name of the avatar/user */
+    this.name = 'test';
+    /** Height of the user, default 1.8 */
     this.userHeight = 1.8;
+    /** Height of the ground, default 0 */
     this.groundHeight = 0;
+    /** Object containing fixes */
     this.fixes = null;
+    /** Wheter to generate animations for arm movement, default true */
     this.animateArms = true;
-    // author, license, source, title
+    /** Object containing author, license, source, title */
     this.info = null;
     // state variables
+    /** Once the avatar is loaded an processed, body contains body parts, e.g. body.leftArm, body.rightLeg, body.neck */
+    this.body = {};
+    /** Contains the skeleton once the avatar is loaded and processed */
+    this.skeleton = null;
+    /** Parent mesh of the avatar, used for movement and attachment */
+    this.parentMesh = null;
+    /** Original root mesh of the avatar, used to scale the avatar */
+    this.rootMesh = null;
     this.bonesTotal = 0;
     this.bonesProcessed = [];
     this.bonesDepth = 0;
     this.animationTargets = [];
-    this.body = {};
     this.character = null;
     this.activeAnimation = null;
-    this.rootMesh = null;
-    // debug
+    /** Debug output, default false */
     this.debug = false;
     this.debugViewer1;
     this.debugViewer2;
@@ -114,6 +142,7 @@ export class Avatar {
     }
   }
 
+  /** Dispose of everything */
   dispose() {
     this.character.dispose();
     if ( this.debugViewer1 ) {
@@ -122,9 +151,24 @@ export class Avatar {
     if ( this.debugViewer2 ) {
       this.debugViewer2.dispose();
     }
+    if ( this.nameTag ) {
+      this.nameTag.dispose();
+    }
+    if ( this.nameMesh ) {
+      this.nameMesh.dispose();
+      this.nameParent.dispose();
+    }
+    if (this.textParent) {
+      this.textParent.dispose();
+      this.textParent = null;
+    }
     // TODO also dispose of materials and textures (asset container)
   }
 
+  /** 
+  Utility method, dispose of avatar and return this one.
+  @param avatar optional avatar to dispose of
+   */
   replace(avatar) {
     if (avatar) {
       avatar.dispose();
@@ -155,6 +199,8 @@ export class Avatar {
       // Adds all elements to the scene
       container.addAllToScene();
       this.castShadows( this.shadowGenerator );
+      // FIXME throws too much exceptions
+      //VRSPACEUI.optimizeScene(this.scene);
 
       // try to place feet on the ground
       // CHECKME is this really guaranteed to work in every time?
@@ -176,6 +222,7 @@ export class Avatar {
         this.processBones(this.skeleton.bones);
         this.log( "Head position: "+this.headPos());
         this.initialHeadPos = this.headPos();
+        this.resize();
 
         //this.log(this.body);
         this.bonesProcessed.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
@@ -211,11 +258,18 @@ export class Avatar {
         this.groundLevel(this.fixes.standing);
       }
 
+      this.parentMesh = container.createRootMesh();
+      this.parentMesh.rotationQuaternion = new BABYLON.Quaternion();
+
       if ( onSuccess ) {
         onSuccess(this);
       }
   }
 
+  /**
+  Load fixes from json file in the same folder, with the same name, and suffix .fixes.
+  Called from load().
+   */
   async loadFixes() {
     if ( this.folder.related ) {
       this.log('Loading fixes from '+this.folder.baseUrl+"/"+this.folder.related);
@@ -229,6 +283,13 @@ export class Avatar {
     }
   }
 
+  /** 
+  Slice an animation group
+  @param group AnimationGroup to slice
+  @param start starting key
+  @param end ending key
+  @returns new AnimationGroup containing slice of original animations
+  */
   sliceGroup( group, start, end ) {
     var newGroup = new BABYLON.AnimationGroup(group.name+":"+start+"-"+end);
     for ( var i = 0; i < group.targetedAnimations.length; i++ ) {
@@ -240,6 +301,13 @@ export class Avatar {
     return newGroup;
   }
 
+  /** 
+  Slice an animation
+  @param animation Animation to slice
+  @param start starting key
+  @param end ending key
+  @returns new Animation containing slice of original animation
+  */
   sliceAnimation(animation, start, end) {
     var keys = animation.getKeys();
     var slice = [];
@@ -259,6 +327,10 @@ export class Avatar {
     return ret;
   }
 
+  /** 
+  Returns all animation groups of this avatar.
+  Applies fixes first, if any.
+  */
   getAnimationGroups() {
     if (!this.animationGroups) {
       var loopAnimations = true;
@@ -302,20 +374,28 @@ export class Avatar {
     return this.animationGroups;
   }
 
+  /** Returns file name of this avatar, consisting of folder name and scene file name */
   getUrl() {
     return this.folder.url()+"/scene.gltf";
   }
   
+  /**
+  Loads the avatar.
+  @param success callback to execute on success
+  @param progress optional progress indicator, passed progress event
+  @param failure TODO
+   */
   load(success, progress, failure) {
     this.loadFixes().then( () => {
       this.log("loading from "+this.folder.url());
-      var avatar = this;
       var plugin = BABYLON.SceneLoader.LoadAssetContainer(
         this.folder.baseUrl+this.folder.name+"/",
         "scene.gltf",
         this.scene,
         // onSuccess:
-        (container) => avatar._processContainer(container,success),
+        (container) => {
+          this._processContainer(container,success)
+        },
         // onProgress:
         (evt) => {
           if ( progress ) {
@@ -325,18 +405,23 @@ export class Avatar {
       );
       plugin.onParsedObservable.add(gltfBabylon => {
           var manifest = gltfBabylon.json;
-          avatar.info = manifest.asset.extras;
+          this.info = manifest.asset.extras;
       });
       return plugin;
     });
   }
 
+  /** Returns position of the the head 'bone' */
   headPos() {
     var head = this.skeleton.bones[this.body.head];
     var headPos = head.getAbsolutePosition().scale(this.rootMesh.scaling.x).add(this.rootMesh.position);
     return headPos;
   }
 
+  /** 
+  Returns absolute value of vector, i.e. Math.abs() of every value
+  @param vec Vector3 to get absolute
+   */
   absVector(vec) {
     var ret = new BABYLON.Vector3();
     ret.x = Math.abs(vec.x);
@@ -345,20 +430,33 @@ export class Avatar {
     return ret;
   }
 
+  /**
+  Returns rounded value of vector, i.e. Math.round() of every value
+  @param vec Vector3 to round
+   */
   roundVector(vec) {
     vec.x = Math.round(vec.x);
     vec.y = Math.round(vec.y);
     vec.z = Math.round(vec.z);
   }
 
+  /**
+  Look at given target. Head position is calculated without any bone limits.
+  @param t target Vector3
+   */
   lookAt( t ) {
     var head = this.skeleton.bones[this.body.head];
 
     // calc target pos in coordinate system of head
-    var target = new BABYLON.Vector3( t.x, t.y, t.z ).subtract(this.rootMesh.position);
-    target.rotateByQuaternionToRef(BABYLON.Quaternion.Inverse(this.rootMesh.rotationQuaternion),target);
+    var totalPos = this.parentMesh.position.add(this.rootMesh.position);
+    var totalRot = this.rootMesh.rotationQuaternion.multiply(this.parentMesh.rotationQuaternion);
+    var target = new BABYLON.Vector3( t.x, t.y, t.z ).subtract(totalPos);
 
-    var targetVector = target.subtract(this.headPos()).subtract(this.rootMesh.position);
+    target.rotateByQuaternionToRef(BABYLON.Quaternion.Inverse(totalRot),target);
+
+    // CHECKME: exact calculus?
+    //var targetVector = target.subtract(this.headPos()).add(totalPos);
+    var targetVector = target.subtract(this.headPos());
     if ( this.headAxisFix == -1 ) {
       // FIX: neck and head opposite orientation
       // businessman, robot, adventurer, unreal male
@@ -388,22 +486,30 @@ export class Avatar {
     return ret.subtract(limb.frontAxis.axis).subtract(limb.sideAxis.axis);
   }
 
+  /** Debugging helper, draws a vector between given points */
   drawVector(from, to) {
     BABYLON.MeshBuilder.CreateLines("vector-"+from+"-"+to, {points:[from,to]}, this.scene);
   }
 
+  /**
+  Move given arm towards given target. Uses simplified 2-joint IK.
+  @param arm arm to move
+  @param t target position
+   */
   reachFor( arm, t ) {
 
     var upperArm = this.skeleton.bones[arm.upper];
     var lowerArm = this.skeleton.bones[arm.lower];
-    var hand = this.skeleton.bones[arm.hand];
-    var scaling = this.character.meshes[0].scaling.x;
 
+    var scaling = this.rootMesh.scaling.x;
+
+    var totalPos = this.parentMesh.position.add(this.rootMesh.position);
+    var totalRot = this.parentMesh.rotationQuaternion.multiply(this.rootMesh.rotationQuaternion);
     // current values
-    var armPos = upperArm.getAbsolutePosition().scale(scaling).subtract(this.rootMesh.position);
-    var elbowPos = lowerArm.getAbsolutePosition().scale(scaling).subtract(this.rootMesh.position);
-    var handPos = hand.getAbsolutePosition().scale(scaling).subtract(this.rootMesh.position);
-    var rootQuatInv = BABYLON.Quaternion.Inverse(this.rootMesh.rotationQuaternion);
+    var armPos = upperArm.getAbsolutePosition().scale(scaling).subtract(totalPos);
+    var elbowPos = lowerArm.getAbsolutePosition().scale(scaling).subtract(totalPos);
+
+    var rootQuatInv = BABYLON.Quaternion.Inverse(totalRot);
 
     // set or get initial values
     if ( arm.upperQuat ) {
@@ -425,12 +531,12 @@ export class Avatar {
     }
 
     // calc target pos in coordinate system of character
-    var target = new BABYLON.Vector3(t.x, t.y, t.z).subtract(this.rootMesh.position);
+    var target = new BABYLON.Vector3(t.x, t.y, t.z).subtract(totalPos);
     // CHECKME: probable bug, possibly related to worldQuat
     target.rotateByQuaternionToRef(rootQuatInv,target);
 
     // calc target vectors in local coordinate system of the arm
-    var targetVector = target.subtract(armPos).subtract(this.rootMesh.position);
+    var targetVector = target.subtract(armPos).subtract(totalPos);
     targetVector.rotateByQuaternionToRef(worldQuatInv,targetVector);
 
     if ( arm.pointerQuat ) {
@@ -496,7 +602,7 @@ export class Avatar {
     return quat;
   }
 
-  // TODO animate rotations here
+  // move an arms, optionally creates/updates arm animation
   renderArmRotation( arm ) {
     var upperArm = this.skeleton.bones[arm.upper];
     var lowerArm = this.skeleton.bones[arm.lower];
@@ -537,6 +643,11 @@ export class Avatar {
     anim.animation.getKeys()[1].value = dest;
   }
 
+  /**
+  Bend/stretch arm to a length
+  @param arm
+  @param length
+   */
   bendArm( arm, length ) {
     var ret = true;
     var upperArm = this.skeleton.bones[arm.upper];
@@ -569,31 +680,102 @@ export class Avatar {
     return (this.body.leftLeg.upperLength + this.body.leftLeg.lowerLength + this.body.rightLeg.upperLength + this.body.rightLeg.lowerLength)/2;
   }
 
+  /**
+  Set avatar position.
+  @param pos postion
+   */
   setPosition( pos ) {
-    this.rootMesh.position.x = pos.x;
-    this.groundLevel( pos.y );
-    this.rootMesh.position.z = pos.z;
+    this.parentMesh.position.x = pos.x;
+    //this.groundLevel( pos.y ); // CHECKME
+    this.parentMesh.position.y = pos.y;
+    this.parentMesh.position.z = pos.z;
   }
 
+  /** 
+  Set avatar rotation
+  @param quat Quaternion 
+  */
   setRotation( quat ) {
-    this.rootMesh.rotationQuaternion = quat;
+    // FIXME this should rotate parentMesh instead
+    // but GLTF characters are facing the user when loaded
+    this.parentMesh.rotationQuaternion = quat;
   }
 
+  /** 
+  Sets the ground level
+  @param y height of the ground at current position
+   */
   groundLevel( y ) {
     this.groundHeight = y;
     this.rootMesh.position.y = this.rootMesh.position.y + y;
   }
 
-  jump( height ) {
-    this.rootMesh.position.y = this.groundHeight + height;
+  /**
+  Track user height: character may crouch or raise, or jump,
+  depending on heights of avatar and user.
+  @param height current user height
+   */
+  trackHeight(height) {
+    if ( this.maxUserHeight && height != this.prevUserHeight ) {
+      var delta = height-this.prevUserHeight;
+      //this.trackDelay = 1000/this.fps;
+      //var speed = delta/this.trackDelay*1000; // speed in m/s
+      var speed = delta*this.fps;
+      if ( this.jumping ) {
+        var delay = Date.now() - this.jumping;
+        if ( height <= this.maxUserHeight && delay > 300 ) {
+          this.character.standUp();
+          this.jumping = null;
+          this.log("jump stopped")
+        } else if ( delay > 500 ) {
+          this.log("jump stopped - timeout")
+          this.standUp();
+          this.jumping = null;
+        } else {
+          this.jump(height - this.maxUserHeight);
+        }
+      } else if ( height > this.maxUserHeight && Math.abs(speed) > 1 ) {
+        // CHECKME speed is not really important here
+        this.jump(height - this.maxUserHeight);
+        this.jumping = Date.now();
+        this.log("jump starting")
+      } else {
+        // ignoring anything less than 1mm
+        if ( delta > 0.001 ) {
+          this.rise(delta);
+        } else if ( delta < -0.001 ) {
+          this.crouch(-delta);
+        }
+      }
+
+    } else {
+      this.maxUserHeight = height;
+    }
+    this.prevUserHeight = height;
   }
 
+  /**
+  Moves the avatar to given height above the ground
+  @param height jump how high
+   */
+  jump( height ) {
+    this.rootMesh.position.y = this.groundHeight + height;
+    this.changed();
+  }
+
+  /**
+  Stand up straight, at the ground, legs fully stretched
+   */
   standUp() {
     this.jump(0);
     this.bendLeg( this.body.leftLeg, 10 );
     this.bendLeg( this.body.rightLeg, 10 );
   }
 
+  /**
+  Rise a bit
+  @param height rise how much
+   */
   rise( height ) {
     if ( height < 0.001 ) {
       // ignoring anything less than 1mm
@@ -609,8 +791,13 @@ export class Avatar {
     this.bendLeg( this.body.rightLeg, length );
 
     this.rootMesh.position.y += height;
+    this.changed();
   }
 
+  /**
+  Crouch a bit
+  @param height how much
+   */
   crouch( height ) {
     if ( height < 0.001 ) {
       // ignoring anything less than 1mm
@@ -627,8 +814,14 @@ export class Avatar {
     this.bendLeg( this.body.rightLeg, length );
 
     this.rootMesh.position.y -= height;
+    this.changed();
   }
 
+  /**
+  Bend/stretch leg to a length
+  @param leg
+  @param length
+   */
   bendLeg( leg, length ) {
     if ( length < 0 ) {
       console.log("ERROR: can't bend leg to "+length);
@@ -682,7 +875,11 @@ export class Avatar {
     return length;
   }
 
-  // lenght of an arm or leg
+  /**
+  Returns lenght of an arm or leg, in absolute world coordinates.
+  @param limb an arm or leg
+  @returns total length of lower and upper arm/leg
+   */
   calcLength(limb) {
     var upper = this.skeleton.bones[limb.upper];
     var lower = this.skeleton.bones[limb.lower];
@@ -697,6 +894,10 @@ export class Avatar {
     this.log("Length of "+upper.name+": "+limb.upperLength+", "+lower.name+": "+limb.lowerLength);
   }
 
+  /** 
+  Returns total weight of a vector, x+y+z
+  @param vector Vector3 to sum 
+  */
   sum(vector) {
     return vector.x+vector.y+vector.z;
   }
@@ -810,14 +1011,25 @@ export class Avatar {
     return ret;
   }
 
+  /**
+  Converts rotation quaternion of a node to euler angles
+  @param node
+  @returns Vector3 containing rotation around x,y,z
+   */
   euler(node) {
     return node.rotationQuaternion.toEulerAngles();
   }
+  
   degrees(node) {
     var rot = euler(node);
     return toDegrees(rot);
   }
 
+  /**
+  Converts euler radians to degrees
+  @param rot Vector3 rotation around x,y,z
+  @returns Vector3 containing degrees around x,y,z
+   */
   toDegrees(rot) {
     var ret = new BABYLON.Vector3();
     ret.x = rot.x * 180/Math.PI;
@@ -1093,12 +1305,6 @@ export class Avatar {
     this.countBones(bone.children);
   }
 
-  roundVector(vec) {
-    vec.x = Math.round(vec.x);
-    vec.y = Math.round(vec.y);
-    vec.z = Math.round(vec.z);
-  }
-
   processArms( arm, bone ) {
     this.log("Processing arm "+bone.name+" "+bone.getIndex()+" "+this.skeleton.getBoneIndexByName(bone.name));
     arm.shoulder = this.skeleton.getBoneIndexByName(bone.name);
@@ -1168,6 +1374,10 @@ export class Avatar {
     }
   }
 
+  /**
+  Start a given animation
+  @param animationName animation to start
+   */
   startAnimation(animationName) {
     for ( var i = 0; i < this.getAnimationGroups().length; i++ ) {
       var group = this.getAnimationGroups()[i];
@@ -1194,6 +1404,10 @@ export class Avatar {
     }
   }
 
+  /**
+  Adds or remove all avatar meshes to given ShadowGenerator.
+  @param shadowGenerator removes shadows if null
+   */
   castShadows( shadowGenerator ) {
     if ( this.character && this.character.meshes ) {
       for ( var i = 0; i < this.character.meshes.length; i++ ) {
@@ -1210,12 +1424,127 @@ export class Avatar {
     this.shadowGenerator = shadowGenerator;
   }
 
+  /**
+  Resize the avatar taking into account userHeight and headPos.
+   */
   resize() {
     var scale = this.rootMesh.scaling.y;
     scale = scale*this.userHeight/this.headPos().y;
     this.rootMesh.scaling = new BABYLON.Vector3(scale,scale,scale);
     this.initialHeadPos = this.headPos();
     this.log("Rescaling to "+scale+", head position "+this.initialHeadPos);
+    this.changed();
     return scale;
   }
+
+  async _initWriter() {
+    if ( ! this.Writer ) {
+      await VRSPACEUI.loadScriptsToDocument([ 
+        "https://cdn.rawgit.com/BabylonJS/Extensions/master/MeshWriter/meshwriter.min.js"
+      ]);
+      this.Writer = BABYLON.MeshWriter(this.scene, {scale:.02,defaultFont:"Arial"});
+    }
+  }
+  
+  /** 
+  Set the name and display it above the avatar 
+  @param name 
+  */
+  async setName(name) {
+    await this._initWriter();
+    if ( this.nameMesh ) {
+      this.nameMesh.dispose();
+      this.nameParent.dispose();
+    }
+    if ( name && name.length > 0 ) {
+      this.nameMesh = new this.Writer(
+                          name,
+                          {
+                              anchor: "center",
+                              "letter-height": 8,
+                              color: "#1C3870",
+                          }
+                      );
+      this.nameParent = new BABYLON.TransformNode('nameParent');
+      this.nameParent.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+      var pos = this.headPos().clone();
+      pos.y += .4;
+      this.nameParent.position = pos;
+      this.nameParent.parent = this.parentMesh;
+      this.nameMesh.getMesh().rotation.x = -Math.PI/2;
+      this.nameMesh.getMesh().parent = this.nameParent;
+    }
+  }
+  // CHECKME: use texture to display avatar name?
+  _setName1(name) {
+    if ( ! this.nameTag ) {
+      this.nameTag = BABYLON.MeshBuilder.CreatePlane('nameTag', {width:1, height:.5}, this.scene);
+      var pos = this.headPos().clone();
+      pos.y += .5;
+      this.nameTag.position = pos;
+      this.nameTag.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+      this.nameTag.material = new BABYLON.StandardMaterial('nameTag', this.scene);;
+      this.nameTag.material.emissiveColor = BABYLON.Color3.White();
+      this.nameTag.material.diffuseTexture = new BABYLON.DynamicTexture("nameTag", {width:128, height:64}, this.scene);
+    }
+    this.nameTag.material.diffuseTexture.drawText(name, 
+      null, 
+      null, 
+      'bold 12px monospace', 
+      'black', 
+      'white', 
+      true, 
+      true
+    );
+  }
+
+  /** Called when avatar size/height changes, TODO notify listeners */ 
+  changed() {
+    if ( this.nameParent ) {
+      var pos = this.headPos().clone();
+      pos.y += .4;
+      this.nameParent.position = pos;
+    }
+  }
+  
+  async wrote(client) {
+   await this._initWriter();
+   var limit = 20;
+    var text = [];
+    var line = '';
+    client.wrote.split(' ').forEach((word) => {
+      if ( line.length + word.length > limit ) {
+        text.push(line);
+        line = '';
+      }
+      line += word + ' ';
+    });
+    text.push(line);
+    
+    if ( this.nameMesh ) {
+      // TODO move it up/down as required
+      var pos = this.headPos().clone();
+      pos.y += .4+.2*(text.length);
+      this.nameParent.position = pos;
+    }
+    
+    if (this.textParent) {
+      this.textParent.dispose();
+      this.textParent = null;
+    }
+    this.textParent = new BABYLON.TransformNode('textParent');
+    var pos = this.headPos().clone();
+    pos.y += .4+.2*(text.length-1);
+    this.textParent.position = pos;
+    this.textParent.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+    this.textParent.parent = this.parentMesh;
+    for ( var i = 0; i < text.length; i++ ) {
+      var t = text[i];
+      var mesh = new this.Writer( t,{anchor: "center", "letter-height": 8, color: "#1C3870" });
+      mesh.getMesh().rotation.x = -Math.PI/2;
+      mesh.getMesh().position.y = -i*.2;
+      mesh.getMesh().parent = this.textParent;
+    }
+  }
+  
 }

@@ -1,4 +1,4 @@
-import { VRSPACEUI } from './vrspace'
+import { VRSPACEUI } from './vrspace/index-min'
 import Utilities from './utilities'
 
 export class Customizer {

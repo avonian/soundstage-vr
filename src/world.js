@@ -1,4 +1,4 @@
-import { World, WorldManager, VRSPACEUI, VRSPACE } from './vrspace';
+import { World, WorldManager, VRSPACEUI, VRSPACE } from './vrspace/index-min';
 import CinemaCamera from './cinema-camera';
 import AdminControls from './admin-controls';
 import StageControls from './stage-controls';
@@ -700,6 +700,22 @@ export class NightClub extends World {
       }
     }
     this.worldManager.VRSPACE.addWelcomeListener(enter);
+
+    // Override VRSpace connect function so it uses url from process.env
+    this.worldManager.VRSPACE.connect = function (url) {
+      this.ws = new WebSocket(url);
+      this.ws.onopen = () => {
+        this.connectionListeners.forEach((listener)=>listener(true));
+      }
+      this.ws.close = () => {
+        this.connectionListeners.forEach((listener)=>listener(false));
+      }
+      this.ws.onmessage = (data) => {
+        this.receive(data.data);
+        this.dataListeners.forEach((listener)=>listener(data.data));
+      }
+      this.log("Connected!")
+    }
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
   
