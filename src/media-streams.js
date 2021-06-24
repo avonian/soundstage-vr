@@ -3,11 +3,11 @@ import { MediaStreams } from './vrspace/index-min';
 
 export class MediaSoup extends MediaStreams {
 
-  constructor(world, htmlElementName, userSettings, eventConfig) {
+  constructor(world, htmlElementName, userSettings, spaceConfig) {
     super(world.scene, htmlElementName);
     this.world = world;
     this.userSettings = userSettings;
-    this.eventConfig = eventConfig;
+    this.spaceConfig = spaceConfig;
   }
 
   addANewVideoElement(track, isLocal, peerId= false) {
@@ -52,7 +52,7 @@ export class MediaSoup extends MediaStreams {
       roomId: roomId,
       peerId: this.worldManager.VRSPACE.me.id,
       displayName: this.worldManager.VRSPACE.me.name,
-      baseUrl: this.eventConfig.mediaSoup['url'], // FIXME use property
+      baseUrl: this.spaceConfig.mediaSoup['url'], // FIXME use property
       // modes: VIDEO_ONLY, AUDIO_ONLY, AUDIO_AND_VIDEO
       mode: mediasoup.MODES.VIDEO_ONLY,
       useSimulcast: false,

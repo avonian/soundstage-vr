@@ -134,7 +134,7 @@
 
     export default {
       name: "StageControls",
-      props: ['activeVideo', 'world', 'eventConfig', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn', 'attenuation'],
+      props: ['activeVideo', 'world', 'spaceConfig', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn', 'attenuation'],
       data() {
         return {
           playingIntro: false,
@@ -153,8 +153,8 @@
               label: 'Normal',
             }
           ],
-          mixerUrl: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.eventConfig.mixerUrl,
-          mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.eventConfig.mixerToken,
+          mixerUrl: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.spaceConfig.mixerUrl,
+          mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.spaceConfig.mixerToken,
         }
       },
       mounted() {
@@ -176,7 +176,7 @@
               'method': 'POST',
               'body': JSON.stringify({
                 token:  this.mixerToken,
-                spaceId: this.eventConfig.highFidelity.spaceId
+                spaceId: this.spaceConfig.highFidelity.spaceId
               }),
             });
             // Set next poll interval
@@ -274,7 +274,7 @@
                 'method': 'POST',
                 'body': JSON.stringify({
                   token: this.mixerToken,
-                  spaceId: this.eventConfig.highFidelity.spaceId
+                  spaceId: this.spaceConfig.highFidelity.spaceId
                 }),
               });
               resolve();
@@ -295,7 +295,7 @@
                 'method': 'POST',
                 'body': JSON.stringify({
                   token: this.mixerToken,
-                  spaceId: this.eventConfig.highFidelity.spaceId,
+                  spaceId: this.spaceConfig.highFidelity.spaceId,
                   audioTrack: this.activeAudioTrack,
                   broadcast: broadcast,
                   loop: this.loop
@@ -320,7 +320,7 @@
                 'method': 'POST',
                 'body': JSON.stringify({
                   token: this.mixerToken,
-                  spaceId: this.eventConfig.highFidelity.spaceId,
+                  spaceId: this.spaceConfig.highFidelity.spaceId,
                   loop: this.loop
                 }),
               });

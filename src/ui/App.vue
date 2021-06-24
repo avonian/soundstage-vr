@@ -30,9 +30,9 @@
         <AvatarMenu v-if="avatarMenuClientId"
             :world="world"
             :client-id="avatarMenuClientId"
-            :follows="eventConfig.follows"
-            :mutelist="eventConfig.mutelist"
-            :canModerate="eventConfig.permissions.moderator"
+            :follows="spaceConfig.follows"
+            :mutelist="spaceConfig.mutelist"
+            :canModerate="spaceConfig.permissions.moderator"
             @close="avatarMenuClientId = false"
             @followUser="followUser($event)"
             @muteUser="muteUser($event)"
@@ -69,7 +69,7 @@
                 :tunnelLightsOn="tunnelLightsOn"
                 :gridFloorOn="gridFloorOn"
                 :moodParticlesOn="moodParticlesOn"
-                :event-config="eventConfig"
+                :event-config="spaceConfig"
                 :attenuation="attenuation"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
@@ -196,7 +196,7 @@
         jwt: '',
         browserSupported: true,
         invalidAccess: false,
-        eventConfig: false,
+        spaceConfig: false,
         audioDevices: [],
         playbackDevices: [],
         videoDevices: [],
@@ -303,30 +303,30 @@
 
       /* Set event configuration */
       await this.initConfig();
-      if(!this.eventConfig) {
+      if(!this.spaceConfig) {
         return;
       }
 
-      this.canBroadcast = this.eventConfig.permissions['broadcast'] === true;
-      if (this.eventConfig.permissions['stage_controls']) {
+      this.canBroadcast = this.spaceConfig.permissions['broadcast'] === true;
+      if (this.spaceConfig.permissions['stage_controls']) {
         this.showStageControls = true;
       }
-      if(this.eventConfig.permissions['stage_controls'] || this.eventConfig.role === 'artist') {
+      if(this.spaceConfig.permissions['stage_controls'] || this.spaceConfig.role === 'artist') {
         this.cameraModes.push(['free', 'Free Cam'])
       }
-      this.videos = this.eventConfig.videos;
+      this.videos = this.spaceConfig.videos;
 
       this.deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'mobile' : 'other'
       if (this.deviceType === 'mobile') {
         return
       }
 
-      if(!this.eventConfig) {
+      if(!this.spaceConfig) {
         return;
       }
 
       /* Preload default video only (just so it's ready on scene start) */
-      this.preloadVideos(this.eventConfig.videos, true)
+      this.preloadVideos(this.spaceConfig.videos, true)
 
       /* Retrieve values from local storage */
       if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
@@ -367,13 +367,13 @@
         var baseConfig = require('../configs/_config.js').default;
         if(process.env.VUE_APP_DEMO_CONFIG) {
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
-          this.eventConfig = {...baseConfig, ...customConfig};
-          this.eventConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
-          this.eventConfig.highFidelity.spaceId = process.env.VUE_APP_HIGH_FIDELITY_SPACE_ID;
+          this.spaceConfig = {...baseConfig, ...customConfig};
+          this.spaceConfig.highFidelity.token = process.env.VUE_APP_HIGH_FIDELITY_TOKEN;
+          this.spaceConfig.highFidelity.spaceId = process.env.VUE_APP_HIGH_FIDELITY_SPACE_ID;
           return;
         }
         if(this.jwt) {
-          let response = await fetch(`${process.env.VUE_APP_API_URL}/events/${urlParams.get('e')}/verify`, {
+          let response = await fetch(`${process.env.VUE_APP_API_URL}/spaces/${urlParams.get('s')}/verify`, {
             headers: {
               "Content-Type": "application/json; charset=utf-8",
               'Accept': 'application/json',
@@ -382,9 +382,9 @@
           });
           let data = await response.json();
           if(data.success) {
-            this.eventConfig = data['event_config'];
-            if(!this.eventConfig.videos) {
-              this.eventConfig.videos = baseConfig.videos;
+            this.spaceConfig = data['space_config'];
+            if(!this.spaceConfig.videos) {
+              this.spaceConfig.videos = baseConfig.videos;
             }
           } else {
             this.invalidAccess = true;
@@ -407,7 +407,7 @@
           }
         }
 
-        if(this.eventConfig.warnRecording) {
+        if(this.spaceConfig.warnRecording) {
           let confirmCallback = () => {
             this.modal = false;
             enterCallback();
@@ -503,7 +503,7 @@
           })
 
           // webcam/mic UI should be set up before 3D world, i.e. desired device ID has to be known
-          this.world = world = await new Nightclub(this.eventConfig, this.userSettings);
+          this.world = world = await new Nightclub(this.spaceConfig, this.userSettings);
 
           // Apply any settings adjustments from initial welcome screen
           this.saveSettings(true);
@@ -577,7 +577,7 @@
                 this.DJSpotLightIntensity = this.world.customizer.DJSpotLight.intensity;
               }
 
-              if(this.eventConfig['permissions']['stage_controls']) {
+              if(this.spaceConfig['permissions']['stage_controls']) {
                 this.world.startSavingState();
               }
             })
@@ -590,7 +590,7 @@
               () => {
                 /* Preload remaining videos */
                 world.adjustGraphicsQuality(userSettings.graphicsQuality);
-                this.preloadVideos(this.eventConfig.videos)
+                this.preloadVideos(this.spaceConfig.videos)
               }
             );
 
@@ -602,7 +602,7 @@
           }).then((s) => {
             scene = s
             // Apply graphics quality settings from welcome screen
-            world.showVideo(this.eventConfig.avatar ? this.eventConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
+            world.showVideo(this.spaceConfig.avatar ? this.spaceConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
             world.customize();
           })
 
@@ -957,7 +957,7 @@
           }),
         });
         let data = await response.json();
-        this.eventConfig.follows = data.follows;
+        this.spaceConfig.follows = data.follows;
       },
       async muteUser({ user, value }) {
         if(process.env.VUE_APP_DEMO_CONFIG) {
@@ -977,7 +977,7 @@
           }),
         });
         let data = await response.json();
-        this.eventConfig.mutelist = data.mutelist;
+        this.spaceConfig.mutelist = data.mutelist;
         for (let hashedVisitID of Object.keys(world.hifi.peers)) {
           let hiFiPeer = world.hifi.peers[hashedVisitID];
           if (parseInt(hiFiPeer.providedUserID) === user) {
@@ -1007,7 +1007,7 @@
             }),
           });
           let data = await response.json();
-          this.eventConfig.blocklist = data.blocklist;
+          this.spaceConfig.blocklist = data.blocklist;
 
           // Mute user
           for (let hashedVisitID of Object.keys(world.hifi.peers)) {
@@ -1136,7 +1136,7 @@
           alert("Disabled in dev mode.");
           return;
         }
-        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.eventConfig.event_slug}/updateAudioSpace`, {
+        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.spaceConfig.event_slug}/updateAudioSpace`, {
           headers: {
             "Content-Type": "application/json; charset=utf-8",
             'Accept': 'application/json',
@@ -1144,7 +1144,7 @@
           },
           'method': 'POST',
           'body': JSON.stringify({
-            spaceId: this.eventConfig.highFidelity.spaceId,
+            spaceId: this.spaceConfig.highFidelity.spaceId,
             attenuation: attenuation
           }),
         });

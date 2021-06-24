@@ -21,7 +21,7 @@ export class AdminControls {
   async execute( event ) {
     switch(event.action) {
       case 'toggleUserMic':
-        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+        if(event.soundStageUserId === this.world.spaceConfig.user_id) {
           if(document.querySelector("#app")._vnode.component.data.micEnabled) {
             document.querySelector("#app")._vnode.component.data.modal = {
               title: "You've been muted.",
@@ -32,7 +32,7 @@ export class AdminControls {
         }
         break;
       case 'toggleUserWebcam':
-        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+        if(event.soundStageUserId === this.world.spaceConfig.user_id) {
           if(document.querySelector("#app")._vnode.component.data.webcamEnabled) {
             document.querySelector("#app")._vnode.component.data.modal = {
               title: "Webcam deactivated.",
@@ -43,12 +43,12 @@ export class AdminControls {
         }
         break;
       case 'kickUser':
-        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+        if(event.soundStageUserId === this.world.spaceConfig.user_id) {
           window.location.href += (window.location.href.indexOf("?") === -1 ? "?" : "&") + 'kicked';
         }
         break;
       case 'banUser':
-        if(event.soundStageUserId === this.world.eventConfig.user_id) {
+        if(event.soundStageUserId === this.world.spaceConfig.user_id) {
           window.location.href += (window.location.href.indexOf("?") === -1 ? "?" : "&") + 'banned';
         }
         break;

@@ -5,7 +5,7 @@ export class Customizer {
   constructor (world) {
     this.world = world;
     this.world.scene.highlightLayer1 = new BABYLON.HighlightLayer("highlightLayer1", this.world.scene);
-    this.eventConfig = world.eventConfig;
+    this.spaceConfig = world.spaceConfig;
     this.barLights = [];
     this.clearCoatMeshes = false;
     this.loadedAssets = [];
@@ -32,7 +32,7 @@ export class Customizer {
     }
   }
   initPosters () {
-    const posters = this.eventConfig.posters;
+    const posters = this.spaceConfig.posters;
     if(!posters) {
       return;
     }
@@ -261,7 +261,7 @@ export class Customizer {
   }
   toggleShowcasePanel(pickedMeshId) {
     let open = !document.querySelector("#showcase-panel").classList.contains('translate-x-full');
-    let poster = this.eventConfig.posters.find(p => pickedMeshId === p.name);
+    let poster = this.spaceConfig.posters.find(p => pickedMeshId === p.name);
     if(poster && poster.showcase && !open) {
       document.querySelector("#showcase-panel").classList.remove('translate-x-full');
       let data = poster.showcase;
@@ -282,7 +282,7 @@ export class Customizer {
   }
   toggleShowcaseMessage(pickedMeshId) {
     let open = !document.querySelector("#showcase-message").classList.contains('translate-y-full');
-    let poster = this.eventConfig.posters.find(p => pickedMeshId === p.name);
+    let poster = this.spaceConfig.posters.find(p => pickedMeshId === p.name);
     if(poster && !open) {
       document.querySelector("#showcase-message").classList.remove('translate-y-full');
     } else {
@@ -395,7 +395,7 @@ export class Customizer {
   initVipEntrance() {
     let vipEntrance = this.world.scene.getMeshByName('portal-door-top');
     let vipEntranceEmissive = this.world.scene.getMeshByName('portal-door-emissive');
-    if(!this.eventConfig.permissions.access_backstage) {
+    if(!this.spaceConfig.permissions.access_backstage) {
       //vipEntrance.dispose();
       //vipEntranceEmissive.dispose();
       //return;
