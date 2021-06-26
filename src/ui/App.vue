@@ -69,7 +69,7 @@
                 :tunnelLightsOn="tunnelLightsOn"
                 :gridFloorOn="gridFloorOn"
                 :moodParticlesOn="moodParticlesOn"
-                :event-config="spaceConfig"
+                :space-config="spaceConfig"
                 :attenuation="attenuation"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
                 @activateVideo="activateVideo($event)"
