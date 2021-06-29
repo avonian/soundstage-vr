@@ -1136,7 +1136,7 @@
           alert("Disabled in dev mode.");
           return;
         }
-        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.spaceConfig.event_slug}/updateAudioSpace`, {
+        await fetch(`${process.env.VUE_APP_API_URL}/events/${this.spaceConfig.space_slug}/updateAudioSpace`, {
           headers: {
             "Content-Type": "application/json; charset=utf-8",
             'Accept': 'application/json',

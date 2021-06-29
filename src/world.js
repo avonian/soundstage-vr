@@ -682,7 +682,7 @@ export class NightClub extends World {
       }
       this.worldManager.VRSPACE.sendMy("position:", {x:this.camera1.position.x, y:0, z:this.camera1.position.z});
       // enter a world
-      this.worldManager.VRSPACE.sendCommand("Enter", {world: this.spaceConfig.event_slug});
+      this.worldManager.VRSPACE.sendCommand("Enter", {world: this.spaceConfig.space_slug});
       // start session
       this.worldManager.VRSPACE.sendCommand("Session");
 
@@ -691,7 +691,7 @@ export class NightClub extends World {
       VRSPACE.addSceneListener((e) => this.findSharedState(e));
       
       // add chatroom id to the client, and start streaming
-      welcome.client.token = this.spaceConfig.event_slug;
+      welcome.client.token = this.spaceConfig.space_slug;
       this.worldManager.pubSub(welcome.client);
 
       this.connected = true;

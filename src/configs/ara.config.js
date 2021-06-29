@@ -1,5 +1,5 @@
 export default {
-  'event_slug': 'simlink-friends',
+  'space_slug': 'simlink-friends',
   'alias': 'Ara',
   'posters': [
     {

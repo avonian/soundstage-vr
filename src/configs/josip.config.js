@@ -1,4 +1,4 @@
 export default {
-  'event_slug': 'josips-dev-space',
+  'space_slug': 'josips-dev-space',
   'alias': 'Josip'
 }
