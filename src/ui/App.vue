@@ -482,6 +482,19 @@
 
         this.entered = true
 
+        if(process.env.VUE_ENV === 'production') {
+          window.dataLayer = window.dataLayer || [];
+          function gtag () {
+            dataLayer.push({
+                pageType: 'SoundClub',
+                spaceId: this.spaceConfig.space_id,
+                spaceName: this.spaceConfig.space_slug
+            });
+          }
+          gtag('js', new Date());
+          gtag('config', 'UA-144046919-1');
+        }
+
         this.$nextTick(async () => {
           this.cameraMode = this.cameraModes[0]
 
