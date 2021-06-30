@@ -484,11 +484,12 @@
 
         if(process.env.NODE_ENV === 'production') {
           window.dataLayer = window.dataLayer || [];
+          var spaceConfig = this.spaceConfig;
           function gtag () {
             dataLayer.push({
                 pageType: 'SoundClub',
-                spaceId: this.spaceConfig.space_id,
-                spaceName: this.spaceConfig.space_slug
+                spaceId: spaceConfig.space_id,
+                spaceName: spaceConfig.space_slug
             });
           }
           gtag('js', new Date());
