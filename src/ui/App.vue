@@ -482,7 +482,7 @@
 
         this.entered = true
 
-        if(process.env.VUE_ENV === 'production') {
+        if(process.env.NODE_ENV === 'production') {
           window.dataLayer = window.dataLayer || [];
           function gtag () {
             dataLayer.push({
