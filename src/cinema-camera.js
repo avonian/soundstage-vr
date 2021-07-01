@@ -218,7 +218,10 @@ export class CinemaCamera {
     if(this.nextAnimationTimeout) {
       clearTimeout(this.nextAnimationTimeout);
     }
-    if(this.activeAnimation && this.activeAnimation.animationStarted) {
+    if(!this.activeAnimation) {
+      return;
+    }
+    if(this.activeAnimation.animationStarted) {
       this.activeAnimation.pause();
     } else {
       this.activeAnimation.restart();
