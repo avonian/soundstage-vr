@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Night_Club-14may.glb';
+    this.file = 'Night_Club-2-july-shop.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -47,8 +47,8 @@ export class NightClub extends World {
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
     // shared world properties
     this.properties = {
-      WindowVideo:0, 
-      DJTableVideo:0, 
+      WindowVideo:0,
+      DJTableVideo:0,
       castUser:null,
       castTarget:'WindowVideo'
     };
@@ -401,12 +401,15 @@ export class NightClub extends World {
     tunnelSegment2.material.environmentIntensity = 0.3;
 
     if(this.spaceConfig.hideDefaultPosters) {
+      /*
       let meshesToDispose = ['PosterClubR', 'PosterClubS2', 'PosterClubS1', 'PosterVIPS', 'PosterVIPR'].map(name => this.scene.getMeshByName(name));
       meshesToDispose.forEach(m => {
         m.material.emissiveTexture.dispose()
         m.material.dispose();
         m.dispose();
       })
+
+       */
     }
 
     // Render loop logic for whenever first person cam is being automatically panned (e.g. to look at posters)
@@ -421,11 +424,11 @@ export class NightClub extends World {
   }
 
   /**
-  Overridden, called for every mesh when safe. World starts with collisions turned off.
+   Overridden, called for every mesh when safe. World starts with collisions turned off.
    */
   setMeshCollisions(mesh, state) {
     if ( !mesh.name.startsWith('Lamp')) {
-      mesh.checkCollisions = state;    
+      mesh.checkCollisions = state;
     }
   }
 
@@ -433,7 +436,7 @@ export class NightClub extends World {
     if ( this.activeCameraType === 'free' ) {
       return;
     }
-    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP 
+    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP
       && pointerInfo.event.button == 0 // LMB
       // regex to match red bar stool top mesh name:
       && /Chair_.*_Red_15380.*/.test(pointerInfo.pickInfo.pickedMesh.name)
@@ -450,7 +453,7 @@ export class NightClub extends World {
       }
     }
   }
-  
+
   trackAvatarRotations(enable) {
     if ( this.trackAvatarRotation == enable ) {
       return;
@@ -460,7 +463,7 @@ export class NightClub extends World {
     this.worldManager.mediaStreams.clients.forEach( (client) => {
       client.video.applyRotation(this.trackAvatarRotation);
     });
-    
+
     this.video.applyRotation(this.trackAvatarRotation);
     if ( this.trackAvatarRotation ) {
       this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
@@ -487,15 +490,15 @@ export class NightClub extends World {
         this.tableTexture.dispose();
       }
       this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture", 
+      this.tableTexture = new BABYLON.VideoTexture("tableTexture",
         videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url],
-        this.scene, true, true, null, 
+        this.scene, true, true, null,
         {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
+          autoUpdateTexture: true,
+          autoPlay: true,
+          muted: true,
+          loop: true
+        });
       this.tableMaterial.diffuseTexture = this.tableTexture;
       this.tableMaterial.diffuseTexture.vScale = 0.50;
       this.tableMaterial.diffuseTexture.vOffset = -0.75;
@@ -521,14 +524,14 @@ export class NightClub extends World {
       }
 
       this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture", 
+      this.windowTexture = new BABYLON.VideoTexture("windowTexture",
         videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url],
         this.scene, true, true, null, {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
+          autoUpdateTexture: true,
+          autoPlay: true,
+          muted: true,
+          loop: true
+        });
       this.windowMaterial.diffuseTexture = this.windowTexture;
       this.windowMaterial.diffuseTexture.vScale = 0.65;
       this.windowMaterial.diffuseTexture.uScale = -1;
@@ -673,7 +676,7 @@ export class NightClub extends World {
           this.video.displayAlt();
         }
       }
-      
+
       // set own properties
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
@@ -689,7 +692,7 @@ export class NightClub extends World {
       // SHARED STATE MANGLING
       // custom scene listener, listening for shared state object
       VRSPACE.addSceneListener((e) => this.findSharedState(e));
-      
+
       // add chatroom id to the client, and start streaming
       welcome.client.token = this.spaceConfig.space_slug;
       this.worldManager.pubSub(welcome.client);
@@ -718,7 +721,7 @@ export class NightClub extends World {
     }
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
-  
+
   findSharedState(e) {
     if ( e.added && e.added.properties && e.added.properties.name == 'worldState') {
       this.worldState = e.added;
@@ -732,24 +735,24 @@ export class NightClub extends World {
   // create shared state object if not exists
   async createSharedState() {
     var o = {
-        //permanent:true,
-        properties: {
-          name:'worldState',
-          WindowVideo:0, 
-          DJTableVideo:0, 
-          castUser:null,
-          castTarget:'WindowVideo',
-          activeMood: this.stageControls.activeMood,
-          fogSetting: this.stageControls.fogSetting,
-          environmentIntensity: this.scene.environmentIntensity,
-          environmentTexture: this.stageControls.activeCubeTexture,
-          pedestalColor: this.stageControls.pedestal.material.emissiveColor,
-          DJSpotLightIntensity: this.customizer.DJSpotLightIntensity,
-          DJPlatformRaised: this.stageControls.DJPlatformRaised,
-          tunnelLightsOn: this.stageControls.tunnelLightsOn,
-          gridFloorOn: this.stageControls.gridFloorOn,
-          moodParticlesOn: this.stageControls.moodParticlesOn,
-        }
+      //permanent:true,
+      properties: {
+        name:'worldState',
+        WindowVideo:0,
+        DJTableVideo:0,
+        castUser:null,
+        castTarget:'WindowVideo',
+        activeMood: this.stageControls.activeMood,
+        fogSetting: this.stageControls.fogSetting,
+        environmentIntensity: this.scene.environmentIntensity,
+        environmentTexture: this.stageControls.activeCubeTexture,
+        pedestalColor: this.stageControls.pedestal.material.emissiveColor,
+        DJSpotLightIntensity: this.customizer.DJSpotLightIntensity,
+        DJPlatformRaised: this.stageControls.DJPlatformRaised,
+        tunnelLightsOn: this.stageControls.tunnelLightsOn,
+        gridFloorOn: this.stageControls.gridFloorOn,
+        moodParticlesOn: this.stageControls.moodParticlesOn,
+      }
     };
     return new Promise((resolve,reject) => {
       VRSPACE.createSharedObject(o, (obj)=>{
@@ -1235,9 +1238,9 @@ export class NightClub extends World {
     this.customizer.initClearCoat();
 
     // Lights optimization
-      if (this.scene.getTransformNodeByName("allBarLights")) {
-        this.scene.getTransformNodeByName("allBarLights").dispose();
-      }
+    if (this.scene.getTransformNodeByName("allBarLights")) {
+      this.scene.getTransformNodeByName("allBarLights").dispose();
+    }
     if (setting === "high" || setting === "ultra-high") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");

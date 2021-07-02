@@ -12,6 +12,7 @@ export class Customizer {
     this.initPosters();
   }
   initAfterLoad() {
+    return;
     this.initVipEntrance();
     this.initVipExit();
 
@@ -79,98 +80,98 @@ export class Customizer {
                 })
             )
           galleryPoster.actionManager
-          .registerAction(
-            new BABYLON.ExecuteCodeAction(
-              BABYLON.ActionManager.OnPickTrigger, async (event) => {
-                let pickedMesh = event.meshUnderPointer;
-                var dest = new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z);
-                var pos = this.world.camera1.position.clone();
-                var distance = dest.subtract(pos).length();
+            .registerAction(
+              new BABYLON.ExecuteCodeAction(
+                BABYLON.ActionManager.OnPickTrigger, async (event) => {
+                  let pickedMesh = event.meshUnderPointer;
+                  var dest = new BABYLON.Vector3(pickedMesh.position.x, pickedMesh.position.y, pickedMesh.position.z);
+                  var pos = this.world.camera1.position.clone();
+                  var distance = dest.subtract(pos).length();
 
-                // Only trigger poster viewing if user is close enough
-                if ( distance < 4 && !this.world.viewingMediaMesh ) {
+                  // Only trigger poster viewing if user is close enough
+                  if ( distance < 4 && !this.world.viewingMediaMesh ) {
 
-                  var videoPosterName = "videoPoster-" + pickedMesh.name;
-                  // Construct video mesh
-                  let videoPoster = this.world.scene.getMeshByName(videoPosterName);
-                  if(videoPoster) {
-                    videoPoster.material.emissiveTexture.video.pause();
-                    return;
+                    var videoPosterName = "videoPoster-" + pickedMesh.name;
+                    // Construct video mesh
+                    let videoPoster = this.world.scene.getMeshByName(videoPosterName);
+                    if(videoPoster) {
+                      videoPoster.material.emissiveTexture.video.pause();
+                      return;
+                    }
+
+                    videoPoster = pickedMesh.clone(videoPosterName);
+                    videoPoster.renderOverlay = true;
+                    videoPoster.overlayColor = new BABYLON.Color3(0,0,0);
+
+                    // Switch user to camera1
+                    let vue = document.querySelector("#app")._vnode.component;
+                    let cameraMode = vue.data.cameraModes[0];
+                    vue.data.cameraMode = cameraMode;
+                    vue.data.world.activateCamera(cameraMode[0]);
+
+                    // Save original camera position so we can return the user to it later
+                    this.world.camera1.returnPosition = this.world.camera1.position.clone();
+                    this.world.camera1.returnCameraTarget = pickedMesh;
+                    if (!this.animateCamera) {
+                      this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 1);
+                    }
+                    this.world.camera1.applyGravity = false;
+
+                    // Construct 'loading' mesh
+                    if(!this.loadingPoster) {
+                      this.loadingPoster = BABYLON.MeshBuilder.CreatePlane("loadingPoster", {
+                        width: 0.45,
+                        height: 0.33
+                      });
+                      this.loadingPoster.material = new BABYLON.StandardMaterial("loadingPoster_mat", this.world.scene);
+                      this.loadingPoster.material.emissiveTexture = new BABYLON.Texture('/assets/loadingPoster.png', this.world.scene);
+                      this.loadingPoster.material.hasAlpha = true;
+                      this.loadingPoster.material.emissiveTexture.name = "loadingPoster_image";
+                      this.loadingPoster.material.disableLighting = true
+                    } else {
+                      this.loadingPoster.isVisible = true;
+                    }
+
+                    // Decide where to place the viewer and loading mesh
+                    this.loadingPoster.position.x = pickedMesh.position.x;
+                    this.loadingPoster.position.y = pickedMesh.position.y;
+                    this.loadingPoster.position.z = pickedMesh.position.z + .01;
+                    this.loadingPoster.rotation.y = pickedMesh.rotation.y;
+                    if(pickedMesh.rotation._y === -1.5707963267948966) {
+                      dest.x += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                      this.loadingPoster.position.x += .01;
+                    } else if(pickedMesh.rotation._y === 1.5707963267948966) {
+                      dest.x -= pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                      this.loadingPoster.position.x -= .01;
+                    } else if(pickedMesh.rotation._y === 3.141592653589793) {
+                      dest.z += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
+                      this.loadingPoster.position.z += .01;
+                    } else {
+                      return;
+                    }
+
+                    // Lock target onto poster and animate the camera
+                    VRSPACEUI.updateAnimation(this.animateCamera, pos, dest);
+                    this.world.camera1LookAt = pickedMesh.position;
+                    this.world.movement.disableKeys();
+                    this.world.viewingMediaMesh = videoPoster;
+
+                    setTimeout(() => {
+                      // Start playing video
+                      this.world.camera1LookAt = false;
+                      this.toggleShowcasePanel(pickedMesh.id);
+                      this.toggleShowcaseMessage(pickedMesh.id);
+                      Utilities.showHideUI();
+                      this.world.viewingMedia = true; // need this here so user can't "escape" prematurely which would break things
+
+                      // Start loading/playing
+                      this.loadAndPlay(pickedMesh, videoPoster);
+
+                    }, 1500)
                   }
-
-                  videoPoster = pickedMesh.clone(videoPosterName);
-                  videoPoster.renderOverlay = true;
-                  videoPoster.overlayColor = new BABYLON.Color3(0,0,0);
-
-                  // Switch user to camera1
-                  let vue = document.querySelector("#app")._vnode.component;
-                  let cameraMode = vue.data.cameraModes[0];
-                  vue.data.cameraMode = cameraMode;
-                  vue.data.world.activateCamera(cameraMode[0]);
-
-                  // Save original camera position so we can return the user to it later
-                  this.world.camera1.returnPosition = this.world.camera1.position.clone();
-                  this.world.camera1.returnCameraTarget = pickedMesh;
-                  if (!this.animateCamera) {
-                    this.animateCamera = VRSPACEUI.createAnimation(this.world.camera1, "position", 1);
-                  }
-                  this.world.camera1.applyGravity = false;
-
-                  // Construct 'loading' mesh
-                  if(!this.loadingPoster) {
-                    this.loadingPoster = BABYLON.MeshBuilder.CreatePlane("loadingPoster", {
-                      width: 0.45,
-                      height: 0.33
-                    });
-                    this.loadingPoster.material = new BABYLON.StandardMaterial("loadingPoster_mat", this.world.scene);
-                    this.loadingPoster.material.emissiveTexture = new BABYLON.Texture('/assets/loadingPoster.png', this.world.scene);
-                    this.loadingPoster.material.hasAlpha = true;
-                    this.loadingPoster.material.emissiveTexture.name = "loadingPoster_image";
-                    this.loadingPoster.material.disableLighting = true
-                  } else {
-                    this.loadingPoster.isVisible = true;
-                  }
-
-                  // Decide where to place the viewer and loading mesh
-                  this.loadingPoster.position.x = pickedMesh.position.x;
-                  this.loadingPoster.position.y = pickedMesh.position.y;
-                  this.loadingPoster.position.z = pickedMesh.position.z + .01;
-                  this.loadingPoster.rotation.y = pickedMesh.rotation.y;
-                  if(pickedMesh.rotation._y === -1.5707963267948966) {
-                    dest.x += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
-                    this.loadingPoster.position.x += .01;
-                  } else if(pickedMesh.rotation._y === 1.5707963267948966) {
-                    dest.x -= pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
-                    this.loadingPoster.position.x -= .01;
-                  } else if(pickedMesh.rotation._y === 3.141592653589793) {
-                    dest.z += pickedMesh.viewerOffset ? pickedMesh.viewerOffset : 3;
-                    this.loadingPoster.position.z += .01;
-                  } else {
-                    return;
-                  }
-
-                  // Lock target onto poster and animate the camera
-                  VRSPACEUI.updateAnimation(this.animateCamera, pos, dest);
-                  this.world.camera1LookAt = pickedMesh.position;
-                  this.world.movement.disableKeys();
-                  this.world.viewingMediaMesh = videoPoster;
-
-                  setTimeout(() => {
-                    // Start playing video
-                    this.world.camera1LookAt = false;
-                    this.toggleShowcasePanel(pickedMesh.id);
-                    this.toggleShowcaseMessage(pickedMesh.id);
-                    Utilities.showHideUI();
-                    this.world.viewingMedia = true; // need this here so user can't "escape" prematurely which would break things
-
-                    // Start loading/playing
-                    this.loadAndPlay(pickedMesh, videoPoster);
-
-                  }, 1500)
                 }
-              }
+              )
             )
-          )
         }
         galleryPoster.parent = posterGallery;
         posterMeshes.push(galleryPoster);
