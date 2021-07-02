@@ -13,7 +13,7 @@ import Customizer from './customizer';
 export class NightClub extends World {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Night_Club-2-july-shop.glb';
+    this.file = 'Night_Club-3-july-shop.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
