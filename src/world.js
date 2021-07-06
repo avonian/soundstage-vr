@@ -1365,6 +1365,24 @@ export class NightClub extends World {
       tempMeshEmiss.visibility = 0;
       tempMeshEmiss.isPickable = false;
     }
+    // for Store Light
+    if (event.key === "l") {
+      let storeLight = new BABYLON.SpotLight("storeLight", new BABYLON.Vector3(7, 1.7, 4.5),
+        new BABYLON.Vector3(0.5, -1, 3), BABYLON.Tools.ToRadians(120), 1, this.scene);
+      storeLight.intensity = 30;
+      storeLight.angle = BABYLON.Tools.ToRadians(120);
+      storeLight.diffuse = BABYLON.Color3.White();
+    }
+    // for Tickets Plane
+    if (event.key === "p") {
+      let ticketsPlane = BABYLON.MeshBuilder.CreatePlane("ticketsPlane", { width: 0.75, height: 0.75 });
+      ticketsPlane.rotation.y = BABYLON.Tools.ToRadians(90);
+      ticketsPlane.position.x = 9.189;
+      ticketsPlane.position.y = 1.144;
+      ticketsPlane.position.z = 4.686;
+      ticketsPlane.material = this.scene.getMeshByName("DJTableVideo").material;
+    }
+
   }
 
   startSavingState() {
