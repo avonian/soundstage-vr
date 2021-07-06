@@ -1241,7 +1241,7 @@ export class NightClub extends World {
     if (this.scene.getTransformNodeByName("allBarLights")) {
       this.scene.getTransformNodeByName("allBarLights").dispose();
     }
-    if (setting === "high" || setting === "ultra-high") {
+    if (setting === "high" || setting === "ultra-high" || setting === "medium") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");
       //TODO: Add includedOnlyMeshes to DJ Spotlight too - after model remake
