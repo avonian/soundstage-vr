@@ -783,12 +783,6 @@ export class NightClub extends World {
         avatar.altImage = obj.properties.altImage;
       }
     }
-    avatar.streamCallback = null;
-    if ( +this.properties.castUser === obj.id && this.properties.castTarget ) {
-      avatar.streamCallback = () => {
-        this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
-      }
-    }
     return avatar;
   }
   randomizeAvatar(obj) {
@@ -1398,6 +1392,17 @@ export class NightClub extends World {
 
   applyState() {
     let state = this.worldState.properties;
+
+    if(this.properties.castUser) {
+      var attemptCastUser = () => {
+        if(this.properties.castUser && this.stageControls.fetchPeerVideoElement(this.properties.castUser)) {
+          this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
+          return true;
+        }
+        setTimeout(() => attemptCastUser(), 500);
+      }
+      attemptCastUser();
+    }
 
     this.stageControls.activeMood = state.activeMood;
     this.stageControls.fogSetting = state.fogSetting;
