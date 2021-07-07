@@ -735,9 +735,9 @@ export class NightClub extends World {
         //permanent:true,
         properties: {
           name:'worldState',
-          WindowVideo:0, 
+          WindowVideo:0,
           DJTableVideo:0, 
-          castUser:null,
+          castUser: this.properties.castUser,
           castTarget:'WindowVideo',
           activeMood: this.stageControls.activeMood,
           fogSetting: this.stageControls.fogSetting,
