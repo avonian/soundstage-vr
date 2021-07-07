@@ -783,7 +783,8 @@ export class NightClub extends World {
         avatar.altImage = obj.properties.altImage;
       }
     }
-    if ( this.properties.castUser && this.properties.castTarget ) {
+    avatar.streamCallback = null;
+    if ( +this.properties.castUser === obj.id && this.properties.castTarget ) {
       avatar.streamCallback = () => {
         this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
       }

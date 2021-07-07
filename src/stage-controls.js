@@ -436,6 +436,7 @@ export class StageControls {
     let target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
     if(target === 'all' || target === 'WindowVideo') {
       let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
+      this.world.properties.castUser = false;
       this.world.properties.WindowVideo = videoIndex;
       this.executeAndSend(playTableEvent);
     }
