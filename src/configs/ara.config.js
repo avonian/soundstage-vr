@@ -1,119 +1,153 @@
 export default {
   'space_slug': 'simlink-friends',
   'alias': 'Ara',
+  'videos': [{
+    'url': 'https://assets.soundstage.fm/vr/Default.mp4',
+    'label': 'Default'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/kill-paris/Intro-Short.mp4',
+    'label': 'Intro'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/Tentacles.mp4',
+    'label': 'W1'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/FormEyes1.mp4',
+    'label': 'W2'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/PrimitiveEmitter_MB.mp4',
+    'label': 'W3'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/Endless_spiral.mp4',
+    'label': 'W4'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/FaceLoop3.mp4',
+    'label': 'W5'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/Glasses_Floor.mp4',
+    'label': 'W6'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/glasses_tornado.mp4',
+    'label': 'W7'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/LightningFace.mp4',
+    'label': 'W8'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/MachineLoop.mp4',
+    'label': 'W9'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/ObjectTowers1.mp4',
+    'label': 'W10'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/Displacement_Sphere.mp4',
+    'label': 'W11'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/ShineFace.mp4',
+    'label': 'W12'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/SwirlyCircles.mp4',
+    'label': 'W13'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/CubeWall.mp4',
+    'label': 'W14'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/wickit/TubeTunnel1.mp4',
+    'label': 'W15'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/beat-swiper.mp4',
+    'label': 'Beat Swiper'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Blue-Beams.mp4',
+    'label': 'Blue Beams'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4',
+    'label': 'Flamboyant Lines'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Megapixel.mp4',
+    'label': 'Megapixel'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Purple-Tunnel.mp4',
+    'label': 'Purple Tunnel'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Reactor.mp4',
+    'label': 'Reactor'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Retro-1.mp4',
+    'label': 'Waves'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Retro-2.mp4',
+    'label': 'Retro'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4',
+    'label': 'Ring Pulse'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/split-sphere.mp4',
+    'label': 'Split Sphere'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Color-Tiler.mp4',
+    'label': 'Tiler'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Cube-Trails.mp4',
+    'label': 'Trails'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/Ultra.mp4',
+    'label': 'Ultra'
+  }
+  ],
   'posters': [
     {
-      'name': 'CakeThrower',
-      'width': 3.5,
-      'height': 2,
+      'name': 'landscape7',
+      'width': 4.55,
+      'height': 2.6,
       'posX': -5,
       'posY': 4.45,
-      'posZ': 2,
+      'posZ': -1.38,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/CakeThrower.jpg'
-    },{
-      'name': 'PartyPupils',
-      'width': 3,
-      'height': 2,
-      'posX': -5,
-      'posY': 4.45,
-      'posZ': -4.22,
-      'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/PartyPupils.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape7b.jpg'
     }, {
-      'name': 'DimMak2020',
-      'width': 1.6,
+      'name': 'landscape4',
+      'width': 2.9,
       'height': 1.6,
       'posX': -5,
       'posY': 1.088,
       'posZ': -2.908,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/DimMak2020.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape4.jpg'
     }, {
-      'name': 'Mambo',
-      'width': 3.15,
-      'height': 2,
+      'name': 'landscape6',
+      'width': 4.095,
+      'height': 2.6,
       'posX': 9.228,
       'posY': 4.450,
       'posZ': -1.380,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Mambo.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape6.jpg'
     }, {
-      'name': 'Aviella',
-      'width': 1.7,
-      'height': 2,
+      'name': 'landscape3',
+      'width': 4.095,
+      'height': 2.6,
       'posX': 2.13,
       'posY': 4.450,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Aviella.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape3.jpg'
     }, {
-      'name': 'Complicated',
-      'width': 1.7,
-      'height': 2,
-      'posX': 5.6,
-      'posY': 4.450,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Complicated.jpg'
-    }, {
-      'name': 'GlobalDan',
-      'width': 1.7,
-      'height': 2,
-      'posX': -1.37,
-      'posY': 4.450,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/GlobalDan.jpg'
-    }, {
-      'name': 'Hairy',
-      'width': 1.2,
+      'name': 'poster1',
+      'width': 1.4,
       'height': 1.6,
-      'posX': 4.87,
+      'posX': 5.69,
       'posY': 1.057,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Hairy.jpg',
-      'video_url': 'https://assets.soundstage.fm/vr/dim-mak/Hairy.mp4',
-      'showcase': {
-        'title': 'hairy',
-        'author': 'Steve Aoki x Antoni Tudisco',
-        'image': 'https://assets.soundstage.fm/vr/dim-mak/Hairy.jpg',
-        'description': '<p>hairy by Steve Aoki x Antoni Tudisco. Comes with Infinite Objects screen!</p>',
-        'auction': {
-          'price': '$888,888.88',
-          'href': 'https://niftygateway.com/itemdetail/primary/0xbeccd9e4a80d4b7b642760275f60b62608d464f7/1'
-        }
-      }
-    },  {
-      'name': 'Run',
-      'width': 1.2,
-      'height': 1.6,
-      'posX': 6.79,
-      'posY': 1.057,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Run.jpg',
-      'video_url': 'https://assets.soundstage.fm/vr/dim-mak/Run.mp4',
-      'showcase': {
-        'title': 'run',
-        'author': 'Steve Aoki x Antoni Tudisco',
-        'image': 'https://assets.soundstage.fm/vr/dim-mak/Run.jpg',
-        'description': '<p>run by Steve Aoki x Antoni Tudisco</p>',
-        'auction': {
-          'price': '$5,000.00',
-          'href': 'https://niftygateway.com/itemdetail/primary/0x2af6eb2bfda21572615708532602454e5413bda1/1'
-        }
-      }
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster1.jpg',
     }, {
-      'name': 'SprayPaint',
-      'width': 2.2,
+      'name': 'poster2',
+      'width': 1.45,
       'height': 1.6,
-      'posX': -2.9,
+      'posX': -2.6,
       'posY': 1.088,
       'posZ': -8.545,
       'rotationY': -180,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/SprayPaint.jpg',
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster2.jpg',
     }, {
       'name': 'Dream Catcher',
       'width': 1.2,
@@ -122,21 +156,10 @@ export default {
       'posY': 1.06,
       'posZ': -4.29,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/dim-mak/Dream_Catcher.jpg',
-      'video_url': 'https://assets.soundstage.fm/vr/dim-mak/Dream_Catcher.mp4',
-      'showcase': {
-        'title': 'Dream Catcher',
-        'author': 'Steve Aoki x Antoni Tudisco',
-        'image': 'https://assets.soundstage.fm/vr/dim-mak/Dream_Catcher.jpg',
-        'description': '<p>Dream Catcher by Steve Aoki x Antoni Tudisco</p>',
-        'auction': {
-          'price': '$1.00',
-          'href': 'https://niftygateway.com/itemdetail/primary/0x46a7b5327c66dcb589155e8df25a5a35a702dc1c/1'
-        }
-      }
+      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster4.jpg',
     },
-    {"name": "AokiBoat", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 3.1, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/dim-mak/AokiBoat.jpg", "rotationY": -90},
-    {"name": "DimMak2014", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/dim-mak/DimMak2014.jpg", "rotationY": 0},
-    {"name": "AnyMeansNecessary", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/dim-mak/AnyMeansNecessary.jpg", "rotationY": 90}
+    {"name": "landscape5", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 3.1, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-landscape5.jpg", "rotationY": -90},
+    {"name": "wickitlogo", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-logo.jpg", "rotationY": 0},
+    {"name": "poster3", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-poster3.jpg", "rotationY": 90}
   ]
 }
