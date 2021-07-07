@@ -1,7 +1,7 @@
 <template>
     <div class="ui-hide">
         <div class="flex items-stretch justify-end pl-12 pb-12 absolute left-0 bottom-0">
-            <a href="#"
+            <a
                class="gradient-ultra glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4"
                @click="$emit('showSettingsPanel')">
                 <svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" fill="none" viewBox="0 0 24 24"
@@ -13,13 +13,13 @@
                 </svg>
             </a>
 
-            <a href="#"
+            <a
                class="bg-gray-500 glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 ml-6"
                @click="$emit('toggleDebug')" v-if="debugging">
                 Debug
             </a>
 
-            <a href="#"
+            <a
                class="bg-gray-500 glow-dark flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4 ml-6"
                @click="$emit('startRecording')" v-if="debugging">
                 <span v-if="!recording">Record Audio</span>
@@ -47,7 +47,6 @@
             />
 
             <a
-                    href="#"
                     class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-6"
                     @click="$emit('rotationOnOff')">
                 <svg width="30" height="30" aria-hidden="true" focusable="false" data-prefix="fas"
@@ -69,7 +68,6 @@
 
             <a
                     id="btn-webcam"
-                    href="#"
                     class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-6"
                     @click="$emit('cameraOnOff')" v-if="userSettings.enableWebcamFeeds && videoDevices.length > 0">
                 <svg width="30" height="30" aria-hidden="true" focusable="false" data-prefix="fas"
@@ -88,7 +86,6 @@
 
             <a
                     id="btn-microphone"
-                    href="#"
                     class="bg-indigo-500 glow-dark flex flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-8"
                     @click="$emit('microphoneOnOff')">
 
@@ -107,7 +104,7 @@
                 </svg>
             </a>
 
-            <a href="#"
+            <a
                class="gradient-ultra glow-dark flex items-center justify-center px-6 py-2 sm:px-8 sm:py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-8 mr-8"
                @click="$emit('cycleCamera')">
                 {{ cameraMode ? cameraMode[1] : '' }}

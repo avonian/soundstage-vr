@@ -3,6 +3,10 @@ body {
     color: white;
 }
 
+a {
+    cursor: pointer;
+}
+
 select, select:focus, select:active, select:focus-visible, select:focus-within {
     border: 1px solid white !important;
     padding: 0.3rem;
