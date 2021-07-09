@@ -48,6 +48,8 @@ export class Customizer {
         galleryPoster.material = new BABYLON.StandardMaterial(posters[i].name + "_mat", this.world.scene);
         galleryPoster.material.emissiveTexture = new BABYLON.Texture(posters[i].photo_url, this.world.scene);
         galleryPoster.material.emissiveTexture.name = "PosterImage-" + posters[i].name;
+        galleryPoster.material.opacityTexture = new BABYLON.Texture(posters[i].photo_url, this.world.scene);
+
         galleryPoster.material.disableLighting = true
         if(posters[i].video_url) {
           galleryPoster.video_url = posters[i].video_url;
