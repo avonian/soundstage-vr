@@ -116,7 +116,7 @@
 </template>
 
 <script>
-  import Nightclub from '../world.js'
+  import Worlds from '../worlds'
   import InvalidEvent from './components/InvalidEvent';
   import Banned from './components/Banned';
   import QuickStart from './components/QuickStart';
@@ -147,7 +147,6 @@
   var micDevice = null
 
   // world variables
-  var worldName = 'NightClub'
   var fps = 5
 
   let userSettings
@@ -512,8 +511,8 @@
             this.mouseIsDown = false
           })
 
-          // webcam/mic UI should be set up before 3D world, i.e. desired device ID has to be known
-          this.world = world = await new Nightclub(this.spaceConfig, this.userSettings);
+          // construct desired world
+          this.world = world = await new Worlds[this.spaceConfig.world](this.spaceConfig, this.userSettings);
 
           // Apply any settings adjustments from initial welcome screen
           this.saveSettings(true);
@@ -537,7 +536,7 @@
           // specify other file here, like
           //world.file = 'Night_Club.glb'
           //world.baseUrl = 'location';
-          world.init(engine, worldName, null, () => {
+          world.init(engine, this.spaceConfig.space_slug, null, () => {
 
             world.cameraFree.speed = this.freeCamSpeed
             world.cameraFree.angularSensibility = this.freeCamSensibility

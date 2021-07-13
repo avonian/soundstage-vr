@@ -1,16 +1,16 @@
-import { World, WorldManager, VRSPACEUI, VRSPACE } from './vrspace/index-min';
-import CinemaCamera from './cinema-camera';
-import AdminControls from './admin-controls';
-import StageControls from './stage-controls';
-import Emojis from './emojis';
-import MediaSoup from './media-streams';
-import DummyAvatar from './dummy-avatar';
-import HoloAvatar from './holo-avatar';
-import Movement from './movement';
-import Customizer from './customizer';
+import { World, WorldManager, VRSPACEUI, VRSPACE } from '../vrspace/index-min';
+import CinemaCamera from '../cinema-camera';
+import AdminControls from '../admin-controls';
+import StageControls from '../stage-controls';
+import Emojis from '../emojis';
+import MediaSoup from '../media-streams';
+import DummyAvatar from '../dummy-avatar';
+import HoloAvatar from '../holo-avatar';
+import Movement from '../movement';
+import Customizer from '../customizer';
 
 // deals with everything inside 3D world
-export class NightClub extends World {
+export default class extends World {
   constructor(spaceConfig, userSettings) {
     super();
     this.file = 'Night_Club-14may.glb';
@@ -1456,5 +1456,3 @@ export class NightClub extends World {
     this.customizer = new Customizer(this);
   }
 }
-
-export default NightClub;

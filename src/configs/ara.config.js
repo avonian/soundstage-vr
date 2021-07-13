@@ -1,8 +1,9 @@
 export default {
   'space_slug': 'simlink-friends',
   'alias': 'Ara',
+  'world': 'Nightclub',
   'videos': [{
-    'url': 'https://assets.soundstage.fm/vr/Default.mp4',
+    'url': 'https://assets.soundstage.fm/vr/olyverse/OlyseumWindowScene.mp4',
     'label': 'Default'
   }, {
     'url': 'https://assets.soundstage.fm/vr/kill-paris/Intro-Short.mp4',
@@ -95,71 +96,161 @@ export default {
   ],
   'posters': [
     {
-      'name': 'landscape7',
-      'width': 4.55,
-      'height': 2.6,
+      'name': 'circle1',
+      'width': 1.75,
+      'height': 1.75,
       'posX': -5,
       'posY': 4.45,
-      'posZ': -1.38,
+      'posZ': 3.39,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape7b.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_01.png'
     }, {
-      'name': 'landscape4',
-      'width': 2.9,
+      'name': 'circle2',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': -5,
+      'posY': 4.45,
+      'posZ': 0.31,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_02.png'
+    }, {
+      'name': 'circle3',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': -5,
+      'posY': 4.45,
+      'posZ': -3,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_03.png'
+    }, {
+      'name': 'circle4',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': -5,
+      'posY': 4.45,
+      'posZ': -6.36,
+      'rotationY': -90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_04.png'
+    }, {
+      'name': 'circle5',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': -2.36,
+      'posY': 4.450,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_05.png'
+    }, {
+      'name': 'circle6',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 0.57,
+      'posY': 4.450,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_06.png'
+    }, {
+      'name': 'circle7',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 3.65,
+      'posY': 4.450,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_07.png'
+    }, {
+      'name': 'circle8',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 6.65,
+      'posY': 4.450,
+      'posZ': -8.545,
+      'rotationY': 180,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_08.png'
+    }, {
+      'name': 'circle9',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 9.228,
+      'posY': 4.450,
+      'posZ': -6.36,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_09.png'
+    }, {
+      'name': 'circle10',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 9.228,
+      'posY': 4.450,
+      'posZ': -3,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_10.png'
+    }, {
+      'name': 'circle11',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 9.228,
+      'posY': 4.450,
+      'posZ': 0.31,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_11.png'
+    }, {
+      'name': 'circle12',
+      'width': 1.75,
+      'height': 1.75,
+      'posX': 9.228,
+      'posY': 4.450,
+      'posZ': 3.39,
+      'rotationY': 90,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/avatar_bg_12.png'
+    }, {
+      'name': 'hologram3',
+      'width': 1.6,
       'height': 1.6,
       'posX': -5,
       'posY': 1.088,
       'posZ': -2.908,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape4.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/poster_hologram3.jpg'
     }, {
-      'name': 'landscape6',
-      'width': 4.095,
-      'height': 2.6,
-      'posX': 9.228,
-      'posY': 4.450,
-      'posZ': -1.380,
-      'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape6.jpg'
-    }, {
-      'name': 'landscape3',
-      'width': 4.095,
-      'height': 2.6,
-      'posX': 2.13,
-      'posY': 4.450,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-landscape3.jpg'
-    }, {
-      'name': 'poster1',
-      'width': 1.4,
+      'name': 'hologram2',
+      'width': 1.3,
       'height': 1.6,
       'posX': 5.69,
       'posY': 1.057,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster1.jpg',
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/poster_hologram2.jpg'
     }, {
-      'name': 'poster2',
-      'width': 1.45,
+      'name': 'hologram4',
+      'width': 1.8,
       'height': 1.6,
       'posX': -2.6,
       'posY': 1.088,
       'posZ': -8.545,
       'rotationY': -180,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster2.jpg',
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/poster_hologram4.jpg',
     }, {
-      'name': 'Dream Catcher',
+      'name': 'hologram4',
+      'width': 1.8,
+      'height': 1.6,
+      'posX': -2.6,
+      'posY': 1.088,
+      'posZ': -8.545,
+      'rotationY': -180,
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/poster_hologram4.jpg',
+    }, {
+      'name': 'hologram1',
       'width': 1.2,
       'height': 1.6,
       'posX': 9.23,
       'posY': 1.06,
       'posZ': -4.29,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/wickit/wickit-poster4.jpg',
+      'photo_url': 'https://assets.soundstage.fm/vr/olyverse/poster_hologram1.jpg',
     },
-    {"name": "landscape5", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 3.1, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-landscape5.jpg", "rotationY": -90},
-    {"name": "wickitlogo", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-logo.jpg", "rotationY": 0},
-    {"name": "poster3", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/wickit/wickit-poster3.jpg", "rotationY": 90}
+    {"name": "xnft_banner", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 2.6, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/olyverse/xnft_banner.jpg", "rotationY": -90},
+    {"name": "oly_logo", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 2.6, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/olyverse/Logo-Oly.png", "rotationY": 0},
+    {"name": "xnft_poster", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.85, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/olyverse/xnft_poster.jpg", "rotationY": 90}
   ]
 }
