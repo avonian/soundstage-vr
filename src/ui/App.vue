@@ -116,7 +116,7 @@
 </template>
 
 <script>
-  import Worlds from '../worlds'
+  import Worlds from '../lib/worlds'
   import InvalidEvent from './components/InvalidEvent';
   import Banned from './components/Banned';
   import QuickStart from './components/QuickStart';
@@ -529,7 +529,7 @@
               document.querySelector('#progress-splash').remove()
               canvas.setAttribute('tabindex', '-1')
               canvas.focus()
-              world.customizer.initAfterLoad();
+              world.initAfterLoad();
             }, 2000)
           }
           // by default, World loads scene.gltf from current directory
@@ -582,8 +582,8 @@
               this.fogSettingConfigs = this.world.stageControls.fogSettingConfigs;
 
               world.adjustGraphicsQuality(this.userSettings.graphicsQuality);
-              if(this.world.customizer.DJSpotLight) {
-                this.DJSpotLightIntensity = this.world.customizer.DJSpotLight.intensity;
+              if(this.world.DJSpotLight) {
+                this.DJSpotLightIntensity = this.world.DJSpotLight.intensity;
               }
 
               if(this.spaceConfig['permissions']['stage_controls']) {
@@ -612,7 +612,6 @@
             scene = s
             // Apply graphics quality settings from welcome screen
             world.showVideo(this.spaceConfig.avatar ? this.spaceConfig.avatar : "https://assets.soundstage.fm/vr/avatar_default.png") // initialize own avatar
-            world.customize();
           })
 
           // Watch for browser/canvas resize events

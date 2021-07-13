@@ -1,5 +1,4 @@
 export default {
-  'mode': 'dev',
   'role': 'staff',
   'permissions': {
     'access_backstage': true,
@@ -10,6 +9,7 @@ export default {
     'stage_controls': true
   },
   'world': 'Nightclub',
+  'mode': 'soundclub', // 'venue' or 'soundclub'
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },

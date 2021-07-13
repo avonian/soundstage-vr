@@ -86,7 +86,7 @@ export default {
       try {
         world.viewingMediaMesh.material.emissiveTexture.video.pause();
       } catch (error) {
-        world.customizer.returnToStartingPosition();
+        world.gallery.returnToStartingPosition();
       }
     }
   }
