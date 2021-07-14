@@ -205,11 +205,12 @@ export default class extends SoundWorld {
   }
   initKiosk() {
     let ticketsPlane = BABYLON.MeshBuilder.CreatePlane("ticketsPlane", { width: 0.75, height: 0.75 });
+    this.ticketKioskMaterial = new BABYLON.StandardMaterial("ticketKioskMaterial", this.scene);
     ticketsPlane.rotation.y = BABYLON.Tools.ToRadians(90);
     ticketsPlane.position.x = 9.189;
     ticketsPlane.position.y = 1.144;
     ticketsPlane.position.z = 4.686;
-    ticketsPlane.material = this.scene.getMeshByName("DJTableVideo").material;
+    ticketsPlane.material = this.ticketKioskMaterial;
   }
   initDJSpotLight() {
     if(this.DJSpotLight) {
