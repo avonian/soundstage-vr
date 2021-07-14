@@ -245,13 +245,6 @@
               this.$emit('changeFog')
             }, 60000);
 
-            /*
-            setTimeout(() => {
-              console.log('Back to default video');
-              this.$emit('activateVideo', 0);
-            }, 70000);
-            */
-
             setTimeout(() => {
               console.log('Adding purple fog');
               document.querySelector('#fogSetting').value = 'purple';

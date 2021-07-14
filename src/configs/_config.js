@@ -9,7 +9,7 @@ export default {
     'stage_controls': true
   },
   'world': 'Nightclub',
-  'mode': 'soundclub', // 'venue' or 'soundclub'
+  'mode': 'venue', // 'venue' or 'soundclub'
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },

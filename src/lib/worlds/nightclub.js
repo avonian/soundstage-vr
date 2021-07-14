@@ -234,7 +234,6 @@ export default class extends SoundWorld {
     this.DJSpotLight.range = 20;
   }
   initStoreLight() {
-    // TODO: make sure it checks env light state to determine light intensity, and also adjust it when stage lights dim on/off
     if(this.storeLight) {
       this.storeLight.dispose();
     }
@@ -242,7 +241,7 @@ export default class extends SoundWorld {
       return;
     }
     this.storeLight = new BABYLON.SpotLight("storeLight", new BABYLON.Vector3(7, 1.7, 4.5), new BABYLON.Vector3(0.5, -1, 3), BABYLON.Tools.ToRadians(120), 1, this.scene);
-    this.storeLight.intensity = 15;
+    this.storeLight.intensity = 0;
     this.storeLight.angle = BABYLON.Tools.ToRadians(120);
     this.storeLight.diffuse = BABYLON.Color3.White();
   }
@@ -266,7 +265,6 @@ export default class extends SoundWorld {
     barLight.diffuse = BABYLON.Color3.Purple();
     barLight.range = 10;
 
-//  This part later may become a function with lights settings in JSON
     let tealLight = barLight.clone("tealLight");
     barLight.intensity = 40;
     tealLight.position.x = -0.6;
@@ -641,7 +639,6 @@ export default class extends SoundWorld {
     DJShield._scaling.y = 3.3;
     DJShield._scaling.z = 3.3;
     DJShield.checkCollisions = this.permissions.stage_controls !== true && this.permissions['access_tunnel'] !== true;
-    DJShield.checkCollisions = false;
     DJShield.visibility = 0;
     if ( this.afterLoad ) {
       this.afterLoad();
@@ -653,7 +650,6 @@ export default class extends SoundWorld {
     tunnelShield.position.y = -2;
     tunnelShield.position.z = 33.207;
     tunnelShield.checkCollisions = this.permissions.stage_controls === false && this.permissions['access_tunnel'] !== true;
-    tunnelShield.checkCollisions = false;
     tunnelShield.visibility = 0
 
     let tunnelSegment1 = this.scene.getMeshByName("Cube.3")
@@ -1685,6 +1681,9 @@ export default class extends SoundWorld {
 
     if(state.DJSpotLightIntensity && this.DJSpotLight) {
       this.DJSpotLight.intensity = state.DJSpotLightIntensity;
+    }
+    if(this.spaceConfig.mode === 'soundclub') {
+      this.storeLight.intensity = state.activeMood ? 15 : 0;
     }
 
     if(state.fogSetting) {

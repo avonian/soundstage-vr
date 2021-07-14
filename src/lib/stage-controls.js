@@ -143,7 +143,7 @@ export class StageControls {
     this.world.scene.stopAnimation(this.pedestal);
     this.pedestalColorAnimation = this.world.scene.beginAnimation(this.pedestal, 0, frame, loop);
   }
-  animateFog(fogSettingConfig, duration) {
+  animateFog(fogSettingConfig, duration, callback) {
     this.world.scene.animations = [];
 
     if(duration === 0) {
@@ -179,8 +179,7 @@ export class StageControls {
     ];
     fogDensityAnimation.setKeys(densityKeys);
     this.world.scene.animations.push(fogDensityAnimation);
-
-    this.world.scene.beginAnimation(this.world.scene, 0, duration, false);
+    this.world.scene.beginAnimation(this.world.scene, 0, duration, false, 1, callback);
   }
   animateEnvironmentIntensity(intensity, transitionInterval, callback) {
     let environmentIntensityAnimation = new BABYLON.Animation("environmentIntensityAnimation", "environmentIntensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
@@ -263,6 +262,27 @@ export class StageControls {
 
     this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1);
   }
+  animateStoreLight(intensity, transitionInterval, callback) {
+    if(!this.world.storeLight) {
+      return;
+    }
+    let StoreLightAnimation = new BABYLON.Animation("StoreLightAnimation", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
+    let keys = [
+      {
+        frame: 0,
+        value: this.world.storeLight.intensity
+      },
+      {
+        frame: transitionInterval,
+        value: intensity
+      },
+    ];
+    StoreLightAnimation.setKeys(keys);
+    let StoreLight = this.world.storeLight;
+    StoreLight.animations = [];
+    StoreLight.animations.push(StoreLightAnimation)
+    this.world.scene.beginAnimation(StoreLight, 0, transitionInterval, false, 1, callback);
+  }
   toggleTunnelLights(on = true, transitionInterval = 100) {
     this.tunnelLightsOn = on;
     let meshes = this.world.scene.meshes.filter(mesh => (mesh.name.indexOf("Sweep") === 0 && mesh.name !== "Sweep.5" && mesh.parent.parent.name !== "logo") || (mesh.name === "Sweep.5" && mesh.parent.parent.name === "Null.1"))
@@ -310,7 +330,6 @@ export class StageControls {
     this.world.scene.beginAnimation(mesh, 0, transitionInterval, false, 1, callback);
   }
   toggleGridFloor(on = true, transitionInterval = 150, speed = 500) {
-
     this.gridFloorOn = on;
     let gridFloor = this.world.scene.getMeshByName("gridFloor");
     if(this.gridFloorOn) {
@@ -411,7 +430,11 @@ export class StageControls {
           if(document.querySelector('#fogSetting')) {
             document.querySelector('#fogSetting').value = this.fogSetting;
           }
-          this.animateFog(this.fogSettingConfigs[moodSet.fogSetting], 300);
+          this.animateStoreLight(15, 100, () => {
+            this.animateFog(this.fogSettingConfigs[moodSet.fogSetting], 300);
+          });
+        } else {
+          this.animateStoreLight(15, 100);
         }
       });
       this.world.scene.pedestalColor = moodSet.pedestalColor;
@@ -424,7 +447,9 @@ export class StageControls {
         document.querySelector('#fogSetting').value = this.fogSetting;
       }
       this.animateEnvironmentIntensity(this.cubeTextures[this.activeCubeTexture]['environmentIntensity'], 300, () => {
-        this.animateFog(this.fogSettingConfigs['none'], 300);
+        this.animateStoreLight(0, 100, () => {
+          this.animateFog(this.fogSettingConfigs['none'], 300);
+        });
       });
       this.pedestalColorAnimation.stop();
       this.animatePedestalColor([this.pedestal.material.emissiveColor, BABYLON.Color3.White()], 600, 0);
