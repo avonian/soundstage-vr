@@ -6,27 +6,60 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </a>
-            <div>Me: Hello need help</div>
-            <div>Wick-it the Instigator: Yo yo yoooo what's good fam!</div>
-            <div>Me: Hey my speakers ain't working!</div>
-            <div>Simlink: Did you try tweaking the settings in the bottom left? Look for the playback device try messing with that and then click accept.</div>
-            <div>Me: Hold on where exactly?</div>
-            <div>Simlink: Bottom left click the button all the way on the bottom left the one with the icon of a cog.</div>
-            <div>Me: Hello need help</div>
-            <div>Wick-it the Instigator: Yo yo yoooo what's good fam!</div>
-            <div>Me: Hey my speakers ain't working!</div>
-            <div>Simlink: Did you try tweaking the settings in the bottom left? Look for the playback device try messing with that and then click accept.</div>
-            <div>Me: Hold on where exactly?</div>
-            <div>Simlink: Bottom left click the button all the way on the bottom left the one with the icon of a cog.</div>
+            <div v-for="message of chatLog" :key="message">
+                <span class="font-bold" :class="message.user_id === world.spaceConfig.user_id ? 'text-indigo-500' : ''">{{ message.user_id === world.spaceConfig.user_id ? 'Me' : message.alias }}: </span>
+                <span class="ml-1">{{ message.content }}</span>
+            </div>
         </div>
         <div class="chat-input flex">
-            <input type="text" class="focus:outline-none flex-grow px-2">
+            <input type="text" class="focus:outline-none flex-grow px-2" v-on:keyup.enter="submit" v-on:keyup.esc="cancel">
         </div>
     </div>
 </template>
 <script>
 export default {
-  name: "Chat"
+  name: "Chat",
+  props: ['world', 'chatLog'],
+  watch: {
+    chatLog: {
+      deep: true,
+      handler() {
+        this.$nextTick(async () => {
+          if (!this.atBottom()) {
+            this.scrollToBottom();
+          }
+        });
+      }
+    }
+  },
+  mounted() {
+    this.scrollToBottom();
+  },
+  methods: {
+    cancel() {
+      document.querySelector("#chatbox .chat-input input").value = '';
+      document.getElementById('renderCanvas').focus();
+    },
+    submit() {
+      let content = document.querySelector("#chatbox .chat-input input").value.trim();
+      if(content === '') {
+        return;
+      }
+      this.world.chat.executeAndSend({
+        user_id: this.world.spaceConfig.user_id,
+        alias: this.world.spaceConfig.alias,
+        content: content
+      });
+      document.querySelector("#chatbox .chat-input input").value = '';
+    },
+    atBottom() {
+      return document.querySelector("#chatbox .chat-log").offsetHeight + document.querySelector("#chatbox .chat-log").scrollTop >= document.querySelector("#chatbox .chat-log").scrollHeight
+    },
+    scrollToBottom() {
+      let container = document.querySelector("#chatbox .chat-log");
+      container.scrollTop = container.scrollHeight;
+    }
+  }
 }
 </script>
 

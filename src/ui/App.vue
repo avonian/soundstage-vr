@@ -83,7 +83,12 @@
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
                 />
-        <Chat class="absolute top-12 left-12" :class="showStageControls ? 'top-56' : 'top-12'" @toggleChat="chatOpen = chatOpen === false" v-show="chatOpen"/>
+        <Chat v-show="chatOpen"
+               class="absolute top-12 left-12"
+               :world="world"
+               :class="showStageControls ? 'top-56' : 'top-12'"
+               :chat-log="chatLog"
+               @toggleChat="chatOpen = chatOpen === false"/>
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
                 :recording="recording"
@@ -274,7 +279,8 @@
         ],
         modal: false,
         app_url: process.env.VUE_APP_API_URL,
-        attenuation: ''
+        attenuation: '',
+        chatLog: []
       }
     },
     computed: {

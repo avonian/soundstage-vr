@@ -1,6 +1,7 @@
 export default {
   'space_slug': 'simlink-friends',
-  'alias': 'Ara',
+  'alias': 'Simlink',
+  'user_id': 1,
   'posters': [
     {
       'name': 'DOGE-AtomicSwap',

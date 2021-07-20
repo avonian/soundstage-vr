@@ -1,4 +1,5 @@
 export default {
   'space_slug': 'andreis-dev-space',
-  'alias': 'Andrei'
+  'alias': 'Andrei',
+  'user_id': 2
 }
