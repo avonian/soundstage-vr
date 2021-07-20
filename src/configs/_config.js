@@ -6,7 +6,7 @@ export default {
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
-    'stage_controls': true
+    'stage_controls': false
   },
   'world': 'Nightclub',
   'mode': 'soundclub', // 'venue' or 'soundclub'

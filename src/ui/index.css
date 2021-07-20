@@ -59,6 +59,26 @@ select, select:focus, select:active, select:focus-visible, select:focus-within {
     box-shadow: 0px 0px 12px rgb(230, 0, 255);
 }
 
+.btn-ui {
+    @apply glow-dark flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg text-white md:py-3 md:text-lg md:px-4
+}
+
+.btn-ui-primary {
+    @apply btn-ui gradient-ultra
+}
+
+.btn-ui-secondary {
+    @apply btn-ui bg-indigo-500
+}
+
+.btn-ui-tertiary {
+    @apply btn-ui bg-gray-500
+}
+
+.btn-toggle {
+    @apply flex flex-col items-center justify-center text-sm font-medium rounded-lg text-white
+}
+
 #btn-debug {
     display: inline-block;
     bottom: 0;

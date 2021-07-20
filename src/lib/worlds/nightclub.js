@@ -9,6 +9,7 @@ import DummyAvatar from '../dummy-avatar';
 import HoloAvatar from '../holo-avatar';
 import Movement from '../movement';
 import Gallery from '../gallery';
+import Chat from '../chat'
 
 // deals with everything inside 3D world
 export default class extends SoundWorld {
@@ -68,6 +69,7 @@ export default class extends SoundWorld {
     this.gallery = null;
   }
   initAfterLoad() {
+    this.chat = new Chat(this);
     this.initVipEntrance();
     this.initVipExit();
     this.gallery = new Gallery(this);
@@ -896,6 +898,7 @@ export default class extends SoundWorld {
       videoAvatarSize: this.videoAvatarSize,
       trackAvatarRotation: this.trackAvatarRotation,
       emojiEvent: (obj) => this.animateAvatar(obj),
+      chatEvent: (obj) => this.chat.execute(obj.chatEvent),
       stageEvent: (obj) => this.stageControls.execute(obj.stageEvent),
       adminEvent: (obj) => this.adminControls.execute(obj.adminEvent),
       properties: (obj) => {

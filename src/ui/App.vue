@@ -25,7 +25,7 @@
         <QuickStart v-if="showHelp"
                 @continue="showHelp = false"/>
         <LocalCamera v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0"
-                :showStageControls="showStageControls"
+                :enableStageControls="enableStageControls"
                 @castSelf="castSelf"/>
         <AvatarMenu v-if="avatarMenuClientId"
             :world="world"
@@ -57,7 +57,7 @@
         <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
         <StageControls
                 v-if="showStageControls"
-                v-show="showControls"
+                v-show="hideDuringFreecam"
                 :active-video="activeVideo"
                 :world="world"
                 :videos="videos"
@@ -83,7 +83,8 @@
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
                 />
-        <UserControls v-show="showControls"
+        <Chat class="absolute top-12 left-12" :class="showStageControls ? 'top-56' : 'top-12'" @toggleChat="chatOpen = chatOpen === false" v-show="chatOpen"/>
+        <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
                 :recording="recording"
                 :user-settings="userSettings"
@@ -95,8 +96,10 @@
                 :show-instrumentation="showInstrumentation"
                 :world="world"
                 :enable-stereo="userSettings.enableStereo"
+                :enable-stage-controls="enableStageControls"
                 :use-computer-sound="userSettings.useComputerSound"
                 :sending-music="userSettings.sendingMusic"
+                :chat-open="chatOpen"
                 @toggleSendingMusic="toggleSendingMusic($event)"
                 @setVolume="setVolume($event)"
                 @showSettingsPanel="showSettings = true"
@@ -107,7 +110,10 @@
                 @microphoneOnOff="microphoneOnOff"
                 @cycleCamera="cycleCamera"
                 @emojiMenuOnOff="emojiMenuOnOff"
-                @focusCanvas="focusCanvas"/>
+                @focusCanvas="focusCanvas"
+                @toggleChat="chatOpen = chatOpen === false"
+                @toggleStageControls="showStageControls = showStageControls === false"
+                />
     </div>
     <div id="videos" :class="!showUserVideosPanel ? 'hidden' : 'flex fixed bottom-0 overflow-x-auto w-full overflow-x-auto'">
         <audio id='audioOutput' class="hidden" controls autoplay></audio>
@@ -130,6 +136,8 @@
   import AvatarMenu from './components/AvatarMenu'
   import Modal from './components/Modal'
   import Showcase from './components/Showcase'
+  import Chat from './components/Chat'
+
   import browser from 'browser-detect';
 
   // variables required to use babylon.js:
@@ -188,7 +196,8 @@
       WelcomeScreen,
       AvatarMenu,
       Showcase,
-      Modal
+      Modal,
+      Chat
     },
     data () {
       return {
@@ -203,8 +212,10 @@
         cameraMode: null,
         webcamEnabled: false,
         micEnabled: false,
+        chatOpen: true,
         canBroadcast: false,
         debugging: urlParams.get('debug'),
+        enableStageControls: false,
         showStageControls: false,
         freeCamSpeed: 0.1,
         freeCamSensibility: 8000,
@@ -267,7 +278,7 @@
       }
     },
     computed: {
-      showControls () {
+      hideDuringFreecam () {
         if (this.cameraMode) {
           return this.cameraMode[0] !== 'free' || !this.mouseIsDown
         } else {
@@ -308,7 +319,7 @@
 
       this.canBroadcast = this.spaceConfig.permissions['broadcast'] === true;
       if (this.spaceConfig.permissions['stage_controls']) {
-        this.showStageControls = true;
+        this.enableStageControls = true;
       }
       if(this.spaceConfig.permissions['stage_controls'] || this.spaceConfig.role === 'artist') {
         this.cameraModes.push(['free', 'Free Cam'])
