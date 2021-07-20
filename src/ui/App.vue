@@ -83,12 +83,10 @@
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
                 />
-        <Chat v-show="chatOpen"
-               class="absolute top-12 left-12"
+        <Chat class="absolute top-12 left-12"
                :world="world"
                :class="showStageControls ? 'top-56' : 'top-12'"
-               :chat-log="chatLog"
-               @toggleChat="chatOpen = chatOpen === false"/>
+               :chat-log="chatLog"/>
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
                 :recording="recording"
@@ -104,7 +102,6 @@
                 :enable-stage-controls="enableStageControls"
                 :use-computer-sound="userSettings.useComputerSound"
                 :sending-music="userSettings.sendingMusic"
-                :chat-open="chatOpen"
                 @toggleSendingMusic="toggleSendingMusic($event)"
                 @setVolume="setVolume($event)"
                 @showSettingsPanel="showSettings = true"
@@ -116,7 +113,6 @@
                 @cycleCamera="cycleCamera"
                 @emojiMenuOnOff="emojiMenuOnOff"
                 @focusCanvas="focusCanvas"
-                @toggleChat="chatOpen = chatOpen === false"
                 @toggleStageControls="showStageControls = showStageControls === false"
                 />
     </div>
@@ -217,7 +213,6 @@
         cameraMode: null,
         webcamEnabled: false,
         micEnabled: false,
-        chatOpen: true,
         canBroadcast: false,
         debugging: urlParams.get('debug'),
         enableStageControls: false,

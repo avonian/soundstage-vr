@@ -38,12 +38,6 @@
                 <span class="toggle-switch-slider round"></span>
             </label>
         </div>
-
-        <a id="btn-chat" class="btn-ui-secondary" @click="$emit('toggleChat')" v-if="!chatOpen">
-            <svg width="30" height="30" aria-hidden="true" focusable="false" data-prefix="far" data-icon="comments" class="svg-inline--fa fa-comments fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                <path fill="currentColor" d="M416 192c0-88.4-93.1-160-208-160S0 103.6 0 192c0 34.3 14.1 65.9 38 92-13.4 30.2-35.5 54.2-35.8 54.5-2.2 2.3-2.8 5.7-1.5 8.7S4.8 352 8 352c36.6 0 66.9-12.3 88.7-25 32.2 15.7 70.3 25 111.3 25 114.9 0 208-71.6 208-160zm122 220c23.9-26 38-57.7 38-92 0-66.9-53.5-124.2-129.3-148.1.9 6.6 1.3 13.3 1.3 20.1 0 105.9-107.7 192-240 192-10.8 0-21.3-.8-31.7-1.9C207.8 439.6 281.8 480 368 480c41 0 79.1-9.2 111.3-25 21.8 12.7 52.1 25 88.7 25 3.2 0 6.1-1.9 7.3-4.8 1.3-2.9.7-6.3-1.5-8.7-.3-.3-22.4-24.2-35.8-54.5z"></path>
-            </svg>
-        </a>
         <a id="btn-webcam" class="btn-ui-secondary" @click="$emit('cameraOnOff')" v-if="userSettings.enableWebcamFeeds && videoDevices.length > 0">
             <svg width="30" height="30" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="webcam" class="svg-inline--fa fa-webcam fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" v-if="webcamEnabled">
                 <path fill="currentColor" d="M402.29 438.6l-49.19-30.75c58.11-40.46 96.23-107.66 96.23-183.85 0-123.71-100.29-224-224-224s-224 100.29-224 224c0 76.19 38.12 143.39 96.23 183.85L48.37 438.6a32 32 0 0 0-15 27.14V480a32 32 0 0 0 32 32h320a32 32 0 0 0 32-32v-14.26a32 32 0 0 0-15.08-27.14zm-177-54.6a160 160 0 1 1 160-160 160 160 0 0 1-159.96 160zm0-288a128 128 0 1 0 128 128A128 128 0 0 0 225.33 96zm0 80a48.05 48.05 0 0 0-48 48 16 16 0 0 1-32 0 80.09 80.09 0 0 1 80-80 16 16 0 1 1 0 32z"></path>
@@ -77,7 +71,7 @@
     export default {
       name: "UserControls",
       components: { InstrumentationPanel, AudioMixer }, // eslint-disable-line
-      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic', 'chatOpen'],
+      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic'],
       mounted() {
         document.addEventListener('keydown', (e) => {
           if(e.code === "F9" && this.enableStereo && this.useComputerSound) {
