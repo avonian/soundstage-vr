@@ -573,7 +573,7 @@ export default class extends SoundWorld {
   }
 
   load(callback) {
-    BABYLON.SceneLoader.LoadAssetContainer('/models/',
+    BABYLON.SceneLoader.LoadAssetContainer(process.env.NODE_ENV === 'production' ? 'https://assets.soundstage.fm/vr/models/' : '/models/',
       this.file,
       this.scene,
       // onSuccess:
