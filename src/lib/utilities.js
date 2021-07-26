@@ -3,11 +3,9 @@ export default {
   async preloadVideo(video) {
     var self = this;
     return new Promise((resolve, reject) => {
-
       self.preloadRequest = new XMLHttpRequest()
       self.preloadRequest.open('GET', video.url, true)
       self.preloadRequest.responseType = 'blob'
-
       self.preloadRequest.onload = function () {
         // Onload is triggered even on 404
         // so we need to check the status code
@@ -32,5 +30,48 @@ export default {
         el.classList.remove('hidden');
       }
     }
+  },
+  bindMeshAction(scene, camera, mesh, onFocus, onBlur, onClick) {
+    mesh.isPickable = true;
+    mesh.actionManager = new BABYLON.ActionManager(scene);
+    mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            var dest = new BABYLON.Vector3(mesh.position.x, mesh.position.y, mesh.position.z);
+            var pos = camera.position.clone();
+            var distance = dest.subtract(pos).length();
+            if (distance < 4) {
+              scene.highlightLayer1.addMesh(pickedMesh, BABYLON.Color3.Teal());
+              if(onFocus) {
+                onFocus();
+              }
+            }
+          })
+      )
+    mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPointerOutTrigger, (event) => {
+            let pickedMesh = event.meshUnderPointer;
+            scene.highlightLayer1.removeMesh(pickedMesh, BABYLON.Color3.Teal());
+            if(onBlur) {
+              onBlur();
+            }
+          })
+      )
+    mesh.actionManager
+      .registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger, (event) => {
+            var dest = new BABYLON.Vector3(mesh.position.x, mesh.position.y, mesh.position.z);
+            var pos = camera.position.clone();
+            var distance = dest.subtract(pos).length();
+            if ( distance < 4 ) {
+              onClick();
+            }
+          })
+      )
   }
 }

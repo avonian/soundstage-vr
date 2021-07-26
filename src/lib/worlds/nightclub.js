@@ -10,6 +10,7 @@ import HoloAvatar from '../holo-avatar';
 import Movement from '../movement';
 import Gallery from '../gallery';
 import Chat from '../chat'
+import Utilities from '../utilities'
 
 // deals with everything inside 3D world
 export default class extends SoundWorld {
@@ -74,6 +75,7 @@ export default class extends SoundWorld {
     this.initVipExit();
     this.gallery = new Gallery(this);
     if(this.spaceConfig.mode === 'soundclub') {
+      this.initStore();
       this.initKiosk();
     }
     // Reposition some furniture
@@ -204,6 +206,40 @@ export default class extends SoundWorld {
             }
           })
       )
+  }
+  initStore() {
+    let storePlane = BABYLON.MeshBuilder.CreatePlane("storePlane", { width: 2.26, height: 1.68 });
+    storePlane.position.x = 7.418;
+    storePlane.position.y = 1.113;
+    storePlane.position.z = 5.686;
+    storePlane.checkCollisions = true;
+
+    let transparentMaterial = new BABYLON.StandardMaterial("transparentMaterial", this.scene);
+    transparentMaterial.diffuseColor = BABYLON.Color3.Teal();
+    transparentMaterial.specularColor = BABYLON.Color3.Teal();
+    transparentMaterial.emissiveColor = BABYLON.Color3.Teal();
+    storePlane.material = transparentMaterial;
+    transparentMaterial.alpha = 0;
+
+    Utilities.bindMeshAction(
+      this.scene,
+      this.camera1,
+      storePlane,
+      () => {
+        transparentMaterial.alpha = 0.1;
+      },
+      () => {
+        transparentMaterial.alpha = 0;
+      },
+      () => {
+        transparentMaterial.alpha = 0;
+        document.querySelector("#app")._vnode.component.data.modalIframe = {
+          url: this.spaceConfig.store_url,
+          closeLabel: 'Exit Store',
+          withOverlay: true
+        }
+      }
+    );
   }
   initKiosk() {
     let ticketsPlane = BABYLON.MeshBuilder.CreatePlane("ticketsPlane", { width: 0.75, height: 0.75 });

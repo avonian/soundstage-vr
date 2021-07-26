@@ -6,10 +6,11 @@ export default {
     'access_tunnel': true,
     'broadcast': true,
     'moderator': true,
-    'stage_controls': false
+    'stage_controls': true
   },
   'world': 'Nightclub',
   'mode': 'soundclub', // 'venue' or 'soundclub'
+  'store_url': 'https://dev.www.soundstage.fm/stores/simlinks-virtual-store',
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },

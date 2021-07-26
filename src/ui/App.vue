@@ -7,6 +7,12 @@
            :size="modal.size"
            @close="hideModal"
     />
+    <ModalIframe v-if="modalIframe"
+        :url="modalIframe.url"
+        :close-label="modalIframe.closeLabel"
+        :withOverlay="modalIframe.withOverlay"
+        @close="modalIframe = false"
+    />
     <InvalidEvent v-if="invalidAccess"/>
     <Banned v-else-if="userBanned"/>
     <IncompatibleDevice v-else-if="deviceType === 'mobile'"/>
@@ -56,8 +62,8 @@
         <LoadingScreen/>
         <canvas id="renderCanvas" touch-action="none" :class="mouseIsDown ? 'cursor-none' : ''"></canvas>
         <StageControls
-                v-if="showStageControls"
-                v-show="hideDuringFreecam"
+                v-if="enableStageControls"
+                v-show="stageControlsVisible"
                 :active-video="activeVideo"
                 :world="world"
                 :videos="videos"
@@ -136,6 +142,7 @@
   import WelcomeScreen from './components/WelcomeScreen'
   import AvatarMenu from './components/AvatarMenu'
   import Modal from './components/Modal'
+  import ModalIframe from './components/ModalIframe'
   import Showcase from './components/Showcase'
   import Chat from './components/Chat'
 
@@ -198,6 +205,7 @@
       AvatarMenu,
       Showcase,
       Modal,
+      ModalIframe,
       Chat
     },
     data () {
@@ -273,6 +281,7 @@
           }
         ],
         modal: false,
+        modalIframe: false,
         app_url: process.env.VUE_APP_API_URL,
         attenuation: '',
         chatLog: []
@@ -285,6 +294,9 @@
         } else {
           return true
         }
+      },
+      stageControlsVisible () {
+        return this.showStageControls && this.hideDuringFreecam;
       }
     },
     mounted: async function () {
