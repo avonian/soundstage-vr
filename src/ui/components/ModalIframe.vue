@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed z-10 inset-0 overflow-y-auto min-h-screen">
+    <div class="modal-iframe fixed z-10 inset-0 overflow-y-auto min-h-screen">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
 
             <div class="fixed inset-0 transition-opacity" aria-hidden="true" v-if="withOverlay">
@@ -30,7 +30,13 @@
 <script>
   export default {
     name: "ModalIframe",
-    props: ['url', 'withOverlay', 'closeLabel']
+    props: ['url', 'withOverlay', 'closeLabel'],
+    mounted() {
+      document.querySelector('.modal-iframe iframe').focus();
+    },
+    unmounted () {
+      document.getElementById('renderCanvas').focus();
+    }
   }
 </script>
 
