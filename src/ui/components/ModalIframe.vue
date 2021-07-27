@@ -16,7 +16,7 @@
                 </div>
                 <div clas="absolute w-full left-0">
                     <button type="button"
-                            class="mt-6 bg-indigo-800 inline-flex justify-center rounded-md px-4 py-2 text-2xl leading-6 text-medium text-white shadow-sm"
+                            class="mt-6 bg-indigo-800 inline-flex justify-center rounded-md px-4 py-2 text-2xl leading-6 text-medium text-white shadow-sm transform"
                             @click="$emit('close')">
                         {{ closeLabel ? closeLabel : 'Close' }}
                     </button>
