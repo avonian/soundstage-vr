@@ -208,6 +208,9 @@ export default class extends SoundWorld {
       )
   }
   initStore() {
+    if(!this.spaceConfig.store_url) {
+      return;
+    }
     let storePlane = BABYLON.MeshBuilder.CreatePlane("storePlane", { width: 2.26, height: 1.68 });
     storePlane.position.x = 7.418;
     storePlane.position.y = 1.113;

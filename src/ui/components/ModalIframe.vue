@@ -12,12 +12,10 @@
             <div class="inline-block align-top w-full max-w-6xl mt-6">
                 <div class="bg-alt-primary rounded-lg text-left overflow-hidden shadow-xl transform transition-all p-3"
                      role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                    <div>
-                        <iframe width="100%" height="100%" :src="url"></iframe>
-                    </div>
+                    <iframe width="100%" height="100%" :src="url"></iframe>
                 </div>
                 <button type="button"
-                        class="absolute mt-6 bg-indigo-800 inline-flex justify-center rounded-md px-4 py-2 text-2xl leading-6 text-medium text-white shadow-sm"
+                        class="mt-6 bg-indigo-800 inline-flex justify-center rounded-md px-4 py-2 text-2xl leading-6 text-medium text-white shadow-sm"
                         @click="$emit('close')">
                     {{ closeLabel ? closeLabel : 'Close' }}
                 </button>
