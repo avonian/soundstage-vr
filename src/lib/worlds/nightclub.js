@@ -1051,6 +1051,7 @@ export default class extends SoundWorld {
           moodParticlesOn: this.stageControls.moodParticlesOn,
         }
     };
+    o.temporary=false;
     return new Promise((resolve,reject) => {
       VRSPACE.createSharedObject(o, (obj)=>{
         console.log("Created shared object", obj);
