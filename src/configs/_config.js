@@ -10,7 +10,7 @@ export default {
   },
   'world': 'Nightclub',
   'mode': 'soundclub', // 'venue' or 'soundclub'
-  'store_url': 'https://dev.www.soundstage.fm/stores/simlinks-virtual-store',
+  'store_url': 'https://soundstage.fm/stores/simlinks-virtual-store',
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },
