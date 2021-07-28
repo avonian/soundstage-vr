@@ -58,10 +58,9 @@
             {{ cameraMode ? cameraMode[1] : '' }}
         </a>
         <img class="cursor-pointer h-14 w-14" src="../../assets/images/slightly-smiling-face.png" @click="$emit('emojiMenuOnOff')"/>
-
+        <div id="emojis" class="grid p-4 gap-4 grid-cols-6 w-80 absolute bottom-32 right-12 bg-black-200"
+             v-show="showEmojiMenu" @click="$emit('focusCanvas')"></div>
     </div>
-    <div id="emojis" class="grid p-4 gap-4 grid-cols-6 w-80 absolute bottom-32 right-12 bg-black-200"
-         v-show="showEmojiMenu" @click="$emit('focusCanvas')"></div>
 </template>
 
 <script>
