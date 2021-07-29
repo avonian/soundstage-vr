@@ -11,7 +11,7 @@ export default {
   'world': 'Nightclub',
   'mode': 'soundclub', // 'venue' or 'soundclub'
   'store_url': 'https://soundstage.fm/stores/simlinks-virtual-store',
-  'kiosk': { 'url': 'https://www.soundstage.fm/events/simlink-firebeatz', 'poster': 'https://www.soundstage.fm/storage/photos/i8DEeTpk1ToXb68uhdUUBd2vHGFcjA1qU031uc2w.jpg' },
+  'kiosk': { 'url': 'https://www.soundstage.fm/soundclub/events/simlink-firebeatz', 'poster': 'https://www.soundstage.fm/storage/photos/i8DEeTpk1ToXb68uhdUUBd2vHGFcjA1qU031uc2w.jpg' },
   'mediaSoup': {
     'url': 'wss:\/\/mediasoup.soundstage.fm'
   },
