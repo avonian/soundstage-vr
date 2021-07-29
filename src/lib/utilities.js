@@ -31,7 +31,7 @@ export default {
       }
     }
   },
-  bindMeshAction(scene, camera, mesh, onFocus, onBlur, onClick) {
+  bindMeshAction(scene, camera, mesh, onFocus, onBlur, onClick, overrideDestinationPosition) {
     mesh.isPickable = true;
     mesh.actionManager = new BABYLON.ActionManager(scene);
     mesh.actionManager
@@ -40,6 +40,9 @@ export default {
           BABYLON.ActionManager.OnPointerOverTrigger, (event) => {
             let pickedMesh = event.meshUnderPointer;
             var dest = new BABYLON.Vector3(mesh.position.x, mesh.position.y, mesh.position.z);
+            if(overrideDestinationPosition) {
+              dest = new BABYLON.Vector3(overrideDestinationPosition.x, overrideDestinationPosition.y, overrideDestinationPosition.z);
+            }
             var pos = camera.position.clone();
             var distance = dest.subtract(pos).length();
             if (distance < 4) {
@@ -66,6 +69,9 @@ export default {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger, (event) => {
             var dest = new BABYLON.Vector3(mesh.position.x, mesh.position.y, mesh.position.z);
+            if(overrideDestinationPosition) {
+              dest = new BABYLON.Vector3(overrideDestinationPosition.x, overrideDestinationPosition.y, overrideDestinationPosition.z);
+            }
             var pos = camera.position.clone();
             var distance = dest.subtract(pos).length();
             if ( distance < 4 ) {

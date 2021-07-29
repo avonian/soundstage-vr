@@ -11,6 +11,7 @@
         :url="modalIframe.url"
         :close-label="modalIframe.closeLabel"
         :withOverlay="modalIframe.withOverlay"
+        :size="modalIframe.size"
         @close="modalIframe = false"
     />
     <InvalidEvent v-if="invalidAccess"/>

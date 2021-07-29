@@ -9,7 +9,7 @@
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-top w-full max-w-6xl mt-6">
+            <div class="inline-block align-top w-full mt-6" :class="size ? size : 'max-w-6xl'">
                 <div class="bg-alt-primary rounded-lg text-left overflow-hidden shadow-xl transform transition-all p-3"
                      role="dialog" aria-modal="true" aria-labelledby="modal-headline">
                     <iframe width="100%" height="100%" :src="url"></iframe>
@@ -30,7 +30,7 @@
 <script>
   export default {
     name: "ModalIframe",
-    props: ['url', 'withOverlay', 'closeLabel'],
+    props: ['url', 'withOverlay', 'closeLabel', 'size'],
     mounted() {
       document.querySelector('.modal-iframe iframe').focus();
     },

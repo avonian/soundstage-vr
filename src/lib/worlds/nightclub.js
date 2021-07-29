@@ -71,6 +71,7 @@ export default class extends SoundWorld {
   }
   initAfterLoad() {
     this.chat = new Chat(this);
+    this.createMaterials();
     this.initVipEntrance();
     this.initVipExit();
     this.gallery = new Gallery(this);
@@ -89,6 +90,13 @@ export default class extends SoundWorld {
       this.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.z = 2;
       this.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.z = 2;
     }
+  }
+  createMaterials() {
+    this.transparentMaterial = new BABYLON.StandardMaterial("transparentMaterial", this.scene);
+    this.transparentMaterial.diffuseColor = BABYLON.Color3.Teal();
+    this.transparentMaterial.specularColor = BABYLON.Color3.Teal();
+    this.transparentMaterial.emissiveColor = BABYLON.Color3.Teal();
+    this.transparentMaterial.alpha = 0;
   }
   initVipEntrance() {
     let vipEntrance = this.scene.getMeshByName('portal-door-top');
@@ -211,31 +219,25 @@ export default class extends SoundWorld {
     if(!this.spaceConfig.store_url) {
       return;
     }
-    let storePlane = BABYLON.MeshBuilder.CreatePlane("storePlane", { width: 2.26, height: 1.68 });
-    storePlane.position.x = 7.418;
-    storePlane.position.y = 1.113;
-    storePlane.position.z = 5.686;
-    storePlane.checkCollisions = true;
-
-    let transparentMaterial = new BABYLON.StandardMaterial("transparentMaterial", this.scene);
-    transparentMaterial.diffuseColor = BABYLON.Color3.Teal();
-    transparentMaterial.specularColor = BABYLON.Color3.Teal();
-    transparentMaterial.emissiveColor = BABYLON.Color3.Teal();
-    storePlane.material = transparentMaterial;
-    transparentMaterial.alpha = 0;
+    let storeClickPlane = BABYLON.MeshBuilder.CreatePlane("storeClickPlane", { width: 2.26, height: 1.68 });
+    storeClickPlane.material = this.transparentMaterial;
+    storeClickPlane.position.x = 7.418;
+    storeClickPlane.position.y = 1.113;
+    storeClickPlane.position.z = 5.686;
+    storeClickPlane.checkCollisions = true;
 
     Utilities.bindMeshAction(
       this.scene,
       this.camera1,
-      storePlane,
+      storeClickPlane,
       () => {
-        transparentMaterial.alpha = 0.1;
+        storeClickPlane.material.alpha = 0.1;
       },
       () => {
-        transparentMaterial.alpha = 0;
+        storeClickPlane.material.alpha = 0;
       },
       () => {
-        transparentMaterial.alpha = 0;
+        storeClickPlane.material.alpha = 0;
         document.querySelector("#app")._vnode.component.data.modalIframe = {
           url: this.spaceConfig.store_url,
           closeLabel: 'Exit Store',
@@ -245,13 +247,36 @@ export default class extends SoundWorld {
     );
   }
   initKiosk() {
-    let ticketsPlane = BABYLON.MeshBuilder.CreatePlane("ticketsPlane", { width: 0.75, height: 0.75 });
-    this.ticketKioskMaterial = new BABYLON.StandardMaterial("ticketKioskMaterial", this.scene);
-    ticketsPlane.rotation.y = BABYLON.Tools.ToRadians(90);
-    ticketsPlane.position.x = 9.189;
-    ticketsPlane.position.y = 1.144;
-    ticketsPlane.position.z = 4.686;
-    ticketsPlane.material = this.ticketKioskMaterial;
+    let kioskPlane = BABYLON.MeshBuilder.CreatePlane("kioskPlane", { width: 0.75, height: 0.75 });    kioskPlane.rotation.y = BABYLON.Tools.ToRadians(90);
+    kioskPlane.position.x = 9.189;
+    kioskPlane.position.y = 1.144;
+    kioskPlane.position.z = 4.686;
+    if(!this.spaceConfig.kiosk) {
+      kioskPlane.material = new BABYLON.StandardMaterial("ticketKioskMaterial", this.scene);
+      return;
+    }
+    kioskPlane.material = new BABYLON.StandardMaterial("kioskPlane_mat", this.scene);
+    kioskPlane.material.emissiveTexture = new BABYLON.Texture(this.spaceConfig.kiosk.poster, this.scene);
+    kioskPlane.material.emissiveTexture.name = "PosterImage-kioskPlane";
+    kioskPlane.material.disableLighting = true
+
+    let kioskMesh = this.scene.getNodeByName("tickets").getDescendants(false, (d) => d.name === "Cube.5")[0];
+    Utilities.bindMeshAction(
+      this.scene,
+      this.camera1,
+      kioskMesh,
+      () => {},
+      () => {},
+      () => {
+        document.querySelector("#app")._vnode.component.data.modalIframe = {
+          url: this.spaceConfig.kiosk.url,
+          closeLabel: 'Exit Kiosk',
+          withOverlay: true,
+          size: 'max-w-3xl'
+        }
+      },
+      { x: 9.306034156979866, y: 1.1935390253577307, z: 4.646997355447423}
+    );
   }
   initDJSpotLight() {
     if(this.DJSpotLight) {
