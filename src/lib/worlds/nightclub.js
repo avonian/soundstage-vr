@@ -216,7 +216,7 @@ export default class extends SoundWorld {
       )
   }
   initStore() {
-    if(!this.spaceConfig.store_url) {
+    if(!this.spaceConfig.storeUrl) {
       return;
     }
     let storeClickPlane = BABYLON.MeshBuilder.CreatePlane("storeClickPlane", { width: 2.26, height: 1.68 });
@@ -239,7 +239,7 @@ export default class extends SoundWorld {
       () => {
         storeClickPlane.material.alpha = 0;
         document.querySelector("#app")._vnode.component.data.modalIframe = {
-          url: this.spaceConfig.store_url,
+          url: this.spaceConfig.storeUrl,
           closeLabel: 'Exit Store',
           withOverlay: true
         }
