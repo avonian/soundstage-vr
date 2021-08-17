@@ -216,7 +216,7 @@
           }, 0);
 
           setTimeout(async () => {
-            await this.switchAudioTrack("Kill-Paris-Intro.mp3", true);
+            await this.switchAudioTrack(this.spaceConfig.introAudio ? this.spaceConfig.introAudio : "Kill-Paris-Intro", true);
             setTimeout(() => {
               console.log('Playing audio/video');
               this.$emit('activateVideo', 1);
@@ -239,23 +239,40 @@
               document.querySelector('#tunnelLight').click();
             }, 37000);
 
-            setTimeout(() => {
-              console.log('Adding indigo fog');
-              document.querySelector('#fogSetting').value = 'indigo';
-              this.$emit('changeFog')
-            }, 60000);
+            if(this.spaceConfig.space_id === 7) {
+              setTimeout(() => {
+                console.log('Adding indigo fog');
+                document.querySelector('#fogSetting').value = 'indigo';
+                this.$emit('changeFog')
+              }, 34000);
 
-            setTimeout(() => {
-              console.log('Adding purple fog');
-              document.querySelector('#fogSetting').value = 'purple';
-              this.$emit('changeFog')
-            }, 90000);
+              setTimeout(() => {
+                console.log('Turning on tunnel light');
+                document.querySelector('#tunnelLight').click();
+              }, 37000);
 
-            setTimeout(() => {
-              console.log("Intro sequence complete");
-              this.playingIntro = false;
-            }, 100000);
+              setTimeout(() => {
+                console.log("Intro sequence complete");
+                this.playingIntro = false;
+              }, 40000);
+            } else {
+              setTimeout(() => {
+                console.log('Adding indigo fog');
+                document.querySelector('#fogSetting').value = 'indigo';
+                this.$emit('changeFog')
+              }, 60000);
 
+              setTimeout(() => {
+                console.log('Adding purple fog');
+                document.querySelector('#fogSetting').value = 'purple';
+                this.$emit('changeFog')
+              }, 90000);
+
+              setTimeout(() => {
+                console.log("Intro sequence complete");
+                this.playingIntro = false;
+              }, 100000);
+            }
           }, 0);
         },
         async stopAudioTrack() {
