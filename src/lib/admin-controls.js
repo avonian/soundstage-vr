@@ -6,6 +6,10 @@ export class AdminControls {
     let event = { action: 'toggleUserMic', soundStageUserId: soundStageUserId };
     this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
   }
+  openChatbox(soundStageUserId) {
+    let event = { action: 'openChatbox', soundStageUserId: soundStageUserId };
+    this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
+  }
   toggleUserWebcam(soundStageUserId) {
     let event = { action: 'toggleUserWebcam', soundStageUserId: soundStageUserId };
     this.world.worldManager.VRSPACE.sendMy('adminEvent', event);
@@ -29,6 +33,17 @@ export class AdminControls {
             }
           }
           document.querySelector("#btn-microphone").click();
+        }
+        break;
+      case 'openChatbox':
+        if(event.soundStageUserId === this.world.spaceConfig.user_id) {
+          if(!document.querySelector("#chatbox")) {
+            document.querySelector("#btn-chat").click();
+            document.querySelector("#app")._vnode.component.data.modal = {
+              title: "Incoming Message",
+              body: "<p class='mb-4'>A moderator wants to speak with you, please take a look at the chat box.</p>"
+            }
+          }
         }
         break;
       case 'toggleUserWebcam':

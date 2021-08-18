@@ -55,6 +55,9 @@
                                         </Switch>
                                     </SwitchGroup>
                                     <div class="flex flex-col" v-if="canModerate">
+                                        <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('adminOpenChatbox', soundStageUserId)" tabindex="-1">
+                                            Open Chatbox
+                                        </button>
                                         <button type="button" class="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-purple-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm mt-3" @click="$emit('adminToggleMicrophone', soundStageUserId)" tabindex="-1">
                                             Toggle Microphone
                                         </button>

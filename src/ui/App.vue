@@ -45,6 +45,7 @@
             @muteUser="muteUser($event)"
             @blockUser="blockUser($event)"
             @adminToggleMicrophone="adminToggleMicrophone($event)"
+            @adminOpenChatbox="adminOpenChatbox($event)"
             @adminToggleWebcam="adminToggleWebcam($event)"
             @adminKickUser="adminKickUser($event)"
             @adminBanUser="adminBanUser($event)"
@@ -1075,6 +1076,14 @@
         world.adminControls.toggleUserMic(userId)
         this.avatarMenuClientId = false;
         this.showModal("Microphone Toggled.", "<p class='mb-4'>The users microphone setting has been toggled.</p>")
+      },
+      async adminOpenChatbox(userId) {
+        world.adminControls.openChatbox(userId)
+        this.avatarMenuClientId = false;
+        this.showModal("Chatbox Opened.", "<p class='mb-4'>The users chatbox is open.</p>")
+        if(!document.querySelector("#chatbox")) {
+          document.querySelector("#btn-chat").click();
+        }
       },
       async adminToggleWebcam(userId) {
         world.adminControls.toggleUserWebcam(userId)

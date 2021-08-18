@@ -27,7 +27,7 @@ export default {
   props: ['world', 'chatLog'],
   data () {
     return {
-      isOpen: true
+      isOpen: false
     }
   },
   watch: {
