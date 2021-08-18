@@ -388,6 +388,7 @@
     methods: {
       async initConfig() {
         var baseConfig = require('../configs/_config.js').default;
+        baseConfig = {...baseConfig, ...require(`../configs/_config.${baseConfig.world.toLowerCase()}`).default}
         if(process.env.VUE_APP_DEMO_CONFIG) {
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
           this.spaceConfig = {...baseConfig, ...customConfig};
