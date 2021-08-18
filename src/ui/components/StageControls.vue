@@ -247,11 +247,6 @@
               }, 34000);
 
               setTimeout(() => {
-                console.log('Turning on tunnel light');
-                document.querySelector('#tunnelLight').click();
-              }, 37000);
-
-              setTimeout(() => {
                 console.log("Intro sequence complete");
                 this.playingIntro = false;
               }, 40000);
