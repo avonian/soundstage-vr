@@ -319,12 +319,10 @@
         .split('=')[1] : false;
 
       /* Check browser */
-      /*
       if(browser().name === 'safari') {
         this.browserSupported = false;
         return;
       }
-      */
 
       /* Set event configuration */
       await this.initConfig();
