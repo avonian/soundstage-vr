@@ -1,3 +1,3 @@
 export default {
-  'world': 'Nightclub'
+  'world': 'Warehouse'
 }

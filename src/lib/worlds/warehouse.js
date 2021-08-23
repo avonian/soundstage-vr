@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Warehouse-18aug.glb';
+    this.file = 'sklad4.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -671,8 +671,8 @@ export default class extends SoundWorld {
   // called once the world is loaded
   loaded(file, mesh) {
     // rescale and reposition as needed:
-    mesh.scaling = new BABYLON.Vector3(0.5,0.5,0.5);
-    mesh.position = new BABYLON.Vector3(2,0.4,-1);
+     mesh.scaling = new BABYLON.Vector3(0.8,0.8,0.8);
+    mesh.position = new BABYLON.Vector3(0,-2,0);
     console.log("Loaded "+file);
     // WORLD NOTES:
     // screen is Cube.024_20 TransformNode, node43 mesh
