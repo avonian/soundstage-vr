@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Warehouse-18aug.glb';
+    this.file = 'Warehouse-27aug.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -472,8 +472,8 @@ export default class extends SoundWorld {
 
     // First person camera:
 
-    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575);
-    this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(0,1,-5);
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(-7.96, 1.28, -9);
+    this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(-0.02,0.99,4);
 
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
@@ -671,8 +671,8 @@ export default class extends SoundWorld {
   // called once the world is loaded
   loaded(file, mesh) {
     // rescale and reposition as needed:
-    mesh.scaling = new BABYLON.Vector3(0.5,0.5,0.5);
-    mesh.position = new BABYLON.Vector3(2,0.4,-1);
+    mesh.scaling = new BABYLON.Vector3(0.01,0.01,0.01);
+    mesh.position = new BABYLON.Vector3(0,0,-1);
     console.log("Loaded "+file);
     // WORLD NOTES:
     // screen is Cube.024_20 TransformNode, node43 mesh
@@ -695,6 +695,7 @@ export default class extends SoundWorld {
       }
     }
 
+    /* Temporarily disable
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
@@ -708,9 +709,6 @@ export default class extends SoundWorld {
     DJShield._scaling.z = 3.3;
     DJShield.checkCollisions = this.permissions.stage_controls !== true && this.permissions['access_tunnel'] !== true;
     DJShield.visibility = 0;
-    if ( this.afterLoad ) {
-      this.afterLoad();
-    }
 
     // Block tunnel entrance
     let tunnelShield = BABYLON.MeshBuilder.CreateBox("TunnelShield", {height:2, width: 3});
@@ -732,6 +730,11 @@ export default class extends SoundWorld {
         m.material.dispose();
         m.dispose();
       })
+    }
+    */
+
+    if ( this.afterLoad ) {
+      this.afterLoad();
     }
 
     // Render loop logic for whenever first person cam is being automatically panned (e.g. to look at posters)
