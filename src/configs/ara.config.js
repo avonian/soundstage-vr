@@ -79,34 +79,34 @@ export default {
       'rotationY': -90,
       'photo_url': 'https://assets.soundstage.fm/vr/illgates/TourDates.jpg'
     }, {
-      'name': 'The Future',
+      'name': 'Totality',
       'width': 1.6,
       'height': 1.6,
       'posX': 5.73,
       'posY': 1.057,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/illgates/TheFuture.jpg',
-      'video_url': 'https://assets.soundstage.fm/vr/illgates/TheFuture.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/illgates/TotalityClickMe.jpg',
+      'video_url': 'https://assets.soundstage.fm/vr/illgates/TotalityWithMusic.mp4'
     }, {
-      'name': 'TheArrival',
+      'name': 'TheFuture',
       'width': 1.6,
       'height': 1.6,
       'posX': -2.89,
       'posY': 1.088,
       'posZ': -8.545,
       'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/illgates/TheArrival.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/illgates/TheFutureClickMe.jpg',
+      'video_url': 'https://assets.soundstage.fm/vr/illgates/TheFutureWithMusic.mp4'
     }, {
-      'name': 'Totality',
+      'name': 'TheArrival',
       'width': 1.6,
       'height': 1.6,
       'posX': 9.23,
       'posY': 1.06,
       'posZ': -4.29,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/illgates/Totality.jpg',
-      'video_url': 'https://assets.soundstage.fm/vr/illgates/Totality.mp4'
+      'photo_url': 'https://assets.soundstage.fm/vr/illgates/TheArrival.jpg'
     }, {
       'name': 'top1',
       'width': 5,
@@ -137,6 +137,6 @@ export default {
     },
     {"name": "vip1", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 4, "height": 2, "photo_url": "https://assets.soundstage.fm/vr/illgates/vip1.jpg", "rotationY": -90},
     {"name": "vip3", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 2, "height": 2, "photo_url": "https://assets.soundstage.fm/vr/illgates/vip3.jpg", "rotationY": 0},
-    {"name": "vip2", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.6, "height": 2, "photo_url": "https://assets.soundstage.fm/vr/illgates/vip2.jpg", "rotationY": 90}
+    {"name": "vip2", "posX": 5.83, "posY": -1.82, "posZ": 37.09, "width": 2.8, "height": 1.5, "photo_url": "https://assets.soundstage.fm/vr/illgates/KrakatoaPoster.jpg", "video_url": "https://assets.soundstage.fm/vr/illgates/Krakatoa.mp4", "rotationY": 90}
   ]
 }
