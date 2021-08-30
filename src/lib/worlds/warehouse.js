@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Warehouse-27aug.glb';
+    this.file = 'Sklad3008.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -472,7 +472,7 @@ export default class extends SoundWorld {
 
     // First person camera:
 
-    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(-7.96, 1.28, -9);
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(0, 3, 0);
     this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(-0.02,0.99,4);
 
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
@@ -671,8 +671,8 @@ export default class extends SoundWorld {
   // called once the world is loaded
   loaded(file, mesh) {
     // rescale and reposition as needed:
-    mesh.scaling = new BABYLON.Vector3(0.01,0.01,0.01);
-    mesh.position = new BABYLON.Vector3(0,0,-1);
+    // mesh.scaling = new BABYLON.Vector3(0.01,0.01,0.01);
+    mesh.position = new BABYLON.Vector3(0,0,0);
     console.log("Loaded "+file);
     // WORLD NOTES:
     // screen is Cube.024_20 TransformNode, node43 mesh
