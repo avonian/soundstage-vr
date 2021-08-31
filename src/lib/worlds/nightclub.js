@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = spaceConfig.mode === 'soundclub' ? 'Night_Club-3-july-shop.glb' : 'Night_Club-14may.glb';
+    this.file = spaceConfig.mode === 'soundclub' ? 'Night_Club-30-aug.glb' : 'Night_Club-14may.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
