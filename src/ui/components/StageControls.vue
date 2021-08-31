@@ -5,6 +5,7 @@
                 <option value='all'>All Displays</option>
                 <option value='DJTableVideo'>DJ Table</option>
                 <option value='WindowVideo'>Big Screen</option>
+                <option value='SkyboxVideo'>Skybox</option>
             </select>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
@@ -17,6 +18,18 @@
                :class="showingUserVideos ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleUserVideos')">
                 Casting Panel
+            </a>
+
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="skyboxScale" @change="$emit('rescaleSkybox')">
+                <option :value=1>Skybox 1</option>
+                <option :value=2>Skybox 1/2</option>
+                <option :value=3>Skybox 1/3</option>
+                <option :value=4>Skybox 1/4</option>
+            </select>
+
+            <a class="bg-alt-primary flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+               @click="$emit('stopVisuals')">
+                Reset Walls
             </a>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="playingIntro ? 'cursor-not-allowed gradient-ultra' : 'bg-purple-700'"

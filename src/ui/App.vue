@@ -33,7 +33,7 @@
                 @continue="showHelp = false"/>
         <LocalCamera v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0"
                 :enableStageControls="enableStageControls"
-                @castSelf="castSelf"/>
+        />
         <AvatarMenu v-if="avatarMenuClientId"
             :world="world"
             :client-id="avatarMenuClientId"
@@ -90,6 +90,8 @@
                 @toggleGridFloor="toggleGridFloor"
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
+                @stopVisuals="stopVisuals"
+                @rescaleSkybox="rescaleSkybox"
                 />
         <Chat class="absolute top-12 left-12"
                :world="world"
@@ -914,13 +916,15 @@
         }
       },
       activateVideo (videoIndex) {
+        let castButtons = document.querySelectorAll('a.cast-window');
+        for(var button of castButtons) {
+          button.classList.remove('gradient-ultra');
+          button.classList.add('bg-indigo-500');
+        }
         this.activeVideo = videoIndex
         this.castingUser = false
         this.castingUserId = ''
         this.world.stageControls.play(videoIndex)
-      },
-      castSelf () {
-        this.castUser(document.querySelector('#localVideo').getAttribute('peerid'))
       },
       castUser (userId) {
         if (userId !== '') {
@@ -1189,6 +1193,17 @@
             attenuation: attenuation
           }),
         });
+      },
+      stopVisuals() {
+        let castButtons = document.querySelectorAll('a.cast-walls');
+        for(var button of castButtons) {
+          button.classList.remove('gradient-ultra');
+          button.classList.add('bg-indigo-500');
+        }
+        world.stageControls.emitStopVisuals();
+      },
+      rescaleSkybox() {
+        world.stageControls.emitRescaleSkybox(document.querySelector('#skyboxScale').value);
       }
     }
   }
