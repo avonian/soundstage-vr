@@ -12,53 +12,14 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/illgates/Ill Gates Intro1.mp4',
     'label': 'Intro'
   }, {
-    'url': 'https://assets.soundstage.fm/vr/Default.mp4',
-    'label': 'SoundStage'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/illgates/embers.mp4',
-    'label': 'Embers'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/illgates/ethers1.mp4',
-    'label': 'Ethers1'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/illgates/ethers2.mp4',
-    'label': 'Ethers2'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/illgates/liquids.mp4',
-    'label': 'Liquids'
-  },  {
     'url': 'https://assets.soundstage.fm/vr/beat-swiper.mp4',
     'label': 'Beat Swiper'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Blue-Beams.mp4',
-    'label': 'Blue Beams'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Disco-2.mp4',
-    'label': 'Disco'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/flamboyant-lines.mp4',
-    'label': 'Flamboyant Lines'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Megapixel.mp4',
-    'label': 'Megapixel'
-  }, {
+  } , {
     'url': 'https://assets.soundstage.fm/vr/Purple-Tunnel.mp4',
     'label': 'Purple Tunnel'
   }, {
-    'url': 'https://assets.soundstage.fm/vr/Reactor.mp4',
-    'label': 'Reactor'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Retro-1.mp4',
-    'label': 'Waves'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Retro-2.mp4',
-    'label': 'Retro'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/Ring-Pulse.mp4',
-    'label': 'Ring Pulse'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/split-sphere.mp4',
-    'label': 'Split Sphere'
+    'url': 'https://assets.soundstage.fm/vr/Megapixel.mp4',
+    'label': 'Megapixel'
   }, {
     'url': 'https://assets.soundstage.fm/vr/Color-Tiler.mp4',
     'label': 'Tiler'
@@ -66,8 +27,35 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/Cube-Trails.mp4',
     'label': 'Trails'
   }, {
-    'url': 'https://assets.soundstage.fm/vr/Ultra.mp4',
-    'label': 'Ultra'
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track1b.mp4',
+    'label': 'T1'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track2b.mp4',
+    'label': 'T2'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track3b.mp4',
+    'label': 'T3'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track4b.mp4',
+    'label': 'T4'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track5b.mp4',
+    'label': 'T5'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track6b.mp4',
+    'label': 'T6'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track7b.mp4',
+    'label': 'T7'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track8b.mp4',
+    'label': 'T8'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track9b.mp4',
+    'label': 'T9'
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/Track10b.mp4',
+    'label': 'T10'
   }],
   'posters': [{
       'name': 'TourDates',

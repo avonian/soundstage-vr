@@ -1625,18 +1625,19 @@ export default class extends SoundWorld {
 
     var targetVscale = 5 * scale;
     var targetUscale = 3 * scale;
+    var stepSize = .01;
 
     var rescaleInterval;
     var rescaleStep = function(texture, targetVscale, targetUscale) {
       if(texture.vScale < targetVscale) {
-        texture.vScale = parseFloat((texture.vScale += .02).toFixed(2));
+        texture.vScale = parseFloat((texture.vScale += stepSize).toFixed(2));
       } else if(texture.vScale > targetVscale) {
-        texture.vScale = parseFloat((texture.vScale -= .02).toFixed(2));
+        texture.vScale = parseFloat((texture.vScale -= stepSize).toFixed(2));
       }
       if(texture.uScale < targetUscale) {
-        texture.uScale = parseFloat((texture.uScale += .02).toFixed(2));
+        texture.uScale = parseFloat((texture.uScale += stepSize).toFixed(2));
       } else if(texture.uScale > targetUscale) {
-        texture.uScale = parseFloat((texture.uScale -= .02).toFixed(2));
+        texture.uScale = parseFloat((texture.uScale -= stepSize).toFixed(2));
       }
       if(texture.uScale === targetUscale && texture.vScale === targetVscale) {
         clearInterval(rescaleInterval);
