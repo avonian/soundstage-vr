@@ -57,6 +57,18 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/illgates/Track10b.mp4',
     'label': 'T10'
   }],
+  'musicVideos': {
+    'The Arrival - Track1.mp3': 7,
+    'The Arrival - Track2.mp3': 8,
+    'The Arrival - Track3.mp3': 9,
+    'The Arrival - Track4.mp3': 10,
+    'The Arrival - Track5.mp3': 11,
+    'The Arrival - Track6.mp3': 12,
+    'The Arrival - Track7.mp3': 13,
+    'The Arrival - Track8.mp3': 14,
+    'The Arrival - Track9.mp3': 15,
+    'The Arrival - Track10.mp3': 16
+  },
   'posters': [{
       'name': 'TourDates',
       'width': 4.16,

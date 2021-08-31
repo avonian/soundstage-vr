@@ -457,8 +457,10 @@ export class StageControls {
       this.world.scene.pedestalColor = BABYLON.Color3.White();
     }
   }
-  play( videoIndex ) {
-    let target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
+  play( videoIndex, target ) {
+    if(!target) {
+      target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
+    }
     if(target === 'all' || target === 'WindowVideo') {
       let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
       this.world.properties.castUser = false;

@@ -321,6 +321,9 @@
                   loop: this.loop
                 }),
               });
+              if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack]) {
+                this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], 'DJTableVideo')
+              }
               resolve();
             } catch(err) {
               console.log(err);
