@@ -73,7 +73,8 @@ export default class extends SoundWorld {
       meshesToHide: ["Room_Room_Base_15926", "Ceiling.001_Ceiling.001_Base_1_15402.1", "Ceiling.001_Ceiling.001_Emission_2_15348", "Sphere", "Sphere.1", "Sphere.2", "LogoExtrude.2", "windowSweep", "LogoExtrude", "Room_Room_Base_15926.1", "Room_Room_Base_15926.2", "Room_Room_Emission_2_15348", "Stairs_Stairs_Emission_2_15348"],
       barMeshes: ["Bar_counter_Bar_counter_Base_2_15346", "Lamp.001_(1)_Lamp.003_Base_2_15346", "Lamp.001_(1)_Lamp.003_Emission_5_15456", "Lamp.004_Lamp.005_Base_1_15402", "Lamp.001_Lamp.009_Base_2_15346", "Lamp.001_Lamp.009_Emission_2_15348", "Lamp.002_Lamp.010_Blue_15390", "Lamp.002_Lamp.010_Emission_4_15378", "Lamp.003_Lamp.006_Blue_15390", "Lamp.003_Lamp.006_Emission_15392", "Lamp.004_Lamp.005_Emission_15392", "Lamp.003_(1)_Lamp.007_Blue_15390", "Lamp.003_(1)_Lamp.007_Emission_15392"],
       halfOpacityMeshes: ["Cube.3", "Cube.4", "Boole", "Room_Room_Base_1_15402.1", "Sweep.5", "Pedestal.001_Pedestal.001_Blue_15390", "Pedestal_Pedestal_Blue_15390", "Pedestal.002_Pedestal.002_Blue_15390"],
-      quarterOpacityMeshes: ["Fencing_Fencing_Base_15926", "Room_Room_Base_1_15402", "Stairs_Stairs_Base_15926"]
+      oneThirdOpacityMeshes: ["Room_Room_Base_1_15402"],
+      quarterOpacityMeshes: ["Fencing_Fencing_Base_15926", "Stairs_Stairs_Base_15926"]
     }
   }
   initAfterLoad() {
@@ -1594,6 +1595,11 @@ export default class extends SoundWorld {
         this.fadeMesh(this.scene.getMeshByName(meshName), 0.5)
       }
 
+      // 1/3rd opacity
+      for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
+        this.fadeMesh(this.scene.getMeshByName(meshName), 0.35)
+      }
+
       // 1/4th opacity
       for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
         this.fadeMesh(this.scene.getMeshByName(meshName), 0.25)
@@ -1628,19 +1634,20 @@ export default class extends SoundWorld {
 
     var targetVscale = 5 * scale;
     var targetUscale = 3 * scale;
-    var stepSize = .01;
+    var uScaleStepSize = .01;
+    var vScaleStepSize = .02;
 
     var rescaleInterval;
-    var rescaleStep = function(texture, targetVscale, targetUscale) {
+    var rescaleStep = (texture, targetVscale, targetUscale) => {
       if(texture.vScale < targetVscale) {
-        texture.vScale = parseFloat((texture.vScale += stepSize).toFixed(2));
+        texture.vScale = parseFloat((texture.vScale += vScaleStepSize).toFixed(2));
       } else if(texture.vScale > targetVscale) {
-        texture.vScale = parseFloat((texture.vScale -= stepSize).toFixed(2));
+        texture.vScale = parseFloat((texture.vScale -= vScaleStepSize).toFixed(2));
       }
       if(texture.uScale < targetUscale) {
-        texture.uScale = parseFloat((texture.uScale += stepSize).toFixed(2));
+        texture.uScale = parseFloat((texture.uScale += uScaleStepSize).toFixed(2));
       } else if(texture.uScale > targetUscale) {
-        texture.uScale = parseFloat((texture.uScale -= stepSize).toFixed(2));
+        texture.uScale = parseFloat((texture.uScale -= uScaleStepSize).toFixed(2));
       }
       if(texture.uScale === targetUscale && texture.vScale === targetVscale) {
         clearInterval(rescaleInterval);
@@ -1675,6 +1682,10 @@ export default class extends SoundWorld {
     }
 
     for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+    }
+
+    for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
       this.fadeMesh(this.scene.getMeshByName(meshName), 1)
     }
 
