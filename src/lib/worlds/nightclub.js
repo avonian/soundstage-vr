@@ -113,11 +113,6 @@ export default class extends SoundWorld {
   initVipEntrance() {
     let vipEntrance = this.scene.getMeshByName('portal-door-top');
     let vipEntranceEmissive = this.scene.getMeshByName('portal-door-emissive');
-    if(!this.spaceConfig.permissions.access_backstage) {
-      //vipEntrance.dispose();
-      //vipEntranceEmissive.dispose();
-      //return;
-    }
 
     var doorPosition;
     if(this.spaceConfig.mode === 'soundclub') {
@@ -134,6 +129,27 @@ export default class extends SoundWorld {
       vipEntranceEmissive.position.x = 6.205;
       vipEntranceEmissive.position.y = -0.057;
       vipEntranceEmissive.position.z = 2.950;
+    }
+
+    if(!this.spaceConfig.permissions.access_backstage) {
+      Utilities.bindMeshAction(
+        this.scene,
+        this.camera1,
+        vipEntrance,
+        () => {},
+        () => {},
+        () => {
+          document.querySelector("#app")._vnode.component.data.modal = {
+            title: "Restricted area.",
+            body: "<p class='mb-4'>Sorry, you are not permitted access to this area.</p>"
+          }
+        },
+        doorPosition
+      );
+      return;
+      //vipEntrance.dispose();
+      //vipEntranceEmissive.dispose();
+      //return;
     }
 
     vipEntrance.isPickable = true;
