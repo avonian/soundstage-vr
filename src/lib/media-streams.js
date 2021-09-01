@@ -14,38 +14,7 @@ export class MediaSoup extends MediaStreams {
     if (isLocal) {
       document.querySelector("#localVideo").srcObject = new MediaStream([track]);
       document.querySelector("#localVideo").setAttribute('peerId', this.worldManager.VRSPACE.me.id);
-    } else {
-      const newVideoElement = document.createElement("video");
-      newVideoElement.muted = true;
-      newVideoElement.playsInline = true;
-      newVideoElement.autoplay = true;
-      newVideoElement.controls = true;
-      newVideoElement.srcObject = new MediaStream([track]);
-      newVideoElement.classList.add("vid");
-      // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
-      newVideoElement.addEventListener('pause', function() {
-        this.play();
-      })
-      const mainVideoContainer = document.getElementById(this.htmlElementName);
-      const videoDiv = document.createElement('div');
-      videoDiv.classList.add("cast-box");
-      if(peerId) {
-        newVideoElement.setAttribute('peerId', peerId);
-        newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
-        newVideoElement.setAttribute('soundStageUserRole', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserRole);
-        newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
-      }
-      let badge = document.createElement('div');
-      badge.setAttribute('class','absolute top-0 right-0 bg-indigo-500 mt-2 mr-2 px-3 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer');
-      badge.innerHTML = 'CAST';
-      badge.addEventListener('click', () => {
-        document.querySelector("#app").__vue_app__._component.methods.castUser(peerId)
-      })
-      videoDiv.appendChild(badge)
-      videoDiv.appendChild(newVideoElement);
-      mainVideoContainer.appendChild(videoDiv);
     }
-
     const newVideoElement = document.createElement("video");
     newVideoElement.muted = true;
     newVideoElement.playsInline = true;
@@ -53,6 +22,10 @@ export class MediaSoup extends MediaStreams {
     newVideoElement.controls = true;
     newVideoElement.srcObject = new MediaStream([track]);
     newVideoElement.classList.add("vid");
+    // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
+    newVideoElement.addEventListener('pause', function() {
+      this.play();
+    })
     const mainVideoContainer = document.getElementById(this.htmlElementName);
     const videoDiv = document.createElement('div');
     videoDiv.classList.add("cast-box");
