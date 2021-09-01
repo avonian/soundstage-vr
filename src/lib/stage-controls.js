@@ -480,7 +480,7 @@ export class StageControls {
     this.world.shareProperties();
   }
   fetchPeerVideoElement(peerid) {
-    let videos = document.querySelectorAll('video')
+    let videos = document.querySelectorAll('#videos video')
     for(var video of videos) {
       if(video.getAttribute('peerid') === peerid) {
         return video;

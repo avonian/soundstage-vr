@@ -22,6 +22,10 @@ export class MediaSoup extends MediaStreams {
       newVideoElement.controls = true;
       newVideoElement.srcObject = new MediaStream([track]);
       newVideoElement.classList.add("vid");
+      // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
+      newVideoElement.addEventListener('pause', function() {
+        this.play();
+      })
       const mainVideoContainer = document.getElementById(this.htmlElementName);
       const videoDiv = document.createElement('div');
       videoDiv.classList.add("cast-box");
