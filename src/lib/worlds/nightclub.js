@@ -1540,7 +1540,7 @@ export default class extends SoundWorld {
 
   startVisuals(videoSource, scale = 1, windowVideo, djTableVideo, castUser) {
 
-    if(this.userSettings.enableVisuals && ['medium', 'high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
+    if(this.userSettings.enableVisuals) {
       if(!this.originalSkyboxMaterial) {
         this.originalSkyboxMaterial = this.skyboxMaterial;
       }
@@ -1599,8 +1599,11 @@ export default class extends SoundWorld {
         this.fadeMesh(this.scene.getMeshByName(meshName), 0.25)
       }
     }
-    // Project onto main displays
-    this.initializeDisplays(videoSource);
+
+    if(!this.properties.SkyboxOnly) {
+      // Project onto main displays
+      this.initializeDisplays(videoSource);
+    }
 
     // This is for resetting correct state when initializing for first time
     if (djTableVideo) {
@@ -1646,39 +1649,37 @@ export default class extends SoundWorld {
     rescaleInterval = setInterval(() => rescaleStep(this.skyboxMaterial.diffuseTexture, targetVscale, targetUscale), 1);
   }
 
-  stopVisuals(show = false) {
-    if(this.userSettings.enableVisuals && ['medium', 'high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
-      for(meshName of this.skyboxManifest.meshesToHide) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+  stopVisuals(show ) {
+    for(meshName of this.skyboxManifest.meshesToHide) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+    }
+    for(meshName of this.skyboxManifest.barMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+    }
+    var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
+    for(var mesh of rootMeshes) {
+      if(mesh.name === "Cube") {
+        this.fadeMesh(mesh, 1)
       }
-      for(meshName of this.skyboxManifest.barMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-      }
-      var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
-      for(var mesh of rootMeshes) {
-        if(mesh.name === "Cube") {
-          this.fadeMesh(mesh, 1)
-        }
-      }
-      var posters = this.scene.getTransformNodeByName("posterGallery").getChildren();
+    }
+    var posters = this.scene.getTransformNodeByName("posterGallery").getChildren();
 
-      setTimeout(() => {
-        this.scene.getMeshByName('ground').isVisible = true;
-        this.scene.getMeshByName('skyBox').material = this.originalSkyboxMaterial;
-      }, 5000);
-      for(var poster of posters) {
-        if(poster._position.y > 3) {
-          this.fadeMesh(poster, 1)
-        }
+    setTimeout(() => {
+      this.scene.getMeshByName('ground').isVisible = true;
+      this.scene.getMeshByName('skyBox').material = this.originalSkyboxMaterial;
+    }, 5000);
+    for(var poster of posters) {
+      if(poster._position.y > 3) {
+        this.fadeMesh(poster, 1)
       }
+    }
 
-      for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-      }
+    for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+    }
 
-      for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-      }
+    for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
     }
     // Reset displays
     this.properties.visualsBeingCasted = null;
@@ -1965,7 +1966,7 @@ export default class extends SoundWorld {
     if(state.DJSpotLightIntensity && this.DJSpotLight) {
       this.DJSpotLight.intensity = state.DJSpotLightIntensity;
     }
-    if(this.spaceConfig.mode === 'soundclub') {
+    if(this.spaceConfig.mode === 'soundclub' && this.storeLight) {
       this.storeLight.intensity = state.activeMood ? 15 : 0;
     }
 

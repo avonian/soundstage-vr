@@ -500,12 +500,15 @@ export class StageControls {
     }
     return false;
   }
-  emitStartVisuals(userId) {
-    let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value };
+  emitStartVisuals(userId, skyboxOnly = false) {
+    let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value, skyboxOnly: skyboxOnly };
     this.world.properties.visualsBeingCasted = userId;
-    this.world.properties.WindowVideo = false;
-    this.world.properties.DJTableVideo = false;
+    if(!skyboxOnly) {
+      this.world.properties.WindowVideo = false;
+      this.world.properties.DJTableVideo = false;
+    }
     this.world.properties.SkyboxVideo = false;
+    this.world.properties.SkyboxOnly = skyboxOnly;
     this.world.properties.skyboxScale = document.querySelector('#skyboxScale').value;
     this.executeAndSend(startVisualsEvent);
     this.world.shareProperties();
@@ -559,6 +562,7 @@ export class StageControls {
         }
         video = this.fetchPeerVideoElement(event.userId)
         if(video) {
+          this.world.properties.SkyboxOnly = event.skyboxOnly;
           this.world.startVisuals(video, event.scale);
         }
         break;

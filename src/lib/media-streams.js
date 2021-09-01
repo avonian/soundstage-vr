@@ -39,33 +39,27 @@ export class MediaSoup extends MediaStreams {
     buttonContainer.setAttribute('class','absolute flex flex-row gap-x-2 mt-2 w-full px-2');
 
     var button = document.createElement('a');
-    button.setAttribute('class','cast-window bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
-    button.innerHTML = 'WINDOW';
-    button.addEventListener('click', () => {
-      let castButtons = document.querySelectorAll('a.cast-window');
-      for(var button of castButtons) {
-        button.classList.remove('gradient-ultra');
-        button.classList.add('bg-indigo-500');
-      }
-      event.target.classList.remove('bg-indigo-500');
-      event.target.classList.add('gradient-ultra');
-      document.querySelector("#app").__vue_app__._component.methods.castUser(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
-    })
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.innerHTML = 'ALL';
+    button.addEventListener('click', (event) => {
+      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+    });
     buttonContainer.appendChild(button)
 
     var button = document.createElement('a');
-    button.setAttribute('class','cast-walls bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
     button.innerHTML = 'SKYBOX';
     button.addEventListener('click', (event) => {
-      let castButtons = document.querySelectorAll('a.cast-walls');
-      for(var button of castButtons) {
-        button.classList.remove('gradient-ultra');
-        button.classList.add('bg-indigo-500');
-      }
-      event.target.classList.remove('bg-indigo-500');
-      event.target.classList.add('gradient-ultra');
-      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId, true)
     });
+    buttonContainer.appendChild(button)
+
+    var button = document.createElement('a');
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.innerHTML = 'WINDOW';
+    button.addEventListener('click', () => {
+      document.querySelector("#app").__vue_app__._component.methods.castUser(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+    })
     buttonContainer.appendChild(button)
 
     videoDiv.appendChild(buttonContainer)
