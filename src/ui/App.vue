@@ -1054,7 +1054,7 @@
             }
           }
           // Dispose avatar
-          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
+          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === user)[0];
           let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
           holoAvatar.dispose();
           this.avatarMenuClientId = false;
