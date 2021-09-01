@@ -11,10 +11,10 @@ export default {
   }, {
     'url': 'https://assets.soundstage.fm/vr/illgates/Ill Gates Intro1.mp4',
     'label': 'Intro'
-  }, {
-    'url': 'https://assets.soundstage.fm/vr/beat-swiper.mp4',
-    'label': 'Beat Swiper'
   } , {
+    'url': 'https://assets.soundstage.fm/vr/illgates/visuals/mindexpander1.mp4',
+    'label': 'Mindexpander'
+  }, {
     'url': 'https://assets.soundstage.fm/vr/Purple-Tunnel.mp4',
     'label': 'Purple Tunnel'
   }, {

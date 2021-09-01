@@ -1,6 +1,6 @@
 <template>
-    <div class="stage ui-hide">
-        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0 z-40">
+    <div class="stage ui-hide absolute pl-12 pt-6 absolute left-0 top-0 z-40 flex flex-col gap-y-3">
+        <div class="flex items-stretch">
             <select class="bg-white text-sm text-black mr-3 rounded-md" id="videoTarget">
                 <option value='all'>All Displays</option>
                 <option value='DJTableVideo'>DJ Table</option>
@@ -13,7 +13,7 @@
                 {{ video.label }}
             </a>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0 z-30">
+        <div class="flex items-stretch">
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                :class="showingUserVideos ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleUserVideos')">
@@ -75,7 +75,7 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-12 z-20">
+        <div class="flex items-stretch">
             <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
                     <option value="stage" selected>Stage</option>
                     <option value="freecam">Freecam</option>
@@ -97,7 +97,7 @@
                 </a>
             </span>
         </div>
-        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24 z-10">
+        <div class="flex items-center">
             <div class="inline-flex mr-3 items-center justify-center" v-if="mixerConnected">
                 Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
                     <option value=false>None</option>
@@ -124,8 +124,19 @@
                         <option value=100>100%</option>
                     </select>
                 </div>
-                <div class="flex items-center text-lg" v-if="!waitingForMixer">Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+                <div class="flex items-center text-lg mr-3" v-if="!waitingForMixer">Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+                <div class="flex items-center text-lg">
+                    Music Video Target:
+                    <select class="bg-white text-sm text-black ml-2 rounded-md" v-model="musicVideoTarget">
+                        <option value=false>None</option>
+                        <option value='all'>All Displays</option>
+                        <option value='DJTableVideo'>DJ Table</option>
+                        <option value='WindowVideo'>Big Screen</option>
+                    </select>
+                </div>
             </div>
+        </div>
+        <div class="flex items-center">
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
                @click="teleport({ x: 8.3985268, y: -3.4950000, z: -17.364640 })">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -170,6 +181,7 @@
           audioTracks: false,
           activeAudioTrack: false,
           waitingForMixer: false,
+          musicVideoTarget: false,
           loop: false,
           volume: 0,
           attenuationOptions: [
@@ -339,8 +351,8 @@
                   loop: this.loop
                 }),
               });
-              if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack]) {
-                this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], 'DJTableVideo')
+              if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {
+                this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], this.musicVideoTarget)
               }
               let data = await response.json();
               if(data.success) {
