@@ -109,7 +109,22 @@
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                 </div>
-                <div class="flex items-center text-lg" v-else>Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+                <div class="flex items-center text-lg">Volume:
+                    <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" v-model="volume" @change="changeVolume" :disabled="volume === 0">
+                        <option value=0>0%</option>
+                        <option value=10>10%</option>
+                        <option value=20>20%</option>
+                        <option value=30>30%</option>
+                        <option value=40>40%</option>
+                        <option value=50>50%</option>
+                        <option value=60>60%</option>
+                        <option value=70>70%</option>
+                        <option value=80>80%</option>
+                        <option value=90>90%</option>
+                        <option value=100>100%</option>
+                    </select>
+                </div>
+                <div class="flex items-center text-lg" v-if="!waitingForMixer">Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
             </div>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
                @click="teleport({ x: 8.3985268, y: -3.4950000, z: -17.364640 })">
@@ -156,6 +171,7 @@
           activeAudioTrack: false,
           waitingForMixer: false,
           loop: false,
+          volume: 0,
           attenuationOptions: [
             {
               value: 0.00001,
@@ -205,6 +221,7 @@
               this.mixerConnected = true;
               this.activeAudioTrack = data.activeTrack;
               this.loop = data.loop;
+              this.volume = data.gain * 100;
             }
           } catch(err) {
             console.log(err);
@@ -297,6 +314,7 @@
                   spaceId: this.spaceConfig.highFidelity.spaceId
                 }),
               });
+              this.volume = 0;
               resolve();
             } catch(err) {
               console.log(err);
@@ -324,6 +342,10 @@
               if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack]) {
                 this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], 'DJTableVideo')
               }
+              let data = await response.json();
+              if(data.success) {
+                this.volume = data.gain * 100;
+              }
               resolve();
             } catch(err) {
               console.log(err);
@@ -335,7 +357,7 @@
           this.loop = this.loop !== true;
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${this.mixerUrl}/update`, {
+              let response = await fetch(`${this.mixerUrl}/loop`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
@@ -347,6 +369,32 @@
                   loop: this.loop
                 }),
               });
+              resolve();
+            } catch(err) {
+              console.log(err);
+              resolve();
+            }
+          })
+        },
+        async changeVolume() {
+          return new Promise(async (resolve) => {
+            try {
+              let response = await fetch(`${this.mixerUrl}/volume`, {
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                  'Accept': 'application/json'
+                },
+                'method': 'POST',
+                'body': JSON.stringify({
+                  token: this.mixerToken,
+                  spaceId: this.spaceConfig.highFidelity.spaceId,
+                  volume: this.volume
+                }),
+              });
+              let data = await response.json();
+              if(data.success) {
+                this.volume = data.gain * 100;
+              }
               resolve();
             } catch(err) {
               console.log(err);
