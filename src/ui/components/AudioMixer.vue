@@ -30,6 +30,10 @@ export default {
         height: 100px;
     }
     .faders {
+        background-color: #27273e;
+    }
+    /*
+    .faders {
         opacity: 0.4;
         transition-property: opacity, background-color;
         transition-timing-function: ease-in-out;
@@ -39,4 +43,5 @@ export default {
         background-color: #27273e;
         opacity: 1;
     }
+    */
 </style>
