@@ -86,6 +86,7 @@ export default class extends SoundWorld {
     if(this.spaceConfig.mode === 'soundclub') {
       this.initStore();
       this.initKiosk();
+      this.initInbox();
     }
     // Reposition some furniture
     if(this.spaceConfig.mode !== 'soundclub') {
@@ -255,6 +256,25 @@ export default class extends SoundWorld {
         }
       }
     );
+  }
+  initInbox() {
+    this.scene.getNodeByName('tickets.1').dispose();
+    /*
+    let inboxMesh = this.scene.getNodeByName('tickets.1').getChildren().find(m => m.name === 'Cube.5');
+    Utilities.bindMeshAction(
+      this.scene,
+      this.camera1,
+      inboxMesh,
+      () => {},
+      () => {},
+      () => {
+        document.querySelector("#app")._vnode.component.data.modal = {
+          title: "Under construction.",
+          body: "<p class='mb-4'>This should be operational soon, we apologize for the inconvenience.</p>"
+        }
+      }
+    );
+    */
   }
   initKiosk() {
     let kioskPlane = BABYLON.MeshBuilder.CreatePlane("kioskPlane", { width: 0.75, height: 0.75 });    kioskPlane.rotation.y = BABYLON.Tools.ToRadians(90);
