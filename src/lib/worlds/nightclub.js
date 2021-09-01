@@ -141,7 +141,7 @@ export default class extends SoundWorld {
         () => {
           document.querySelector("#app")._vnode.component.data.modal = {
             title: "Restricted area.",
-            body: "<p class='mb-4'>Sorry, you are not permitted access to this area.</p>"
+            body: "<p class='mb-4'>Sorry, you are not allowed access to this area.</p>"
           }
         },
         doorPosition
