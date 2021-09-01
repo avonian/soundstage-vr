@@ -188,7 +188,7 @@
           audioTracks: false,
           activeAudioTrack: false,
           waitingForMixer: false,
-          musicVideoTarget: false,
+          musicVideoTarget: 'all',
           locked: 0,
           loop: false,
           volume: 0,
