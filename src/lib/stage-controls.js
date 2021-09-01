@@ -511,7 +511,7 @@ export class StageControls {
   emitStartVisuals(userId, skyboxOnly = false) {
     document.querySelector('#fogSetting').value = 'none';
     let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
-    stageControls.executeAndSend(stageEvent);
+    this.executeAndSend(stageEvent);
 
     let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value, skyboxOnly: skyboxOnly };
     this.world.properties.visualsBeingCasted = userId;
