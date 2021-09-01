@@ -1540,7 +1540,7 @@ export default class extends SoundWorld {
 
   startVisuals(videoSource, scale = 1, windowVideo, djTableVideo, castUser) {
 
-    if(this.userSettings.enableVisuals && ['high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
+    if(this.userSettings.enableVisuals && ['medium', 'high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
       if(!this.originalSkyboxMaterial) {
         this.originalSkyboxMaterial = this.skyboxMaterial;
       }
@@ -1647,7 +1647,7 @@ export default class extends SoundWorld {
   }
 
   stopVisuals(show = false) {
-    if(this.userSettings.enableVisuals && ['high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
+    if(this.userSettings.enableVisuals && ['medium', 'high', 'ultra-high'].indexOf(this.stageControls.userSettings.graphicsQuality) > -1) {
       for(meshName of this.skyboxManifest.meshesToHide) {
         this.fadeMesh(this.scene.getMeshByName(meshName), 1)
       }
