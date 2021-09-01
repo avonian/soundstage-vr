@@ -92,6 +92,7 @@
                 @applyAcoustics="applyAcoustics($event)"
                 @stopVisuals="stopVisuals"
                 @rescaleSkybox="rescaleSkybox"
+                @lockSpace="lockSpace"
                 />
         <Chat class="absolute top-12 left-12"
                :world="world"
@@ -409,6 +410,9 @@
           let data = await response.json();
           if(data.success) {
             this.spaceConfig = data['space_config'];
+            if(this.spaceConfig.send_back) {
+              window.history.back();
+            }
             if(!this.spaceConfig.videos) {
               this.spaceConfig.videos = baseConfig.videos;
             }
@@ -1204,6 +1208,27 @@
       },
       rescaleSkybox() {
         world.stageControls.emitRescaleSkybox(document.querySelector('#skyboxScale').value);
+      },
+      async lockSpace(locked) {
+        return new Promise(async (resolve) => {
+          try {
+            let response = await fetch(`${process.env.VUE_APP_API_URL}/spaces/${this.spaceConfig['space_slug']}/lock`, {
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Accept': 'application/json',
+                "Authorization": `Bearer ${this.jwt}`
+              },
+              'method': 'POST',
+              'body': JSON.stringify({
+                locked: locked
+              }),
+            });
+            resolve();
+          } catch(err) {
+            console.log(err);
+            resolve();
+          }
+        })
       }
     }
   }

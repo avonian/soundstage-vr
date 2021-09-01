@@ -137,6 +137,13 @@
             </div>
         </div>
         <div class="flex items-center">
+            <div class="flex items-center text-lg mr-3">
+                Event Access:
+                <select class="bg-white text-sm text-black mx-2 rounded-md" v-model="locked" @change="$emit('lockSpace', $event.target.value)">
+                    <option value=0>Open</option>
+                    <option value=1>Closed</option>
+                </select> ({{ userCount }} users )
+            </div>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
                @click="teleport({ x: 8.3985268, y: -3.4950000, z: -17.364640 })">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,8 +189,10 @@
           activeAudioTrack: false,
           waitingForMixer: false,
           musicVideoTarget: false,
+          locked: 0,
           loop: false,
           volume: 0,
+          userCount: 1,
           attenuationOptions: [
             {
               value: 0.00001,
@@ -199,12 +208,20 @@
         }
       },
       mounted() {
+        setInterval(() => {
+          if(this.world && this.world.worldManager) {
+            this.userCount = 1 + this.world.worldManager.VRSPACE.getScene("Client").size;
+          }
+        }, 1000);
         setTimeout(this.connectToMixer, 5000);
         document.addEventListener('keydown', (e) => {
           if(e.code === "F8") {
             this.toggleAttenuation();
           }
         });
+        if(this.spaceConfig.locked) {
+          this.locked = 1;
+        }
       },
       methods: {
         async connectToMixer() {
