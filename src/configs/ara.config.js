@@ -115,7 +115,8 @@ export default {
       'posY': 4.45,
       'posZ': -0.740,
       'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/illgates/top1.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/illgates/top1.jpg',
+      'video_url': 'https://assets.soundstage.fm/vr/illgates/MusicVideoTotality.mp4'
     }, {
       'name': 'top2',
       'width': 7.5,
@@ -133,7 +134,8 @@ export default {
       'posY': 4.45,
       'posZ': -0.740,
       'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/illgates/top3.jpg'
+      'photo_url': 'https://assets.soundstage.fm/vr/illgates/top3.jpg',
+      'video_url': 'https://assets.soundstage.fm/vr/illgates/MusicVideoTheFuture.mp4'
     },
     {"name": "vip1", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 4, "height": 2, "photo_url": "https://assets.soundstage.fm/vr/illgates/vip1.jpg", "rotationY": -90},
     {"name": "vip3", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 2, "height": 2, "photo_url": "https://assets.soundstage.fm/vr/illgates/vip3.jpg", "rotationY": 0},
