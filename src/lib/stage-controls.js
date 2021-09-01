@@ -310,6 +310,9 @@ export class StageControls {
   }
   toggleGroundVisibility(on, transitionInterval, callback) {
     let mesh = this.world.scene.getMeshByName('Room_Room_Base_1_15402');
+    if(!this.originalGroundVisibility) {
+      this.originalGroundVisibility = mesh.visibility;
+    }
     if(transitionInterval === 0) {
       transitionInterval = 1;
     }
@@ -322,7 +325,7 @@ export class StageControls {
       },
       {
         frame: transitionInterval,
-        value: on ? 1 : 0
+        value: on ? this.originalGroundVisibility : 0
       },
     ];
     meshVisibilityAnimation.setKeys(positionKeys);
@@ -475,10 +478,15 @@ export class StageControls {
     }
 
     if(target === 'SkyboxVideo') {
+      document.querySelector('#fogSetting').value = 'none';
+      let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
+      this.executeAndSend(stageEvent);
+
       let playWindowEvent = { action: 'playVideo', target: "SkyboxVideo", videoIndex: videoIndex, scale: document.querySelector('#skyboxScale').value };
       this.world.properties.SkyboxVideo = videoIndex;
       this.world.properties.DJTableVideo = false;
       this.world.properties.WindowVideo = false;
+      this.world.properties.SkyboxOnly = false;
       this.world.properties.visualsBeingCasted = false;
       this.executeAndSend(playWindowEvent);
     }
@@ -501,6 +509,10 @@ export class StageControls {
     return false;
   }
   emitStartVisuals(userId, skyboxOnly = false) {
+    document.querySelector('#fogSetting').value = 'none';
+    let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
+    stageControls.executeAndSend(stageEvent);
+
     let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value, skyboxOnly: skyboxOnly };
     this.world.properties.visualsBeingCasted = userId;
     if(!skyboxOnly) {

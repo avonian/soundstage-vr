@@ -78,6 +78,7 @@ export default class extends SoundWorld {
     }
   }
   initAfterLoad() {
+    this.scene.getNodeByName('skyBox').applyFog = false;
     this.chat = new Chat(this);
     this.createMaterials();
     this.initVipEntrance();
