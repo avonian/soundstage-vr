@@ -11,8 +11,8 @@ export default {
   }, {
     'url': 'https://assets.soundstage.fm/vr/illgates/Ill Gates Intro1.mp4',
     'label': 'Intro'
-  } , {
-    'url': 'https://assets.soundstage.fm/vr/illgates/visuals/mindexpander1.mp4',
+  }, {
+    'url': 'https://assets.soundstage.fm/vr/illgates/visuals/mindexpander1c.mp4',
     'label': 'Mindexpander'
   }, {
     'url': 'https://assets.soundstage.fm/vr/Purple-Tunnel.mp4',
