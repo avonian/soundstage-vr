@@ -30,7 +30,7 @@ export class MediaSoup extends MediaStreams {
     const videoDiv = document.createElement('div');
     videoDiv.classList.add("cast-box");
     newVideoElement.setAttribute('peerId', isLocal ? this.worldManager.VRSPACE.me.id : peerId);
-    if(!isLocal) {
+    if(!isLocal && this.world.worldManager.VRSPACE.scene.get("Client " + peerId)) {
       newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
       newVideoElement.setAttribute('soundStageUserRole', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserRole);
       newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
