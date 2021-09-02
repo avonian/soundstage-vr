@@ -310,6 +310,9 @@ export class StageControls {
   }
   toggleGroundVisibility(on, transitionInterval, callback) {
     let mesh = this.world.scene.getMeshByName('Room_Room_Base_1_15402');
+    if(!this.originalGroundVisibility) {
+      this.originalGroundVisibility = mesh.visibility;
+    }
     if(transitionInterval === 0) {
       transitionInterval = 1;
     }
@@ -322,7 +325,7 @@ export class StageControls {
       },
       {
         frame: transitionInterval,
-        value: on ? 1 : 0
+        value: on ? this.originalGroundVisibility : 0
       },
     ];
     meshVisibilityAnimation.setKeys(positionKeys);
@@ -457,8 +460,10 @@ export class StageControls {
       this.world.scene.pedestalColor = BABYLON.Color3.White();
     }
   }
-  play( videoIndex ) {
-    let target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
+  play( videoIndex, target ) {
+    if(!target) {
+      target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
+    }
     if(target === 'all' || target === 'WindowVideo') {
       let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
       this.world.properties.castUser = false;
@@ -470,33 +475,82 @@ export class StageControls {
       let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
       this.world.properties.DJTableVideo = videoIndex;
       this.executeAndSend(playWindowEvent);
-      this.world.shareProperties();
     }
+
+    if(target === 'SkyboxVideo') {
+      document.querySelector('#fogSetting').value = 'none';
+      let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
+      this.executeAndSend(stageEvent);
+
+      let playWindowEvent = { action: 'playVideo', target: "SkyboxVideo", videoIndex: videoIndex, scale: document.querySelector('#skyboxScale').value };
+      this.world.properties.SkyboxVideo = videoIndex;
+      this.world.properties.DJTableVideo = false;
+      this.world.properties.WindowVideo = false;
+      this.world.properties.SkyboxOnly = false;
+      this.world.properties.visualsBeingCasted = false;
+      this.executeAndSend(playWindowEvent);
+    }
+    this.world.shareProperties();
   }
   cast( userId ) {
     let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
     this.world.properties.castUser = userId;
+    this.world.properties.WindowVideo = false;
     this.executeAndSend(castUserEvent);
     this.world.shareProperties();
   }
   fetchPeerVideoElement(peerid) {
     let videos = document.querySelectorAll('#videos video')
     for(var video of videos) {
-      if(video.getAttribute('peerid') === peerid) {
+      if(video.getAttribute('peerid') + "" === peerid + "") {
         return video;
       }
     }
     return false;
   }
+  emitStartVisuals(userId, skyboxOnly = false) {
+    document.querySelector('#fogSetting').value = 'none';
+    let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
+    this.executeAndSend(stageEvent);
+
+    let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value, skyboxOnly: skyboxOnly };
+    this.world.properties.visualsBeingCasted = userId;
+    if(!skyboxOnly) {
+      this.world.properties.WindowVideo = false;
+      this.world.properties.DJTableVideo = false;
+    }
+    this.world.properties.SkyboxVideo = false;
+    this.world.properties.SkyboxOnly = skyboxOnly;
+    this.world.properties.skyboxScale = document.querySelector('#skyboxScale').value;
+    this.executeAndSend(startVisualsEvent);
+    this.world.shareProperties();
+  }
+  emitStopVisuals() {
+    let stopVisualsEvent = { action: 'stopVisuals' };
+    this.world.properties.visualsBeingCasted = null;
+    this.world.properties.castUser = null;
+    this.world.properties.SkyboxVideo = false;
+    this.world.properties.WindowVideo = 0;
+    this.world.properties.DJTableVideo = 0;
+    this.executeAndSend(stopVisualsEvent);
+    this.world.shareProperties();
+  }
+  emitRescaleSkybox(scale) {
+    let rescaleSkyboxEvent = { action: 'rescaleSkybox', scale: scale };
+    this.world.properties.skyboxScale = scale;
+    this.executeAndSend(rescaleSkyboxEvent);
+    this.world.shareProperties();
+  }
   async execute( event ) {
     let resumeUserPlayback = false;
+    let video;
     switch(event.action) {
       case 'playVideo':
         this.videoBeingPlayed = this.videos[event.videoIndex].url;
         if(!this.userSettings.enableVisuals) {
           return;
         }
-        this.world.initializeDisplays(this.videos[event.videoIndex].url, [event.target]);
+        this.world.initializeDisplays(this.videos[event.videoIndex].url, [event.target], event.scale);
         /* If a user was being casted continue playing the video element since initializeDisplays will have paused it when disposing previous textures */
         resumeUserPlayback = this.userBeingCasted;
         this.userBeingCasted = false;
@@ -506,13 +560,35 @@ export class StageControls {
         if(!this.userSettings.enableVisuals) {
           return;
         }
-        let video = this.fetchPeerVideoElement(event.userId);
+        video = this.fetchPeerVideoElement(event.userId)
         if(video) {
           this.world.initializeDisplays(video, [event.target]);
           /* If a user was being casted continue playing the video element since initializeDisplays will have paused it when disposing previous textures */
           resumeUserPlayback = this.userBeingCasted;
           this.userBeingCasted = event.userId;
         }
+        break;
+      case "startVisuals":
+        if(!this.userSettings.enableVisuals) {
+          return;
+        }
+        video = this.fetchPeerVideoElement(event.userId)
+        if(video) {
+          this.world.properties.SkyboxOnly = event.skyboxOnly;
+          this.world.startVisuals(video, event.scale);
+        }
+        break;
+      case "stopVisuals":
+        if(!this.userSettings.enableVisuals) {
+          return;
+        }
+        this.world.stopVisuals();
+        break;
+      case "rescaleSkybox":
+        if(!this.userSettings.enableVisuals) {
+          return;
+        }
+        this.world.rescaleSkybox(event.scale);
         break;
       case "changeCubeTexture":
         if(event.cubeTexture) {

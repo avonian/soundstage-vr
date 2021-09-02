@@ -14,37 +14,57 @@ export class MediaSoup extends MediaStreams {
     if (isLocal) {
       document.querySelector("#localVideo").srcObject = new MediaStream([track]);
       document.querySelector("#localVideo").setAttribute('peerId', this.worldManager.VRSPACE.me.id);
-    } else {
-      const newVideoElement = document.createElement("video");
-      newVideoElement.muted = true;
-      newVideoElement.playsInline = true;
-      newVideoElement.autoplay = true;
-      newVideoElement.controls = true;
-      newVideoElement.srcObject = new MediaStream([track]);
-      newVideoElement.classList.add("vid");
-      // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
-      newVideoElement.addEventListener('pause', function() {
-        this.play();
-      })
-      const mainVideoContainer = document.getElementById(this.htmlElementName);
-      const videoDiv = document.createElement('div');
-      videoDiv.classList.add("cast-box");
-      if(peerId) {
-        newVideoElement.setAttribute('peerId', peerId);
-        newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
-        newVideoElement.setAttribute('soundStageUserRole', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserRole);
-        newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
-      }
-      let badge = document.createElement('div');
-      badge.setAttribute('class','absolute top-0 right-0 bg-indigo-500 mt-2 mr-2 px-3 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer');
-      badge.innerHTML = 'CAST';
-      badge.addEventListener('click', () => {
-        document.querySelector("#app").__vue_app__._component.methods.castUser(peerId)
-      })
-      videoDiv.appendChild(badge)
-      videoDiv.appendChild(newVideoElement);
-      mainVideoContainer.appendChild(videoDiv);
     }
+    const newVideoElement = document.createElement("video");
+    newVideoElement.muted = true;
+    newVideoElement.playsInline = true;
+    newVideoElement.autoplay = true;
+    newVideoElement.controls = true;
+    newVideoElement.srcObject = new MediaStream([track]);
+    newVideoElement.classList.add("vid");
+    // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
+    newVideoElement.addEventListener('pause', function() {
+      this.play();
+    })
+    const mainVideoContainer = document.getElementById(this.htmlElementName);
+    const videoDiv = document.createElement('div');
+    videoDiv.classList.add("cast-box");
+    newVideoElement.setAttribute('peerId', isLocal ? this.worldManager.VRSPACE.me.id : peerId);
+    if(!isLocal && this.world.worldManager.VRSPACE.scene.get("Client " + peerId)) {
+      newVideoElement.setAttribute('soundStageUserAlias', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserAlias);
+      newVideoElement.setAttribute('soundStageUserRole', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserRole);
+      newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
+    }
+    let buttonContainer = document.createElement('div');
+    buttonContainer.setAttribute('class','absolute flex flex-row gap-x-2 mt-2 w-full px-2');
+
+    var button = document.createElement('a');
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.innerHTML = 'ALL';
+    button.addEventListener('click', (event) => {
+      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+    });
+    buttonContainer.appendChild(button)
+
+    var button = document.createElement('a');
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.innerHTML = 'SKYBOX';
+    button.addEventListener('click', (event) => {
+      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId, true)
+    });
+    buttonContainer.appendChild(button)
+
+    var button = document.createElement('a');
+    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
+    button.innerHTML = 'WINDOW';
+    button.addEventListener('click', () => {
+      document.querySelector("#app").__vue_app__._component.methods.castUser(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+    })
+    buttonContainer.appendChild(button)
+
+    videoDiv.appendChild(buttonContainer)
+    videoDiv.appendChild(newVideoElement);
+    mainVideoContainer.appendChild(videoDiv);
   }
 
   async init( roomId, callback ) {
@@ -61,7 +81,7 @@ export class MediaSoup extends MediaStreams {
       mode: mediasoup.MODES.VIDEO_ONLY,
       useSimulcast: false,
       forceH264: false,
-      resolution: this.role === 'artist' ? 'uhd' : 'qvga'
+      resolution: this.spaceConfig.role === 'artist' || this.spaceConfig.permissions['stage_controls'] ? 'uhd' : 'qvga'
     });
     await roomClient.join();
     // Listen for events on 'PRODUCER's. Local tracks.

@@ -33,7 +33,7 @@
                 @continue="showHelp = false"/>
         <LocalCamera v-show="webcamEnabled === true && cameraMode !== null && cameraMode[0] === '1p' && videoDevices.length > 0"
                 :enableStageControls="enableStageControls"
-                @castSelf="castSelf"/>
+        />
         <AvatarMenu v-if="avatarMenuClientId"
             :world="world"
             :client-id="avatarMenuClientId"
@@ -90,10 +90,13 @@
                 @toggleGridFloor="toggleGridFloor"
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
+                @stopVisuals="stopVisuals"
+                @rescaleSkybox="rescaleSkybox"
+                @lockSpace="lockSpace"
                 />
         <Chat class="absolute top-12 left-12"
                :world="world"
-               :class="showStageControls ? 'top-56' : 'top-12'"
+               :class="showStageControls ? 'top-60' : 'top-12'"
                :chat-log="chatLog"/>
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
@@ -407,6 +410,9 @@
           let data = await response.json();
           if(data.success) {
             this.spaceConfig = data['space_config'];
+            if(this.spaceConfig.send_back) {
+              window.history.back();
+            }
             if(!this.spaceConfig.videos) {
               this.spaceConfig.videos = baseConfig.videos;
             }
@@ -914,13 +920,15 @@
         }
       },
       activateVideo (videoIndex) {
+        let castButtons = document.querySelectorAll('a.cast-window');
+        for(var button of castButtons) {
+          button.classList.remove('gradient-ultra');
+          button.classList.add('bg-indigo-500');
+        }
         this.activeVideo = videoIndex
         this.castingUser = false
         this.castingUserId = ''
         this.world.stageControls.play(videoIndex)
-      },
-      castSelf () {
-        this.castUser(document.querySelector('#localVideo').getAttribute('peerid'))
       },
       castUser (userId) {
         if (userId !== '') {
@@ -1050,7 +1058,7 @@
             }
           }
           // Dispose avatar
-          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === 6)[0];
+          let VRSpaceClientID = Array.from(world.worldManager.VRSPACE.scene).find(client => client[1].properties.soundStageUserId === user)[0];
           let holoAvatar = world.worldManager.VRSPACE.scene.get(VRSpaceClientID).video;
           holoAvatar.dispose();
           this.avatarMenuClientId = false;
@@ -1189,6 +1197,38 @@
             attenuation: attenuation
           }),
         });
+      },
+      stopVisuals() {
+        let castButtons = document.querySelectorAll('a.cast-walls');
+        for(var button of castButtons) {
+          button.classList.remove('gradient-ultra');
+          button.classList.add('bg-indigo-500');
+        }
+        world.stageControls.emitStopVisuals();
+      },
+      rescaleSkybox() {
+        world.stageControls.emitRescaleSkybox(document.querySelector('#skyboxScale').value);
+      },
+      async lockSpace(locked) {
+        return new Promise(async (resolve) => {
+          try {
+            let response = await fetch(`${process.env.VUE_APP_API_URL}/spaces/${this.spaceConfig['space_slug']}/lock`, {
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Accept': 'application/json',
+                "Authorization": `Bearer ${this.jwt}`
+              },
+              'method': 'POST',
+              'body': JSON.stringify({
+                locked: locked
+              }),
+            });
+            resolve();
+          } catch(err) {
+            console.log(err);
+            resolve();
+          }
+        })
       }
     }
   }

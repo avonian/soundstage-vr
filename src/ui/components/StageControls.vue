@@ -1,10 +1,11 @@
 <template>
-    <div class="stage ui-hide">
-        <div class="flex items-stretch justify-end pl-12 pt-6 absolute left-0 top-0 z-40">
+    <div class="stage ui-hide absolute pl-12 pt-6 absolute left-0 top-0 z-40 flex flex-col gap-y-3">
+        <div class="flex items-stretch">
             <select class="bg-white text-sm text-black mr-3 rounded-md" id="videoTarget">
                 <option value='all'>All Displays</option>
                 <option value='DJTableVideo'>DJ Table</option>
                 <option value='WindowVideo'>Big Screen</option>
+                <option value='SkyboxVideo'>Skybox</option>
             </select>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
@@ -12,11 +13,23 @@
                 {{ video.label }}
             </a>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-0 z-30">
+        <div class="flex items-stretch">
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
                :class="showingUserVideos ? 'gradient-ultra' : 'bg-gray-500'"
                @click="$emit('toggleUserVideos')">
                 Casting Panel
+            </a>
+
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="skyboxScale" @change="$emit('rescaleSkybox')">
+                <option :value=1>Skybox 1</option>
+                <option :value=2>Skybox 1/2</option>
+                <option :value=3>Skybox 1/3</option>
+                <option :value=4>Skybox 1/4</option>
+            </select>
+
+            <a class="bg-alt-primary flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
+               @click="$emit('stopVisuals')">
+                Reset Walls
             </a>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="playingIntro ? 'cursor-not-allowed gradient-ultra' : 'bg-purple-700'"
@@ -62,7 +75,7 @@
                 <div class="flex items-center text-lg">Save state: <input type="checkbox" id="saveState" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2"></div>
             </div>
         </div>
-        <div class="flex items-stretch justify-end pl-12 pt-16 absolute left-0 top-12 z-20">
+        <div class="flex items-stretch">
             <div class="flex items-center text-lg">Freecam Sound: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" id="freeCamSpatialAudio">
                     <option value="stage" selected>Stage</option>
                     <option value="freecam">Freecam</option>
@@ -84,7 +97,7 @@
                 </a>
             </span>
         </div>
-        <div class="flex items-center text-lg pl-12 pt-16 absolute left-0 top-24 z-10">
+        <div class="flex items-center">
             <div class="inline-flex mr-3 items-center justify-center" v-if="mixerConnected">
                 Ambient Audio: <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" :value="activeAudioTrack" :disabled="waitingForMixer && 'disabled'" @change="switchAudioTrack">
                     <option value=false>None</option>
@@ -96,7 +109,40 @@
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                 </div>
-                <div class="flex items-center text-lg" v-else>Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+                <div class="flex items-center text-lg">Volume:
+                    <select class="bg-white text-sm text-black mr-3 rounded-md ml-2" v-model="volume" @change="changeVolume" :disabled="volume === 0">
+                        <option value=0>0%</option>
+                        <option value=10>10%</option>
+                        <option value=20>20%</option>
+                        <option value=30>30%</option>
+                        <option value=40>40%</option>
+                        <option value=50>50%</option>
+                        <option value=60>60%</option>
+                        <option value=70>70%</option>
+                        <option value=80>80%</option>
+                        <option value=90>90%</option>
+                        <option value=100>100%</option>
+                    </select>
+                </div>
+                <div class="flex items-center text-lg mr-3" v-if="!waitingForMixer">Loop Mode: <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="loop" @click="toggleLooping"></div>
+                <div class="flex items-center text-lg">
+                    Music Video Target:
+                    <select class="bg-white text-sm text-black ml-2 rounded-md" v-model="musicVideoTarget">
+                        <option value=false>None</option>
+                        <option value='all'>All Displays</option>
+                        <option value='DJTableVideo'>DJ Table</option>
+                        <option value='WindowVideo'>Big Screen</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center">
+            <div class="flex items-center text-lg mr-3">
+                Event Access:
+                <select class="bg-white text-sm text-black mx-2 rounded-md" v-model="locked" @change="$emit('lockSpace', $event.target.value)">
+                    <option value=0>Open</option>
+                    <option value=1>Closed</option>
+                </select> ({{ userCount }} users )
             </div>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20 bg-indigo-500"
                @click="teleport({ x: 8.3985268, y: -3.4950000, z: -17.364640 })">
@@ -142,7 +188,11 @@
           audioTracks: false,
           activeAudioTrack: false,
           waitingForMixer: false,
+          musicVideoTarget: 'all',
+          locked: 0,
           loop: false,
+          volume: 0,
+          userCount: 1,
           attenuationOptions: [
             {
               value: 0.00001,
@@ -158,12 +208,20 @@
         }
       },
       mounted() {
+        setInterval(() => {
+          if(this.world && this.world.worldManager) {
+            this.userCount = 1 + this.world.worldManager.VRSPACE.getScene("Client").size;
+          }
+        }, 1000);
         setTimeout(this.connectToMixer, 5000);
         document.addEventListener('keydown', (e) => {
           if(e.code === "F8") {
             this.toggleAttenuation();
           }
         });
+        if(this.spaceConfig.locked) {
+          this.locked = 1;
+        }
       },
       methods: {
         async connectToMixer() {
@@ -192,6 +250,7 @@
               this.mixerConnected = true;
               this.activeAudioTrack = data.activeTrack;
               this.loop = data.loop;
+              this.volume = data.gain * 100;
             }
           } catch(err) {
             console.log(err);
@@ -284,6 +343,7 @@
                   spaceId: this.spaceConfig.highFidelity.spaceId
                 }),
               });
+              this.volume = 0;
               resolve();
             } catch(err) {
               console.log(err);
@@ -308,6 +368,13 @@
                   loop: this.loop
                 }),
               });
+              if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {
+                this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], this.musicVideoTarget)
+              }
+              let data = await response.json();
+              if(data.success) {
+                this.volume = data.gain * 100;
+              }
               resolve();
             } catch(err) {
               console.log(err);
@@ -319,7 +386,7 @@
           this.loop = this.loop !== true;
           return new Promise(async (resolve) => {
             try {
-              let response = await fetch(`${this.mixerUrl}/update`, {
+              let response = await fetch(`${this.mixerUrl}/loop`, {
                 headers: {
                   "Content-Type": "application/json; charset=utf-8",
                   'Accept': 'application/json'
@@ -331,6 +398,32 @@
                   loop: this.loop
                 }),
               });
+              resolve();
+            } catch(err) {
+              console.log(err);
+              resolve();
+            }
+          })
+        },
+        async changeVolume() {
+          return new Promise(async (resolve) => {
+            try {
+              let response = await fetch(`${this.mixerUrl}/volume`, {
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                  'Accept': 'application/json'
+                },
+                'method': 'POST',
+                'body': JSON.stringify({
+                  token: this.mixerToken,
+                  spaceId: this.spaceConfig.highFidelity.spaceId,
+                  volume: this.volume
+                }),
+              });
+              let data = await response.json();
+              if(data.success) {
+                this.volume = data.gain * 100;
+              }
               resolve();
             } catch(err) {
               console.log(err);
