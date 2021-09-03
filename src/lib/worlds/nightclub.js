@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = spaceConfig.mode === 'soundclub' ? 'Night_Club-1sept.glb' : 'Night_Club-14may.glb';
+    this.file = spaceConfig.mode === 'soundclub' ? 'Night_Club-0209.glb' : 'Night_Club-14may.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -307,7 +307,7 @@ export default class extends SoundWorld {
     kioskPlane.material.emissiveTexture.name = "PosterImage-kioskPlane";
     kioskPlane.material.disableLighting = true
 
-    let kioskMesh = this.scene.getMeshByName('transpplane');
+    let kioskMesh = this.scene.getMeshByName('transplane');
     Utilities.bindMeshAction(
       this.scene,
       this.camera1,
