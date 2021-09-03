@@ -291,7 +291,7 @@
             await this.switchAudioTrack(this.spaceConfig.introAudio ? this.spaceConfig.introAudio : "Kill-Paris-Intro.mp3", true);
             setTimeout(() => {
               console.log('Playing audio/video');
-              this.$emit('activateVideo', 1);
+              this.$emit('playVideo', 1);
             }, 0);
 
             setTimeout(() => {
