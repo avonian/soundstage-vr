@@ -578,7 +578,7 @@ export default class extends SoundWorld {
     // always looks at 1st person camera (avatar) - target is 1st ps camera position
     // alpha rotation depends on 1st ps camera rotation
     this.camera3 = new BABYLON.ArcRotateCamera("Third Person Camera", 0, 1.5*Math.PI-this.camera1.rotation.y, 1, this.camera1.position, this.scene);
-    this.camera3.maxZ = 1000;
+    this.camera3.maxZ = 10000;
     this.camera3.minZ = 0;
     this.camera3.wheelPrecision = 100;
     this.camera3.checkCollisions = true; //CHECKME: check or not?
