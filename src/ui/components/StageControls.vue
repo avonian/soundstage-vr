@@ -126,9 +126,8 @@
                     Music Video Target:
                     <select class="bg-white text-sm text-black ml-2 rounded-md" v-model="musicVideoTarget">
                         <option value=false>None</option>
-                        <option value='all'>All Displays</option>
-                        <option value='DJTableVideo'>DJ Table</option>
-                        <option value='WindowVideo'>Big Screen</option>
+                        <option value='all'>All</option>
+                        <option :value=display.key v-for="display of musicVideoDisplays" :key="display">{{ display.value }}</option>
                     </select>
                 </div>
             </div>
@@ -202,6 +201,23 @@
           ],
           mixerUrl: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.spaceConfig.mixerUrl,
           mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.spaceConfig.mixerToken,
+        }
+      },
+      computed: {
+        musicVideoDisplays() {
+          if(this.world) {
+            var displays = [];
+            for(var display of Object.keys(this.world.displayConfig)) {
+              if(this.world.displayConfig[display].canShowMusicVideo) {
+                displays.push({
+                  key: display,
+                  value: this.world.displayConfig[display].label
+                });
+              }
+            }
+            return displays;
+          }
+          return [];
         }
       },
       mounted() {
@@ -366,7 +382,11 @@
                 }),
               });
               if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {
-                this.world.stageControls.play(this.spaceConfig.musicVideos[this.activeAudioTrack], this.musicVideoTarget)
+                if(this.musicVideoTarget === 'all') {
+                  this.world.stageControls.emitPlayVideo(this.spaceConfig.musicVideos[this.activeAudioTrack], this.musicVideoDisplays.map(d => d.key))
+                } else {
+                  this.world.stageControls.emitPlayVideo(this.spaceConfig.musicVideos[this.activeAudioTrack], [this.musicVideoTarget])
+                }
               }
               let data = await response.json();
               if(data.success) {

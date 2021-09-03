@@ -457,14 +457,22 @@ export class StageControls {
       this.world.scene.pedestalColor = BABYLON.Color3.White();
     }
   }
-  emitPlayVideo( videoId ) {
-    // Update global properties
-    for(var display of Object.keys(this.world.displayConfig)) {
-      if(this.world.displayConfig[display].target) {
-        // Update locally so we can do a 'shareProperties' to update the server state
+  emitPlayVideo( videoId, customTargets ) {
+    if(customTargets) {
+      for(var display of customTargets) {
         this.world.properties.displayProperties[display].video_id = videoId;
         this.world.properties.displayProperties[display].user_id = null;
         this.executeAndSend({ action: 'playVideo', display: display, video_id: videoId });
+      }
+    } else {
+      // Update global properties
+      for (var display of Object.keys(this.world.displayConfig)) {
+        if (this.world.displayConfig[display].target) {
+          // Update locally so we can do a 'shareProperties' to update the server state
+          this.world.properties.displayProperties[display].video_id = videoId;
+          this.world.properties.displayProperties[display].user_id = null;
+          this.executeAndSend({ action: 'playVideo', display: display, video_id: videoId });
+        }
       }
     }
     this.world.shareProperties();

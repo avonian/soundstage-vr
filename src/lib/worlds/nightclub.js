@@ -30,7 +30,8 @@ export default class extends SoundWorld {
           'vScale': 0.65,
           'uScale': -1,
           'vOffset': 0.17
-        }
+        },
+        'canShowMusicVideo': true
       },
       'DJTableVideo': {
         'label': 'DJ Table',
@@ -38,7 +39,8 @@ export default class extends SoundWorld {
         'diffuseTexture': {
           'vScale': 0.50,
           'vOffset': -0.75
-        }
+        },
+        'canShowMusicVideo': true
       },
       'skyBox': {
         'label': 'Skybox',
