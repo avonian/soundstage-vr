@@ -21,6 +21,50 @@ export default class extends SoundWorld {
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
     this.spaceConfig = spaceConfig;
+    this.videos = spaceConfig.videos;
+    this.displayConfig = {
+      'WindowVideo': {
+        'label': 'Main Panel',
+        'target': true,
+        'diffuseTexture': {
+          'vScale': 0.65,
+          'uScale': -1,
+          'vOffset': 0.17
+        }
+      },
+      'DJTableVideo': {
+        'label': 'DJ Table',
+        'target': true,
+        'diffuseTexture': {
+          'vScale': 0.50,
+          'vOffset': -0.75
+        }
+      },
+      'skyBox': {
+        'label': 'Skybox',
+        'target': false,
+        'diffuseTexture': {
+          'vScale': 5,
+          'uScale': 3,
+          'vOffset': 0
+        }
+      }
+    }
+    this.defaultDisplayProperties = {
+      'DJTableVideo': {
+        'video_id': 0,
+        'user_id': null
+      },
+      'WindowVideo': {
+        'video_id': 0,
+        'user_id': null
+      },
+      'skyBox': {
+        'video_id': null,
+        'user_id': null,
+        'textureScale': 1
+      }
+    };
     this.role = spaceConfig.role;
     this.permissions = spaceConfig.permissions;
     // cameras
@@ -50,11 +94,7 @@ export default class extends SoundWorld {
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
     // shared world properties
     this.properties = {
-      WindowVideo:0,
-      DJTableVideo:0,
-      SkyboxVideo:0,
-      castUser:null,
-      castTarget:'WindowVideo'
+      displayProperties: this.defaultDisplayProperties,
     };
     this.worldState = null;
     // things to dispose of
@@ -64,7 +104,6 @@ export default class extends SoundWorld {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
-    this.videos = spaceConfig.videos;
     this.dummies = [];
     this.barLights = [];
     this.clearCoatMeshes = false;
@@ -79,6 +118,7 @@ export default class extends SoundWorld {
   }
   initAfterLoad() {
     this.scene.getNodeByName('skyBox').applyFog = false;
+    this.scene.getMeshByName('ground').isVisible = false;
     this.chat = new Chat(this);
     this.createMaterials();
     this.initVipEntrance();
@@ -441,13 +481,7 @@ export default class extends SoundWorld {
   // superclass ensures everything is called in order, from world init() method
   async createSkyBox() {
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 10000, this.scene);
-    var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.disableLighting = true;
-    skybox.material = skyboxMaterial;
     skybox.infiniteDistance = true;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("//www.babylonjs.com/assets/skybox/TropicalSunnyDay", this.scene);
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     return skybox;
   }
   async createGround() {
@@ -844,84 +878,80 @@ export default class extends SoundWorld {
     }
   }
 
-  initializeDisplays(videoSource = false, displays = ['DJTableVideo', 'WindowVideo'], skyboxScale) {
-
+  updateDisplay(display, video) {
     if(!this.userSettings.enableVisuals) {
       return;
     }
+    var mesh = this.scene.getMeshByName(display);
+    // Dispose meshes since we can't update videos and need to recreate them
+    if(mesh.material && mesh.material.diffuseTexture) {
+      mesh.material.diffuseTexture.dispose();
+    }
+    if(mesh.material && mesh.material.emissiveTexture) {
+      mesh.material.emissiveTexture.dispose();
+    }
+    if(mesh.material) {
+      mesh.material.dispose();
+    }
+    var material = new BABYLON.StandardMaterial(display + "Material", this.scene);
+    material.backFaceCulling = false;
+    var texture = new BABYLON.VideoTexture(display + "Texture",
+      video,
+      this.scene, true, true, null,
+      {
+        autoUpdateTexture: true,
+        autoPlay: true,
+        muted: true,
+        loop: true
+      });
+    material.diffuseTexture = texture;
+    for(var property of Object.keys(this.displayConfig[display].diffuseTexture)) {
+      var textureScale = this.properties.displayProperties[display].textureScale ? this.properties.displayProperties[display].textureScale : 1;
+      material.diffuseTexture[property] = this.displayConfig[display].diffuseTexture[property] * textureScale;
+    }
+    material.emissiveTexture = texture;
+    mesh.material = material;
+    if(display === 'skyBox') {
+      this.toggleSkybox(true);
+    }
+  }
 
-    if(displays.indexOf('SkyboxVideo') !== -1) {
-      this.startVisuals(videoSource, skyboxScale);
+  async castUser(display, userId) {
+    if(!this.userSettings.enableVisuals) {
       return;
     }
-
-    if(displays.indexOf('DJTableVideo') !== -1) {
-      if(this.tableMaterial) {
-        this.tableMaterial.dispose();
+    return new Promise((resolve, reject) => {
+      var attempt = () => {
+        var video = this.mediaStreams.fetchPeerVideoElement(userId);
+        if (video) {
+          this.updateDisplay(display, video);
+          clearInterval(interval);
+          resolve();
+        }
       }
-      if(this.tableTexture) {
-        this.tableTexture.dispose();
-      }
-      this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture",
-        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url],
-        this.scene, true, true, null,
-        {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
-      this.tableMaterial.diffuseTexture = this.tableTexture;
-      this.tableMaterial.diffuseTexture.vScale = 0.50;
-      this.tableMaterial.diffuseTexture.vOffset = -0.75;
-      this.tableMaterial.emissiveTexture = this.tableTexture;
+      attempt();
+      var interval = setInterval(() => attempt(), 500);
+    })
+  }
 
-      this.tableMesh = this.scene.getMeshByName("DJTableVideo")
-      this.tableMesh.material = this.tableMaterial;
-      console.log('tableMesh', this.tableMesh);
-      this.displays.push({
-        name: "DJTableVideo",
-        mesh: this.tableMesh,
-        texture: this.tableTexture
-      });
+  // Initialize the displays using current displayProperties
+  async initializeDisplays() {
+    if(!this.userSettings.enableVisuals) {
+      return;
     }
+    // Remove these guys once video playing starts
+    this.scene.getMeshByName("LogoText").visibility = 0;
+    this.scene.getMeshByName("LogoSign").visibility = 0;
 
-    if(displays.indexOf('WindowVideo') !== -1) {
-
-      if(this.windowMaterial) {
-        this.windowMaterial.dispose();
+    var displayProperties = this.properties.displayProperties;
+    for(var display of Object.keys(displayProperties)) {
+      if(displayProperties[display].video_id !== null) {
+        var video_url = this.videos[displayProperties[display].video_id].url;
+        this.updateDisplay(display, video_url);
       }
-      if(this.windowTexture) {
-        this.windowTexture.dispose();
+      if(displayProperties[display].user_id !== null) {
+        this.castUser(display, displayProperties[display].user_id);
       }
-
-      this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture",
-        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url],
-        this.scene, true, true, null, {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
-      this.windowMaterial.diffuseTexture = this.windowTexture;
-      this.windowMaterial.diffuseTexture.vScale = 0.65;
-      this.windowMaterial.diffuseTexture.uScale = -1;
-      this.windowMaterial.diffuseTexture.vOffset = 0.17;
-      this.windowMaterial.emissiveTexture = this.windowTexture;
-      this.windowMesh = this.scene.getMeshByName("WindowVideo")
-      this.windowMesh.material = this.windowMaterial;
-      console.log('windowMesh', this.windowMesh);
-      this.displays.push({
-        name: "Window",
-        mesh: this.windowMesh,
-        texture: this.windowTexture
-      });
-      this.scene.getMeshByName("LogoText").visibility = 0;
-      console.log("LogoText", this.scene.getMeshByName("LogoText"));
-      this.scene.getMeshByName("LogoSign").visibility = 0;
-      console.log("LogoSign", this.scene.getMeshByName("LogoSign"));
     }
   }
 
@@ -1063,6 +1093,9 @@ export default class extends SoundWorld {
       // start session
       this.worldManager.VRSPACE.sendCommand("Session");
 
+      // Initialize displays with default videos
+      this.initializeDisplays();
+
       // SHARED STATE MANGLING
       // custom scene listener, listening for shared state object
       VRSPACE.addSceneListener((e) => this.findSharedState(e));
@@ -1111,11 +1144,7 @@ export default class extends SoundWorld {
         //permanent:true,
         properties: {
           name:'worldState',
-          WindowVideo:0,
-          DJTableVideo:0,
-          SkyboxVideo:0,
-          castUser: this.properties.castUser,
-          castTarget:'WindowVideo',
+          displayProperties: this.defaultDisplayProperties,
           activeMood: this.stageControls.activeMood,
           fogSetting: this.stageControls.fogSetting,
           environmentIntensity: this.scene.environmentIntensity,
@@ -1192,7 +1221,7 @@ export default class extends SoundWorld {
 
   initStageControls( callback ) {
     // stage controls
-    this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
+    this.stageControls = new StageControls(callback, this.userSettings, this );
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
     document.addEventListener('keydown', (event) => {
@@ -1562,6 +1591,83 @@ export default class extends SoundWorld {
     return video;
   }
 
+  async togglePosters(show) {
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
+    var spaceConfig = this.spaceConfig;
+    return new Promise((resolve, reject) => {
+      var attempt = () => {
+        var posterGallery = this.scene.getTransformNodeByName("posterGallery");
+        if(!posterGallery) {
+          return;
+        }
+        var posters = posterGallery.getChildren();
+        if(posters && posters.length === spaceConfig.posters.length) {
+          for (var poster of posters) {
+            if (poster._position.y > 3) {
+              this.fadeMesh(poster, show ? 1 : 0)
+            }
+          }
+          clearInterval(interval);
+          resolve();
+        }
+      }
+      attempt();
+      var interval = setInterval(() => attempt(), 500);
+    })
+  }
+
+  async toggleSkybox(show) {
+    // If we're already showing the skybox, return
+    if(show === this.skyboxVisible) {
+      return;
+    }
+    this.skyboxVisible = show;
+
+    if(!show) {
+      var skybox = this.scene.getMeshByName('skyBox');
+      setTimeout(() => {
+        skybox.material.emissiveTexture.dispose();
+        skybox.material.diffuseTexture.dispose();
+        skybox.material.dispose();
+      }, 3000);
+    }
+
+    // Fully transparent
+    for(meshName of this.skyboxManifest.meshesToHide) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0 : 1)
+    }
+    for(meshName of this.skyboxManifest.barMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0 : 1)
+    }
+    var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
+    for(var mesh of rootMeshes) {
+      if(mesh.name === "Cube") {
+        this.fadeMesh(mesh, show ? 0 : 1)
+      }
+    }
+
+    if(this.spaceConfig.posters) {
+      this.togglePosters(!show); // Flip value since we want to hide posters when showing skybox
+    }
+
+    // Half opacity
+    for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.5 : 1)
+    }
+
+    // 1/3rd opacity
+    for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.35 : 1)
+    }
+
+    // 1/4th opacity
+    for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.25 : 1)
+    }
+  }
+
   fadeMesh(mesh, opacity) {
     var fadeInterval;
     var fadeStep = function(mesh, targetOpacity) {
@@ -1576,105 +1682,15 @@ export default class extends SoundWorld {
     fadeInterval = setInterval(() => fadeStep(mesh, opacity), 10);
   }
 
-  startVisuals(videoSource, scale = 1, windowVideo, djTableVideo, castUser) {
-
-    if(this.userSettings.enableVisuals) {
-      if(!this.originalSkyboxMaterial) {
-        this.originalSkyboxMaterial = this.skyboxMaterial;
-      }
-      this.skyboxMaterial = this.scene.getMaterialByName('skyBox');
-      if(this.skyboxMaterial) {
-        this.skyboxMaterial.dispose();
-      }
-
-      this.skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-      this.skyboxMaterial.backFaceCulling = false;
-      this.skyboxTexture = new BABYLON.VideoTexture("skyBoxTexture",
-        videoSource,
-        this.scene, true, true, null,
-        {
-          autoUpdateTexture: true,
-          autoPlay: true,
-          muted: true,
-          loop: true
-        });
-      this.skyboxMaterial.diffuseTexture = this.skyboxTexture;
-      this.skyboxMaterial.diffuseTexture.vScale = 5 * scale;
-      this.skyboxMaterial.diffuseTexture.uScale = 3 * scale;
-      this.skyboxMaterial.diffuseTexture.vOffset = 0;
-      this.skyboxMaterial.emissiveTexture = this.skyboxTexture;
-
-      this.scene.getMeshByName("skyBox").material = this.skyboxMaterial;
-
-      // Fully transparent
-      this.scene.getMeshByName('ground').isVisible = false;
-      for(meshName of this.skyboxManifest.meshesToHide) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 0)
-      }
-      for(meshName of this.skyboxManifest.barMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 0)
-      }
-      var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
-      for(var mesh of rootMeshes) {
-        if(mesh.name === "Cube") {
-          this.fadeMesh(mesh, 0)
-        }
-      }
-      var posters = this.scene.getTransformNodeByName("posterGallery").getChildren();
-      for(var poster of posters) {
-        if(poster._position.y > 3) {
-          this.fadeMesh(poster, 0)
-        }
-      }
-
-      // Half opacity
-      for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 0.5)
-      }
-
-      // 1/3rd opacity
-      for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 0.35)
-      }
-
-      // 1/4th opacity
-      for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
-        this.fadeMesh(this.scene.getMeshByName(meshName), 0.25)
-      }
-    }
-
-    if(!this.properties.SkyboxOnly) {
-      // Project onto main displays
-      this.initializeDisplays(videoSource);
-    }
-
-    // This is for resetting correct state when initializing for first time
-    if (djTableVideo) {
-      this.initializeDisplays(false, ['DJTableVideo']);
-    }
-    if (windowVideo) {
-      this.initializeDisplays(false, ['WindowVideo']);
-    }
-    if (castUser) {
-      var attemptCastUser = () => {
-        if (this.properties.castUser && this.stageControls.fetchPeerVideoElement(this.properties.castUser)) {
-          this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
-          return true;
-        }
-        setTimeout(() => attemptCastUser(), 500);
-      }
-      attemptCastUser();
-    }
-  }
-
   rescaleSkybox(scale) {
-
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
     var targetVscale = 5 * scale;
     var targetUscale = 3 * scale;
     var uScaleStepSize = .01;
     var vScaleStepSize = .02;
 
-    var rescaleInterval;
     var rescaleStep = (texture, targetVscale, targetUscale) => {
       if(texture.vScale < targetVscale) {
         texture.vScale = parseFloat((texture.vScale += vScaleStepSize).toFixed(2));
@@ -1690,52 +1706,10 @@ export default class extends SoundWorld {
         clearInterval(rescaleInterval);
       }
     }
-    rescaleInterval = setInterval(() => rescaleStep(this.skyboxMaterial.diffuseTexture, targetVscale, targetUscale), 1);
-  }
-
-  stopVisuals(show ) {
-    for(meshName of this.skyboxManifest.meshesToHide) {
-      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
+    var material = this.scene.getMeshByName('skyBox').material;
+    if(material) {
+      var rescaleInterval = setInterval(() => rescaleStep(material.diffuseTexture, targetVscale, targetUscale), 1);
     }
-    for(meshName of this.skyboxManifest.barMeshes) {
-      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-    }
-    var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
-    for(var mesh of rootMeshes) {
-      if(mesh.name === "Cube") {
-        this.fadeMesh(mesh, 1)
-      }
-    }
-    var posters = this.scene.getTransformNodeByName("posterGallery").getChildren();
-
-    setTimeout(() => {
-      this.scene.getMeshByName('ground').isVisible = true;
-      this.scene.getMeshByName('skyBox').material = this.originalSkyboxMaterial;
-    }, 5000);
-    for(var poster of posters) {
-      if(poster._position.y > 3) {
-        this.fadeMesh(poster, 1)
-      }
-    }
-
-    for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
-      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-    }
-
-    for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
-      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-    }
-
-    for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
-      this.fadeMesh(this.scene.getMeshByName(meshName), 1)
-    }
-    // Reset displays
-    this.properties.visualsBeingCasted = null;
-    this.properties.castUser = null;
-    this.properties.SkyboxVideo = false;
-    this.properties.WindowVideo = 0;
-    this.properties.DJTableVideo = 0;
-    this.initializeDisplays();
   }
 
   adjustGraphicsQuality(setting, callback) {
@@ -1924,75 +1898,28 @@ export default class extends SoundWorld {
     }
   }
 
+  // Save state of animated elements
   async saveState() {
     if ( ! this.worldState || document.querySelector("#saveState").checked === false) {
       return;
     }
-    console.log('saving');
-    let state = this.worldState.properties;
-    state.activeMood = this.stageControls.activeMood;
-    state.fogSetting = this.stageControls.fogSetting;
-    state.environmentIntensity = this.scene.environmentIntensity;
-    state.environmentTexture = this.stageControls.activeCubeTexture;
-    state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
-    state.userBeingCasted = this.stageControls.userBeingCasted;
-    state.visualsBeingCasted = this.properties.visualsBeingCasted;
-    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
-    state.DJPlatformRaised = this.stageControls.DJPlatformRaised;
-    state.tunnelLightsOn = this.stageControls.tunnelLightsOn;
-    state.gridFloorOn = this.stageControls.gridFloorOn;
-    state.moodParticlesOn = this.stageControls.moodParticlesOn;
-    state.DJSpotLightIntensity = this.DJSpotLight ? this.DJSpotLight.intensity : false;
-    this.worldState.publish();
+    this.properties.activeMood = this.stageControls.activeMood;
+    this.properties.fogSetting = this.stageControls.fogSetting;
+    this.properties.environmentIntensity = this.scene.environmentIntensity;
+    this.properties.environmentTexture = this.stageControls.activeCubeTexture;
+    this.properties.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
+    this.properties.DJPlatformRaised = this.stageControls.DJPlatformRaised;
+    this.properties.tunnelLightsOn = this.stageControls.tunnelLightsOn;
+    this.properties.gridFloorOn = this.stageControls.gridFloorOn;
+    this.properties.moodParticlesOn = this.stageControls.moodParticlesOn;
+    this.properties.DJSpotLightIntensity = this.DJSpotLight ? this.DJSpotLight.intensity : false;
+    this.shareProperties();
   }
 
   applyState() {
     let state = this.worldState.properties;
 
-    // Start default videos
-    if (this.properties.DJTableVideo || this.properties.DJTableVideo === 0) {
-      this.initializeDisplays(false, ['DJTableVideo']);
-    }
-    if (this.properties.WindowVideo || this.properties.WindowVideo === 0) {
-      this.initializeDisplays(false, ['WindowVideo']);
-    }
-
-    // This is for casting on skybox
-    if(this.properties.visualsBeingCasted) {
-      var attemptCastVisuals = () => {
-        console.log(this.scene.getTransformNodeByName("posterGallery"), this.properties.visualsBeingCasted, this.stageControls.fetchPeerVideoElement(this.properties.visualsBeingCasted))
-        if(this.scene.getTransformNodeByName("posterGallery") && this.properties.visualsBeingCasted && this.stageControls.fetchPeerVideoElement(this.properties.visualsBeingCasted)) {
-          let videoSource = this.stageControls.fetchPeerVideoElement(this.properties.visualsBeingCasted);
-          this.startVisuals(videoSource, this.properties.skyboxScale, this.properties.WindowVideo, this.properties.DJTableVideo, this.properties.castUser, this.properties.castTarget);
-          return true;
-        }
-        setTimeout(() => attemptCastVisuals(), 500);
-      }
-      attemptCastVisuals();
-    }
-    // This is for playing videos on skybox
-    else if(this.properties.SkyboxVideo) {
-      var attemptSkyboxVideo = () => {
-        if(this.scene.getTransformNodeByName("posterGallery")) {
-          this.startVisuals(this.videos[this.properties.SkyboxVideo].url, this.properties.skyboxScale, this.properties.WindowVideo, this.properties.DJTableVideo, this.properties.castUser, this.properties.castTarget);
-          return true;
-        }
-        setTimeout(() => attemptSkyboxVideo(), 500);
-      }
-      attemptSkyboxVideo();
-    }
-    // This is for just plain casting of a user to the main window
-    else if(this.properties.castUser) {
-      var attemptCastUser = () => {
-        if(this.properties.castUser && this.stageControls.fetchPeerVideoElement(this.properties.castUser)) {
-          this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
-          return true;
-        }
-        setTimeout(() => attemptCastUser(), 500);
-      }
-      attemptCastUser();
-    }
-
+    this.initializeDisplays();
 
     this.stageControls.activeMood = state.activeMood;
     this.stageControls.fogSetting = state.fogSetting;

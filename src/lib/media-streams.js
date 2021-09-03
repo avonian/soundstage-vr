@@ -19,7 +19,6 @@ export class MediaSoup extends MediaStreams {
     newVideoElement.muted = true;
     newVideoElement.playsInline = true;
     newVideoElement.autoplay = true;
-    newVideoElement.controls = true;
     newVideoElement.srcObject = new MediaStream([track]);
     newVideoElement.classList.add("vid");
     // Disposing videoTextures (when casting user on to displays) will cause video to pause, so we force it to continue playing
@@ -36,29 +35,13 @@ export class MediaSoup extends MediaStreams {
       newVideoElement.setAttribute('soundStageUserId', this.world.worldManager.VRSPACE.scene.get("Client " + peerId).properties.soundStageUserId);
     }
     let buttonContainer = document.createElement('div');
-    buttonContainer.setAttribute('class','absolute flex flex-row gap-x-2 mt-2 w-full px-2');
+    buttonContainer.setAttribute('class','absolute flex flex-row justify-end gap-x-2 mt-2 w-full px-2');
 
     var button = document.createElement('a');
-    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
-    button.innerHTML = 'ALL';
-    button.addEventListener('click', (event) => {
-      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
-    });
-    buttonContainer.appendChild(button)
-
-    var button = document.createElement('a');
-    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
-    button.innerHTML = 'SKYBOX';
-    button.addEventListener('click', (event) => {
-      this.world.stageControls.emitStartVisuals(isLocal ? this.worldManager.VRSPACE.me.id : peerId, true)
-    });
-    buttonContainer.appendChild(button)
-
-    var button = document.createElement('a');
-    button.setAttribute('class','bg-indigo-500 py-2 rounded-lg text-sm font-medium z-20 cursor-pointer w-full text-center');
-    button.innerHTML = 'WINDOW';
+    button.setAttribute('class','bg-indigo-500 py-2 px-6 rounded-lg text-sm font-medium z-20 cursor-pointer text-center');
+    button.innerHTML = 'CAST';
     button.addEventListener('click', () => {
-      document.querySelector("#app").__vue_app__._component.methods.castUser(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
+      this.world.stageControls.emitCastUser(isLocal ? this.worldManager.VRSPACE.me.id : peerId)
     })
     buttonContainer.appendChild(button)
 
@@ -132,6 +115,16 @@ export class MediaSoup extends MediaStreams {
     }
 
     window.roomClient = roomClient;
+  }
+
+  fetchPeerVideoElement(peerid) {
+    let videos = document.querySelectorAll('#videos video')
+    for(var video of videos) {
+      if(video.getAttribute('peerid') + "" === peerid + "") {
+        return video;
+      }
+    }
+    return false;
   }
 
   async connect(roomId) {

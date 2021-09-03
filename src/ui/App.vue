@@ -80,7 +80,7 @@
                 :space-config="spaceConfig"
                 :attenuation="attenuation"
                 @toggleUserVideos="showUserVideosPanel = !showUserVideosPanel"
-                @activateVideo="activateVideo($event)"
+                @playVideo="(videoId) => world.stageControls.emitPlayVideo(videoId)"
                 @playCameraAnimations="playCameraAnimations($event)"
                 @changeMood="changeMood"
                 @changeCubeTexture="changeCubeTexture"
@@ -90,13 +90,14 @@
                 @toggleGridFloor="toggleGridFloor"
                 @toggleMoodParticles="toggleMoodParticles"
                 @applyAcoustics="applyAcoustics($event)"
-                @stopVisuals="stopVisuals"
-                @rescaleSkybox="rescaleSkybox"
+                @resetWalls="world.stageControls.emitResetWalls()"
+                @rescaleSkybox="(scale) => world.stageControls.emitRescaleSkybox(scale)"
                 @lockSpace="lockSpace"
+                @toggleDisplayConfigTarget="(display) => world.displayConfig[display].target = world.displayConfig[display].target !== true"
                 />
         <Chat class="absolute top-12 left-12"
                :world="world"
-               :class="showStageControls ? 'top-60' : 'top-12'"
+               :class="showStageControls ? 'top-64 mt-4' : 'top-12'"
                :chat-log="chatLog"/>
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
@@ -244,13 +245,10 @@
         mouseIsDown: false,
         showHelp: false,
         videos: null,
-        activeVideo: 0,
         world: null,
         userSettings: null,
         cachedUserSettings: null,
         alreadyVisited: false,
-        castingUserId: '',
-        castingUser: false,
         showUserVideosPanel: false,
         cubeTextures: [],
         moodSets: [],
@@ -919,23 +917,6 @@
           chunks.push(e.data)
         }
       },
-      activateVideo (videoIndex) {
-        let castButtons = document.querySelectorAll('a.cast-window');
-        for(var button of castButtons) {
-          button.classList.remove('gradient-ultra');
-          button.classList.add('bg-indigo-500');
-        }
-        this.activeVideo = videoIndex
-        this.castingUser = false
-        this.castingUserId = ''
-        this.world.stageControls.play(videoIndex)
-      },
-      castUser (userId) {
-        if (userId !== '') {
-          this.activeVideo = null
-          world.stageControls.cast(`${userId}`)
-        }
-      },
       changeMood () {
         let stageEvent = { action: 'changeMood', moodSet: document.querySelector('#moodSet').value };
         world.stageControls.executeAndSend(stageEvent);
@@ -1197,17 +1178,6 @@
             attenuation: attenuation
           }),
         });
-      },
-      stopVisuals() {
-        let castButtons = document.querySelectorAll('a.cast-walls');
-        for(var button of castButtons) {
-          button.classList.remove('gradient-ultra');
-          button.classList.add('bg-indigo-500');
-        }
-        world.stageControls.emitStopVisuals();
-      },
-      rescaleSkybox() {
-        world.stageControls.emitRescaleSkybox(document.querySelector('#skyboxScale').value);
       },
       async lockSpace(locked) {
         return new Promise(async (resolve) => {

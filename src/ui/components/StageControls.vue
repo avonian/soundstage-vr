@@ -1,15 +1,12 @@
 <template>
     <div class="stage ui-hide absolute pl-12 pt-6 absolute left-0 top-0 z-40 flex flex-col gap-y-3">
+        <div class="flex items-center" v-if="world">
+            <span class="flex items-center mr-4" v-for="display of Object.keys(world.displayConfig)" :key="display">{{ world.displayConfig[display].label }} <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded ml-2" :checked="world.displayConfig[display].target" @click="$emit('toggleDisplayConfigTarget', display)"></span>
+        </div>
         <div class="flex items-stretch">
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="videoTarget">
-                <option value='all'>All Displays</option>
-                <option value='DJTableVideo'>DJ Table</option>
-                <option value='WindowVideo'>Big Screen</option>
-                <option value='SkyboxVideo'>Skybox</option>
-            </select>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
                :class="activeVideo === i ? 'gradient-ultra' : 'bg-gray-500'"
-               v-for="(video, i) of videos" @click="$emit('activateVideo', i)" :key="video">
+               v-for="(video, i) of videos" @click="$emit('playVideo', i)" :key="video">
                 {{ video.label }}
             </a>
         </div>
@@ -20,7 +17,7 @@
                 Casting Panel
             </a>
 
-            <select class="bg-white text-sm text-black mr-3 rounded-md" id="skyboxScale" @change="$emit('rescaleSkybox')">
+            <select class="bg-white text-sm text-black mr-3 rounded-md" id="skyboxScale" :value="world.properties.displayProperties['skyBox'].textureScale" @change="$emit('rescaleSkybox', $event.target.value)" v-if="world">
                 <option :value=1>Skybox 1</option>
                 <option :value=2>Skybox 1/2</option>
                 <option :value=3>Skybox 1/3</option>
@@ -28,7 +25,7 @@
             </select>
 
             <a class="bg-alt-primary flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3"
-               @click="$emit('stopVisuals')">
+               @click="$emit('resetWalls')">
                 Reset Walls
             </a>
             <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 z-20"
@@ -180,7 +177,7 @@
 
     export default {
       name: "StageControls",
-      props: ['activeVideo', 'world', 'spaceConfig', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn', 'attenuation'],
+      props: ['activeVideo', 'world', 'spaceConfig', 'videos', 'cubeTextures', 'fogSettingConfigs', 'moodSets', 'showingUserVideos', 'DJSpotLightIntensity', 'tunnelLightsOn', 'gridFloorOn', 'moodParticlesOn', 'attenuation', 'targetDisplays'],
       data() {
         return {
           playingIntro: false,

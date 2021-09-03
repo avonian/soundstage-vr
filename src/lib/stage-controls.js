@@ -1,12 +1,9 @@
 export class StageControls {
-  constructor (displays, callback, userSettings, world) {
-    this.displays = displays;
+  constructor (callback, userSettings, world) {
     this.callback = callback;
     this.videos = world.videos;
     this.userSettings = userSettings;
     this.world = world;
-    this.userBeingCasted = false;
-    this.videoBeingPlayed = false;
     this.pedestal = this.world.scene.getMeshByName("Pedestal_Pedestal_Emission_2_15348");
     this.pedestalColorAnimation = false;
     this.DJPlatformRaised = false;
@@ -364,7 +361,7 @@ export class StageControls {
         this.gridFloorInterval = false;
       });
     }
-
+    this.world.shareProperties();
   }
   toggleMoodParticles(on = true) {
     this.moodParticlesOn = on;
@@ -460,134 +457,59 @@ export class StageControls {
       this.world.scene.pedestalColor = BABYLON.Color3.White();
     }
   }
-  play( videoIndex, target ) {
-    if(!target) {
-      target = document.querySelector('#videoTarget') ? document.querySelector('#videoTarget').value : 'all'
-    }
-    if(target === 'all' || target === 'WindowVideo') {
-      let playTableEvent = { action: 'playVideo', target: "WindowVideo", videoIndex: videoIndex };
-      this.world.properties.castUser = false;
-      this.world.properties.WindowVideo = videoIndex;
-      this.executeAndSend(playTableEvent);
-    }
-
-    if(target === 'all' || target === 'DJTableVideo') {
-      let playWindowEvent = { action: 'playVideo', target: "DJTableVideo", videoIndex: videoIndex };
-      this.world.properties.DJTableVideo = videoIndex;
-      this.executeAndSend(playWindowEvent);
-    }
-
-    if(target === 'SkyboxVideo') {
-      document.querySelector('#fogSetting').value = 'none';
-      let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
-      this.executeAndSend(stageEvent);
-
-      let playWindowEvent = { action: 'playVideo', target: "SkyboxVideo", videoIndex: videoIndex, scale: document.querySelector('#skyboxScale').value };
-      this.world.properties.SkyboxVideo = videoIndex;
-      this.world.properties.DJTableVideo = false;
-      this.world.properties.WindowVideo = false;
-      this.world.properties.SkyboxOnly = false;
-      this.world.properties.visualsBeingCasted = false;
-      this.executeAndSend(playWindowEvent);
-    }
-    this.world.shareProperties();
-  }
-  cast( userId ) {
-    let castUserEvent = { action: 'castUser', target: "WindowVideo", userId: userId };
-    this.world.properties.castUser = userId;
-    this.world.properties.WindowVideo = false;
-    this.executeAndSend(castUserEvent);
-    this.world.shareProperties();
-  }
-  fetchPeerVideoElement(peerid) {
-    let videos = document.querySelectorAll('#videos video')
-    for(var video of videos) {
-      if(video.getAttribute('peerid') + "" === peerid + "") {
-        return video;
+  emitPlayVideo( videoId ) {
+    // Update global properties
+    for(var display of Object.keys(this.world.displayConfig)) {
+      if(this.world.displayConfig[display].target) {
+        // Update locally so we can do a 'shareProperties' to update the server state
+        this.world.properties.displayProperties[display].video_id = videoId;
+        this.world.properties.displayProperties[display].user_id = null;
+        this.executeAndSend({ action: 'playVideo', display: display, video_id: videoId });
       }
     }
-    return false;
-  }
-  emitStartVisuals(userId, skyboxOnly = false) {
-    document.querySelector('#fogSetting').value = 'none';
-    let stageEvent = { action: 'changeFog', fogSetting: document.querySelector('#fogSetting').value };
-    this.executeAndSend(stageEvent);
-
-    let startVisualsEvent = { action: 'startVisuals', userId: userId, scale: document.querySelector('#skyboxScale').value, skyboxOnly: skyboxOnly };
-    this.world.properties.visualsBeingCasted = userId;
-    if(!skyboxOnly) {
-      this.world.properties.WindowVideo = false;
-      this.world.properties.DJTableVideo = false;
-    }
-    this.world.properties.SkyboxVideo = false;
-    this.world.properties.SkyboxOnly = skyboxOnly;
-    this.world.properties.skyboxScale = document.querySelector('#skyboxScale').value;
-    this.executeAndSend(startVisualsEvent);
     this.world.shareProperties();
   }
-  emitStopVisuals() {
-    let stopVisualsEvent = { action: 'stopVisuals' };
-    this.world.properties.visualsBeingCasted = null;
-    this.world.properties.castUser = null;
-    this.world.properties.SkyboxVideo = false;
-    this.world.properties.WindowVideo = 0;
-    this.world.properties.DJTableVideo = 0;
-    this.executeAndSend(stopVisualsEvent);
+  emitCastUser( userId ) {
+    // Update global properties
+    for(var display of Object.keys(this.world.displayConfig)) {
+      if(this.world.displayConfig[display].target) {
+        // Update locally so we can do a 'shareProperties' to update the server state
+        this.world.properties.displayProperties[display].user_id = userId;
+        this.executeAndSend({ action: 'castUser', display: display, user_id: userId });
+      }
+    }
+    this.world.shareProperties();
+  }
+  emitResetWalls() {
+    this.world.properties.displayProperties['skyBox'].video_id = null;
+    this.world.properties.displayProperties['skyBox'].user_id = null;
+    this.executeAndSend({ action: 'resetWalls' });
     this.world.shareProperties();
   }
   emitRescaleSkybox(scale) {
-    let rescaleSkyboxEvent = { action: 'rescaleSkybox', scale: scale };
-    this.world.properties.skyboxScale = scale;
-    this.executeAndSend(rescaleSkyboxEvent);
+    this.world.properties.displayProperties['skyBox'].textureScale = scale;
+    this.executeAndSend({ action: 'rescaleSkybox', scale: scale });
     this.world.shareProperties();
   }
   async execute( event ) {
-    let resumeUserPlayback = false;
     let video;
     switch(event.action) {
       case 'playVideo':
-        this.videoBeingPlayed = this.videos[event.videoIndex].url;
-        if(!this.userSettings.enableVisuals) {
-          return;
-        }
-        this.world.initializeDisplays(this.videos[event.videoIndex].url, [event.target], event.scale);
-        /* If a user was being casted continue playing the video element since initializeDisplays will have paused it when disposing previous textures */
-        resumeUserPlayback = this.userBeingCasted;
-        this.userBeingCasted = false;
+        this.world.properties.displayProperties[event.display].video_id = event.video_id;
+        this.world.properties.displayProperties[event.display].user_id = null;
+        this.world.updateDisplay(event.display, this.world.videos[event.video_id].url);
         break;
       case "castUser":
-        this.videoBeingPlayed = false;
-        if(!this.userSettings.enableVisuals) {
-          return;
-        }
-        video = this.fetchPeerVideoElement(event.userId)
-        if(video) {
-          this.world.initializeDisplays(video, [event.target]);
-          /* If a user was being casted continue playing the video element since initializeDisplays will have paused it when disposing previous textures */
-          resumeUserPlayback = this.userBeingCasted;
-          this.userBeingCasted = event.userId;
-        }
+        this.world.properties.displayProperties[event.display].user_id = event.user_id;
+        this.world.castUser(event.display, event.user_id);
         break;
-      case "startVisuals":
-        if(!this.userSettings.enableVisuals) {
-          return;
-        }
-        video = this.fetchPeerVideoElement(event.userId)
-        if(video) {
-          this.world.properties.SkyboxOnly = event.skyboxOnly;
-          this.world.startVisuals(video, event.scale);
-        }
-        break;
-      case "stopVisuals":
-        if(!this.userSettings.enableVisuals) {
-          return;
-        }
-        this.world.stopVisuals();
+      case "resetWalls":
+        this.world.properties.displayProperties['skyBox'].video_id = null;
+        this.world.properties.displayProperties['skyBox'].user_id = null;
+        this.world.toggleSkybox(false);
         break;
       case "rescaleSkybox":
-        if(!this.userSettings.enableVisuals) {
-          return;
-        }
+        this.world.properties.displayProperties['skyBox'].textureScale = event.scale;
         this.world.rescaleSkybox(event.scale);
         break;
       case "changeCubeTexture":
@@ -616,25 +538,6 @@ export class StageControls {
       case "toggleMoodParticles":
         this.toggleMoodParticles(event.value, event.speed);
         break;
-    }
-
-    if(resumeUserPlayback) {
-      let video = this.fetchPeerVideoElement(resumeUserPlayback);
-      if(video) {
-        video.play();
-      } else {
-        console.log("WARNING - can't stream video of "+userId);
-      }
-    }
-  }
-  playUserVideo(userId, target) {
-    let video = this.fetchPeerVideoElement(userId);
-    if(video) {
-      this.world.initializeDisplays(video, [target]);
-      this.userBeingCasted = userId;
-      console.log("streaming video of "+userId);
-    } else {
-      console.log("WARNING - can't stream video of "+userId);
     }
   }
 }
