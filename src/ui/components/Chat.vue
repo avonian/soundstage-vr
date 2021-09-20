@@ -8,7 +8,7 @@
             </a>
             <div v-for="message of chatLog" :key="message">
                 <span class="font-bold" :class="message.user_id === world.spaceConfig.user_id ? 'text-indigo-500' : ''">{{ message.user_id === world.spaceConfig.user_id ? 'Me' : message.alias.replace(/\./g," ") }}: </span>
-                <span class="ml-1">{{ message.content }}</span>
+                <span class="ml-1" v-html="createLinks(message.content)"></span>
             </div>
         </div>
         <div class="chat-input flex">
@@ -91,6 +91,18 @@ export default {
     scrollToBottom() {
       let container = document.querySelector("#chatbox .chat-log");
       container.scrollTop = container.scrollHeight;
+    },
+    createLinks(text) { // https://www.labnol.org/code/20294-regex-extract-links-javascript
+      return (text || "").replace(
+        /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi,
+        function (match, space, url) {
+          var hyperlink = url;
+          if (!hyperlink.match("^https?://")) {
+            hyperlink = "http://" + hyperlink;
+          }
+          return space + '<a href="' + hyperlink + '" class="text-indigo-500 underline" target="_blank">' + url + "</a>";
+        }
+      );
     }
   }
 }
