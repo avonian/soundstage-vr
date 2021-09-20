@@ -348,6 +348,24 @@ export default class extends SoundWorld {
     kioskPlane.material.emissiveTexture = new BABYLON.Texture(this.spaceConfig.kiosk.poster, this.scene);
     kioskPlane.material.emissiveTexture.name = "PosterImage-kioskPlane";
     kioskPlane.material.disableLighting = true
+    var clickHandler;
+    if(this.spaceConfig.kiosk.url) {
+      clickHandler = () => {
+        document.querySelector("#app")._vnode.component.data.modalIframe = {
+          url: this.spaceConfig.kiosk.url,
+          closeLabel: 'Exit Kiosk',
+          withOverlay: true,
+          size: 'max-w-3xl'
+        }
+      }
+    } else {
+      clickHandler = () => {
+        document.querySelector("#app")._vnode.component.data.modal = {
+          title: "No upcoming events.",
+          body: "<p class='mb-4'>There are no events announced at this time, check back soon.</p>"
+        }
+      }
+    }
 
     let kioskMesh = this.scene.getMeshByName('transplane');
     Utilities.bindMeshAction(
@@ -356,14 +374,7 @@ export default class extends SoundWorld {
       kioskMesh,
       () => {},
       () => {},
-      () => {
-        document.querySelector("#app")._vnode.component.data.modalIframe = {
-          url: this.spaceConfig.kiosk.url,
-          closeLabel: 'Exit Kiosk',
-          withOverlay: true,
-          size: 'max-w-3xl'
-        }
-      },
+      clickHandler,
       { x: 9.306034156979866, y: 1.1935390253577307, z: 4.646997355447423}
     );
   }
