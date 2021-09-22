@@ -386,7 +386,8 @@
                   spaceId: this.spaceConfig.highFidelity.spaceId,
                   audioTrack: this.activeAudioTrack,
                   broadcast: broadcast,
-                  loop: this.loop
+                  loop: this.loop,
+                  position: this.world.musicPosition
                 }),
               });
               if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {

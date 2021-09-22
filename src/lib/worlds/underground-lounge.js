@@ -22,6 +22,10 @@ export default class extends SoundWorld {
     this.userSettings = userSettings;
     this.spaceConfig = spaceConfig;
     this.videos = spaceConfig.videos;
+    this.musicPosition = {
+      position: { x: 31, y: 2.4, z: 0.1 },
+      rotation: { x: 0, y: 0.7, z: 0, w: 0.7 }
+    };
     this.displayConfig = {
       'WindowVideo': {
         'label': 'Main Panel',
