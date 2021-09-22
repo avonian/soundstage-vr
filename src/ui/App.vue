@@ -353,7 +353,7 @@
       this.preloadVideos(this.spaceConfig.videos, true)
 
       /* Retrieve values from local storage */
-      if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || await sessionStorage.getItem('skipWelcome')) {
         this.alreadyVisited = true;
       } else {
         this.alreadyVisited = await localStorage.getItem('alreadyVisited')
@@ -376,20 +376,21 @@
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
       /* Detects when devices are plugged/unplugged */
-      if(process.env.VUE_APP_SKIP_WELCOME === 'true') {
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || await sessionStorage.getItem('skipWelcome')) {
         this.apply()
       } else {
         navigator.mediaDevices.ondevicechange = () => {
           this.pollForDevices()
         }
       }
+      await sessionStorage.removeItem('skipWelcome');
 
       this.pollForDevices()
     },
     methods: {
       async initConfig() {
         var baseConfig = require('../configs/_config.js').default;
-        baseConfig = {...baseConfig, ...require(`../configs/_config.${baseConfig.world.toLowerCase()}`).default}
+        baseConfig = {...baseConfig, ...require(`../configs/_config.${baseConfig.world.replace(/([A-Z])/g, "-$1").substring(1).toLowerCase()}`).default}
         if(process.env.VUE_APP_DEMO_CONFIG) {
           var customConfig = require(`../configs/${process.env.VUE_APP_DEMO_CONFIG}`).default;
           this.spaceConfig = {...baseConfig, ...customConfig};
@@ -1199,6 +1200,13 @@
             resolve();
           }
         })
+      },
+      async switchSpace(slug) {
+        if(process.env.VUE_APP_DEMO_CONFIG) {
+          alert("Disabled in dev mode.");
+          return;
+        }
+        // await sessionStorage.removeItem('skipWelcome');
       }
     }
   }

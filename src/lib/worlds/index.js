@@ -1,7 +1,9 @@
 import Nightclub from './nightclub.js'
-import Warehouse from './warehouse.js'
+import IndustrialWarehouse from './industrial-warehouse.js'
+import UndergroundLounge from './underground-lounge.js'
 
 export default {
   Nightclub,
-  Warehouse
+  IndustrialWarehouse,
+  UndergroundLounge
 }
