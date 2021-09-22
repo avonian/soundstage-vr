@@ -788,6 +788,10 @@ export default class extends SoundWorld {
       }
     }
 
+    if ( this.afterLoad ) {
+      this.afterLoad();
+    }
+
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
 
@@ -801,9 +805,6 @@ export default class extends SoundWorld {
     DJShield._scaling.z = 3.3;
     DJShield.checkCollisions = this.permissions.stage_controls !== true && this.permissions['access_tunnel'] !== true;
     DJShield.visibility = 0;
-    if ( this.afterLoad ) {
-      this.afterLoad();
-    }
 
     // Block tunnel entrance
     let tunnelShield = BABYLON.MeshBuilder.CreateBox("TunnelShield", {height:2, width: 3});
@@ -839,7 +840,7 @@ export default class extends SoundWorld {
   }
 
   /**
-  Overridden, called for every mesh when safe. World starts with collisions turned off.
+   Overridden, called for every mesh when safe. World starts with collisions turned off.
    */
   setMeshCollisions(mesh, state) {
     if ( !mesh.name.startsWith('Lamp')) {
@@ -1154,21 +1155,21 @@ export default class extends SoundWorld {
   // create shared state object if not exists
   async createSharedState() {
     var o = {
-        //permanent:true,
-        properties: {
-          name:'worldState',
-          displayProperties: this.defaultDisplayProperties,
-          activeMood: this.stageControls.activeMood,
-          fogSetting: this.stageControls.fogSetting,
-          environmentIntensity: this.scene.environmentIntensity,
-          environmentTexture: this.stageControls.activeCubeTexture,
-          pedestalColor: this.stageControls.pedestal.material.emissiveColor,
-          DJSpotLightIntensity: this.DJSpotLightIntensity,
-          DJPlatformRaised: this.stageControls.DJPlatformRaised,
-          tunnelLightsOn: this.stageControls.tunnelLightsOn,
-          gridFloorOn: this.stageControls.gridFloorOn,
-          moodParticlesOn: this.stageControls.moodParticlesOn,
-        }
+      //permanent:true,
+      properties: {
+        name:'worldState',
+        displayProperties: this.defaultDisplayProperties,
+        activeMood: this.stageControls.activeMood,
+        fogSetting: this.stageControls.fogSetting,
+        environmentIntensity: this.scene.environmentIntensity,
+        environmentTexture: this.stageControls.activeCubeTexture,
+        pedestalColor: this.stageControls.pedestal.material.emissiveColor,
+        DJSpotLightIntensity: this.DJSpotLightIntensity,
+        DJPlatformRaised: this.stageControls.DJPlatformRaised,
+        tunnelLightsOn: this.stageControls.tunnelLightsOn,
+        gridFloorOn: this.stageControls.gridFloorOn,
+        moodParticlesOn: this.stageControls.moodParticlesOn,
+      }
     };
     o.temporary=false;
     return new Promise((resolve,reject) => {
@@ -1774,9 +1775,9 @@ export default class extends SoundWorld {
     }
 
     // Lights optimization
-      if (this.scene.getTransformNodeByName("allBarLights")) {
-        this.scene.getTransformNodeByName("allBarLights").dispose();
-      }
+    if (this.scene.getTransformNodeByName("allBarLights")) {
+      this.scene.getTransformNodeByName("allBarLights").dispose();
+    }
     if (setting === "high" || setting === "ultra-high") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");
@@ -1810,8 +1811,9 @@ export default class extends SoundWorld {
     }
   }
 
-// FOR TESTING, WILL BE REMOVED
+  // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
+    return;
     // environmentIntensity Control
     if(event.key === "-") {
       this.scene.environmentIntensity -= 0.01;

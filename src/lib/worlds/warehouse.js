@@ -16,11 +16,57 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'SKLAD-SM1-0109.glb';
+    this.file = 'Sklad3008.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
     this.spaceConfig = spaceConfig;
+    this.videos = spaceConfig.videos;
+    this.displayConfig = {
+      'WindowVideo': {
+        'label': 'Main Panel',
+        'target': true,
+        'diffuseTexture': {
+          'vScale': 0.65,
+          'uScale': -1,
+          'vOffset': 0.17
+        },
+        'canShowMusicVideo': true
+      },
+      'DJTableVideo': {
+        'label': 'DJ Table',
+        'target': true,
+        'diffuseTexture': {
+          'vScale': 0.50,
+          'vOffset': -0.75
+        },
+        'canShowMusicVideo': true
+      },
+      'skyBox': {
+        'label': 'Skybox',
+        'target': false,
+        'diffuseTexture': {
+          'vScale': 5,
+          'uScale': 3,
+          'vOffset': 0
+        }
+      }
+    }
+    this.defaultDisplayProperties = {
+      'DJTableVideo': {
+        'video_id': 0,
+        'user_id': null
+      },
+      'WindowVideo': {
+        'video_id': 0,
+        'user_id': null
+      },
+      'skyBox': {
+        'video_id': null,
+        'user_id': null,
+        'textureScale': 1
+      }
+    };
     this.role = spaceConfig.role;
     this.permissions = spaceConfig.permissions;
     // cameras
@@ -50,10 +96,7 @@ export default class extends SoundWorld {
     this.fpsWebcamPreviewPos = new BABYLON.Vector3(0,0,0); // invisible
     // shared world properties
     this.properties = {
-      WindowVideo:0, 
-      DJTableVideo:0, 
-      castUser:null,
-      castTarget:'WindowVideo'
+      displayProperties: this.defaultDisplayProperties,
     };
     this.worldState = null;
     // things to dispose of
@@ -63,14 +106,33 @@ export default class extends SoundWorld {
     this.windowMaterial = null;
     this.windowTexture = null;
     this.windowMesh = null;
-    this.videos = spaceConfig.videos;
     this.dummies = [];
     this.barLights = [];
     this.clearCoatMeshes = false;
     this.gallery = null;
+    this.skyboxManifest = {
+      meshesToHide: ["Room_Room_Base_15926", "Ceiling.001_Ceiling.001_Base_1_15402.1", "Ceiling.001_Ceiling.001_Emission_2_15348", "Sphere", "Sphere.1", "Sphere.2", "LogoExtrude.2", "windowSweep", "LogoExtrude", "Room_Room_Base_15926.1", "Room_Room_Base_15926.2", "Room_Room_Emission_2_15348", "Stairs_Stairs_Emission_2_15348"],
+      barMeshes: ["Bar_counter_Bar_counter_Base_2_15346", "Lamp.001_(1)_Lamp.003_Base_2_15346", "Lamp.001_(1)_Lamp.003_Emission_5_15456", "Lamp.004_Lamp.005_Base_1_15402", "Lamp.001_Lamp.009_Base_2_15346", "Lamp.001_Lamp.009_Emission_2_15348", "Lamp.002_Lamp.010_Blue_15390", "Lamp.002_Lamp.010_Emission_4_15378", "Lamp.003_Lamp.006_Blue_15390", "Lamp.003_Lamp.006_Emission_15392", "Lamp.004_Lamp.005_Emission_15392", "Lamp.003_(1)_Lamp.007_Blue_15390", "Lamp.003_(1)_Lamp.007_Emission_15392"],
+      halfOpacityMeshes: ["Cube.3", "Cube.4", "Boole", "Room_Room_Base_1_15402.1", "Sweep.5", "Pedestal.001_Pedestal.001_Blue_15390", "Pedestal_Pedestal_Blue_15390", "Pedestal.002_Pedestal.002_Blue_15390"],
+      oneThirdOpacityMeshes: ["Room_Room_Base_1_15402"],
+      quarterOpacityMeshes: ["Fencing_Fencing_Base_15926", "Stairs_Stairs_Base_15926"]
+    }
   }
   initAfterLoad() {
+
+    try {
+      this.scene.getMeshByName('Object081').material.environmentIntensity = 0.71;
+      this.scene.getMeshByName('Object081').material.sheen._linkSheenWithAlbedo = true;
+      this.scene.getMeshByName('Object081').material.sheen._isEnabled = true;
+      this.scene.getMeshByName('Object081').material.sheen.intensity = 0.22;
+      this.scene.getMeshByName('FreeLookCam').dispose();
+    } catch(err) {
+      
+    }
+
     return; // temporarily disable
+    this.scene.getNodeByName('skyBox').applyFog = false;
+    this.scene.getMeshByName('ground').isVisible = false;
     this.chat = new Chat(this);
     this.createMaterials();
     this.initVipEntrance();
@@ -79,6 +141,7 @@ export default class extends SoundWorld {
     if(this.spaceConfig.mode === 'soundclub') {
       this.initStore();
       this.initKiosk();
+      this.initInbox();
     }
     // Reposition some furniture
     if(this.spaceConfig.mode !== 'soundclub') {
@@ -91,6 +154,8 @@ export default class extends SoundWorld {
       this.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.z = 2;
       this.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.z = 2;
     }
+    // Fix alpha index on walls
+    // this.scene.getMeshByName('Room_Room_Base_15926').alphaIndex = 0.5;
   }
   createMaterials() {
     this.transparentMaterial = new BABYLON.StandardMaterial("transparentMaterial", this.scene);
@@ -102,11 +167,6 @@ export default class extends SoundWorld {
   initVipEntrance() {
     let vipEntrance = this.scene.getMeshByName('portal-door-top');
     let vipEntranceEmissive = this.scene.getMeshByName('portal-door-emissive');
-    if(!this.spaceConfig.permissions.access_backstage) {
-      //vipEntrance.dispose();
-      //vipEntranceEmissive.dispose();
-      //return;
-    }
 
     var doorPosition;
     if(this.spaceConfig.mode === 'soundclub') {
@@ -123,6 +183,27 @@ export default class extends SoundWorld {
       vipEntranceEmissive.position.x = 6.205;
       vipEntranceEmissive.position.y = -0.057;
       vipEntranceEmissive.position.z = 2.950;
+    }
+
+    if(!this.spaceConfig.permissions.access_backstage) {
+      Utilities.bindMeshAction(
+        this.scene,
+        this.camera1,
+        vipEntrance,
+        () => {},
+        () => {},
+        () => {
+          document.querySelector("#app")._vnode.component.data.modal = {
+            title: "Restricted area.",
+            body: "<p class='mb-4'>Sorry, you are not allowed access to this area.</p>"
+          }
+        },
+        doorPosition
+      );
+      return;
+      //vipEntrance.dispose();
+      //vipEntranceEmissive.dispose();
+      //return;
     }
 
     vipEntrance.isPickable = true;
@@ -247,6 +328,25 @@ export default class extends SoundWorld {
       }
     );
   }
+  initInbox() {
+    this.scene.getNodeByName('tickets.1').dispose();
+    /*
+    let inboxMesh = this.scene.getNodeByName('tickets.1').getChildren().find(m => m.name === 'Cube.5');
+    Utilities.bindMeshAction(
+      this.scene,
+      this.camera1,
+      inboxMesh,
+      () => {},
+      () => {},
+      () => {
+        document.querySelector("#app")._vnode.component.data.modal = {
+          title: "Under construction.",
+          body: "<p class='mb-4'>This should be operational soon, we apologize for the inconvenience.</p>"
+        }
+      }
+    );
+    */
+  }
   initKiosk() {
     let kioskPlane = BABYLON.MeshBuilder.CreatePlane("kioskPlane", { width: 0.75, height: 0.75 });    kioskPlane.rotation.y = BABYLON.Tools.ToRadians(90);
     kioskPlane.position.x = 9.189;
@@ -260,22 +360,33 @@ export default class extends SoundWorld {
     kioskPlane.material.emissiveTexture = new BABYLON.Texture(this.spaceConfig.kiosk.poster, this.scene);
     kioskPlane.material.emissiveTexture.name = "PosterImage-kioskPlane";
     kioskPlane.material.disableLighting = true
-
-    let kioskMesh = this.scene.getNodeByName("tickets").getDescendants(false, (d) => d.name === "Cube.5")[0];
-    Utilities.bindMeshAction(
-      this.scene,
-      this.camera1,
-      kioskMesh,
-      () => {},
-      () => {},
-      () => {
+    var clickHandler;
+    if(this.spaceConfig.kiosk.url) {
+      clickHandler = () => {
         document.querySelector("#app")._vnode.component.data.modalIframe = {
           url: this.spaceConfig.kiosk.url,
           closeLabel: 'Exit Kiosk',
           withOverlay: true,
           size: 'max-w-3xl'
         }
-      },
+      }
+    } else {
+      clickHandler = () => {
+        document.querySelector("#app")._vnode.component.data.modal = {
+          title: "No upcoming events.",
+          body: "<p class='mb-4'>There are no events announced at this time, check back soon.</p>"
+        }
+      }
+    }
+
+    let kioskMesh = this.scene.getMeshByName('transplane');
+    Utilities.bindMeshAction(
+      this.scene,
+      this.camera1,
+      kioskMesh,
+      () => {},
+      () => {},
+      clickHandler,
       { x: 9.306034156979866, y: 1.1935390253577307, z: 4.646997355447423}
     );
   }
@@ -395,13 +506,7 @@ export default class extends SoundWorld {
   // superclass ensures everything is called in order, from world init() method
   async createSkyBox() {
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 10000, this.scene);
-    var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.disableLighting = true;
-    skybox.material = skyboxMaterial;
     skybox.infiniteDistance = true;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("//www.babylonjs.com/assets/skybox/TropicalSunnyDay", this.scene);
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     return skybox;
   }
   async createGround() {
@@ -496,7 +601,7 @@ export default class extends SoundWorld {
     // always looks at 1st person camera (avatar) - target is 1st ps camera position
     // alpha rotation depends on 1st ps camera rotation
     this.camera3 = new BABYLON.ArcRotateCamera("Third Person Camera", 0, 1.5*Math.PI-this.camera1.rotation.y, 1, this.camera1.position, this.scene);
-    this.camera3.maxZ = 1000;
+    this.camera3.maxZ = 10000;
     this.camera3.minZ = 0;
     this.camera3.wheelPrecision = 100;
     this.camera3.checkCollisions = true; //CHECKME: check or not?
@@ -695,6 +800,10 @@ export default class extends SoundWorld {
       }
     }
 
+    if ( this.afterLoad ) {
+      this.afterLoad();
+    }
+
     /* Temporarily disable
     // handle click on barstools
     this.scene.onPointerObservable.add((pointerInfo) => this.handleClick(pointerInfo));
@@ -733,10 +842,6 @@ export default class extends SoundWorld {
     }
     */
 
-    if ( this.afterLoad ) {
-      this.afterLoad();
-    }
-
     // Render loop logic for whenever first person cam is being automatically panned (e.g. to look at posters)
     this.engine.runRenderLoop(() => {
       if(this.camera1LookAt) {
@@ -749,11 +854,11 @@ export default class extends SoundWorld {
   }
 
   /**
-  Overridden, called for every mesh when safe. World starts with collisions turned off.
+   Overridden, called for every mesh when safe. World starts with collisions turned off.
    */
   setMeshCollisions(mesh, state) {
     if ( !mesh.name.startsWith('Lamp')) {
-      mesh.checkCollisions = state;    
+      mesh.checkCollisions = state;
     }
   }
 
@@ -761,7 +866,7 @@ export default class extends SoundWorld {
     if ( this.activeCameraType === 'free' ) {
       return;
     }
-    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP 
+    if (pointerInfo.type == BABYLON.PointerEventTypes.POINTERUP
       && pointerInfo.event.button == 0 // LMB
       // regex to match red bar stool top mesh name:
       && /Chair_.*_Red_15380.*/.test(pointerInfo.pickInfo.pickedMesh.name)
@@ -778,7 +883,7 @@ export default class extends SoundWorld {
       }
     }
   }
-  
+
   trackAvatarRotations(enable) {
     if ( this.trackAvatarRotation == enable ) {
       return;
@@ -788,7 +893,7 @@ export default class extends SoundWorld {
     this.worldManager.mediaStreams.clients.forEach( (client) => {
       client.video.applyRotation(this.trackAvatarRotation);
     });
-    
+
     this.video.applyRotation(this.trackAvatarRotation);
     if ( this.trackAvatarRotation ) {
       this.video.back.position = new BABYLON.Vector3( 0, 0, -0.001);
@@ -801,79 +906,82 @@ export default class extends SoundWorld {
     }
   }
 
-  initializeDisplays(videoSource = false, displays = ['DJTableVideo', 'WindowVideo']) {
+  updateDisplay(display, video) {
     return; // temporarily disable
     if(!this.userSettings.enableVisuals) {
       return;
     }
-
-    if(displays.indexOf('DJTableVideo') !== -1) {
-      if(this.tableMaterial) {
-        this.tableMaterial.dispose();
-      }
-      if(this.tableTexture) {
-        this.tableTexture.dispose();
-      }
-      this.tableMaterial = new BABYLON.StandardMaterial("tableMaterial", this.scene);
-      this.tableTexture = new BABYLON.VideoTexture("tableTexture", 
-        videoSource ? videoSource : [this.videos[this.properties.DJTableVideo].url],
-        this.scene, true, true, null, 
-        {
-        autoUpdateTexture: true,
-        autoPlay: true,
-        muted: true,
-        loop: true
-      });
-      this.tableMaterial.diffuseTexture = this.tableTexture;
-      this.tableMaterial.diffuseTexture.vScale = 0.50;
-      this.tableMaterial.diffuseTexture.vOffset = -0.75;
-      this.tableMaterial.emissiveTexture = this.tableTexture;
-
-      this.tableMesh = this.scene.getMeshByName("DJTableVideo")
-      this.tableMesh.material = this.tableMaterial;
-      console.log('tableMesh', this.tableMesh);
-      this.displays.push({
-        name: "DJTableVideo",
-        mesh: this.tableMesh,
-        texture: this.tableTexture
-      });
+    var mesh = this.scene.getMeshByName(display);
+    // Dispose meshes since we can't update videos and need to recreate them
+    if(mesh.material && mesh.material.diffuseTexture) {
+      mesh.material.diffuseTexture.dispose();
     }
-
-    if(displays.indexOf('WindowVideo') !== -1) {
-
-      if(this.windowMaterial) {
-        this.windowMaterial.dispose();
-      }
-      if(this.windowTexture) {
-        this.windowTexture.dispose();
-      }
-
-      this.windowMaterial = new BABYLON.StandardMaterial("windowMaterial", this.scene);
-      this.windowTexture = new BABYLON.VideoTexture("windowTexture", 
-        videoSource ? videoSource : [this.videos[this.properties.WindowVideo].url],
-        this.scene, true, true, null, {
+    if(mesh.material && mesh.material.emissiveTexture) {
+      mesh.material.emissiveTexture.dispose();
+    }
+    if(mesh.material) {
+      mesh.material.dispose();
+    }
+    var material = new BABYLON.StandardMaterial(display + "Material", this.scene);
+    material.backFaceCulling = false;
+    var texture = new BABYLON.VideoTexture(display + "Texture",
+      video,
+      this.scene, true, true, null,
+      {
         autoUpdateTexture: true,
         autoPlay: true,
         muted: true,
         loop: true
       });
-      this.windowMaterial.diffuseTexture = this.windowTexture;
-      this.windowMaterial.diffuseTexture.vScale = 0.65;
-      this.windowMaterial.diffuseTexture.uScale = -1;
-      this.windowMaterial.diffuseTexture.vOffset = 0.17;
-      this.windowMaterial.emissiveTexture = this.windowTexture;
-      this.windowMesh = this.scene.getMeshByName("WindowVideo")
-      this.windowMesh.material = this.windowMaterial;
-      console.log('windowMesh', this.windowMesh);
-      this.displays.push({
-        name: "Window",
-        mesh: this.windowMesh,
-        texture: this.windowTexture
-      });
-      this.scene.getMeshByName("LogoText").visibility = 0;
-      console.log("LogoText", this.scene.getMeshByName("LogoText"));
-      this.scene.getMeshByName("LogoSign").visibility = 0;
-      console.log("LogoSign", this.scene.getMeshByName("LogoSign"));
+    material.diffuseTexture = texture;
+    for(var property of Object.keys(this.displayConfig[display].diffuseTexture)) {
+      var textureScale = this.properties.displayProperties[display].textureScale ? this.properties.displayProperties[display].textureScale : 1;
+      material.diffuseTexture[property] = this.displayConfig[display].diffuseTexture[property] * textureScale;
+    }
+    material.emissiveTexture = texture;
+    mesh.material = material;
+    if(display === 'skyBox') {
+      this.toggleSkybox(true);
+    }
+  }
+
+  async castUser(display, userId) {
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      var attempt = () => {
+        var video = this.mediaStreams.fetchPeerVideoElement(userId);
+        if (video) {
+          this.updateDisplay(display, video);
+          clearInterval(interval);
+          resolve();
+        }
+      }
+      attempt();
+      var interval = setInterval(() => attempt(), 500);
+    })
+  }
+
+  // Initialize the displays using current displayProperties
+  async initializeDisplays() {
+    return; // temporarily disable
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
+    // Remove these guys once video playing starts
+    this.scene.getMeshByName("LogoText").visibility = 0;
+    this.scene.getMeshByName("LogoSign").visibility = 0;
+
+    var displayProperties = this.properties.displayProperties;
+    for(var display of Object.keys(displayProperties)) {
+      if(displayProperties[display].video_id !== null) {
+        var video_url = this.videos[displayProperties[display].video_id].url;
+        this.updateDisplay(display, video_url);
+      }
+      if(displayProperties[display].user_id !== null) {
+        this.castUser(display, displayProperties[display].user_id);
+      }
     }
   }
 
@@ -1002,7 +1110,7 @@ export default class extends SoundWorld {
           this.video.displayAlt();
         }
       }
-      
+
       // set own properties
       this.worldManager.VRSPACE.sendMy("name", name );
       this.worldManager.VRSPACE.sendMy("mesh", "video");
@@ -1015,10 +1123,13 @@ export default class extends SoundWorld {
       // start session
       this.worldManager.VRSPACE.sendCommand("Session");
 
+      // Initialize displays with default videos
+      this.initializeDisplays();
+
       // SHARED STATE MANGLING
       // custom scene listener, listening for shared state object
       VRSPACE.addSceneListener((e) => this.findSharedState(e));
-      
+
       // add chatroom id to the client, and start streaming
       welcome.client.token = this.spaceConfig.space_slug;
       this.worldManager.pubSub(welcome.client);
@@ -1047,13 +1158,12 @@ export default class extends SoundWorld {
     }
     this.worldManager.VRSPACE.connect(process.env.VUE_APP_SERVER_URL);
   }
-  
+
   findSharedState(e) {
     if ( e.added && e.added.properties && e.added.properties.name == 'worldState') {
       this.worldState = e.added;
       console.log('Shared world properties:', e.added.properties);
       this.properties = e.added.properties;
-      this.initializeDisplays();
       this.applyState();
       // CHECKME add listener here to track changes to state
     }
@@ -1061,24 +1171,21 @@ export default class extends SoundWorld {
   // create shared state object if not exists
   async createSharedState() {
     var o = {
-        //permanent:true,
-        properties: {
-          name:'worldState',
-          WindowVideo:0,
-          DJTableVideo:0, 
-          castUser: this.properties.castUser,
-          castTarget:'WindowVideo',
-          activeMood: this.stageControls.activeMood,
-          fogSetting: this.stageControls.fogSetting,
-          environmentIntensity: this.scene.environmentIntensity,
-          environmentTexture: this.stageControls.activeCubeTexture,
-          pedestalColor: this.stageControls.pedestal.material.emissiveColor,
-          DJSpotLightIntensity: this.DJSpotLightIntensity,
-          DJPlatformRaised: this.stageControls.DJPlatformRaised,
-          tunnelLightsOn: this.stageControls.tunnelLightsOn,
-          gridFloorOn: this.stageControls.gridFloorOn,
-          moodParticlesOn: this.stageControls.moodParticlesOn,
-        }
+      //permanent:true,
+      properties: {
+        name:'worldState',
+        displayProperties: this.defaultDisplayProperties,
+        activeMood: this.stageControls.activeMood,
+        fogSetting: this.stageControls.fogSetting,
+        environmentIntensity: this.scene.environmentIntensity,
+        environmentTexture: this.stageControls.activeCubeTexture,
+        pedestalColor: this.stageControls.pedestal.material.emissiveColor,
+        DJSpotLightIntensity: this.DJSpotLightIntensity,
+        DJPlatformRaised: this.stageControls.DJPlatformRaised,
+        tunnelLightsOn: this.stageControls.tunnelLightsOn,
+        gridFloorOn: this.stageControls.gridFloorOn,
+        moodParticlesOn: this.stageControls.moodParticlesOn,
+      }
     };
     o.temporary=false;
     return new Promise((resolve,reject) => {
@@ -1143,9 +1250,8 @@ export default class extends SoundWorld {
   }
 
   initStageControls( callback ) {
-    return; // temporarily disable
     // stage controls
-    this.stageControls = new StageControls(this.displays, callback, this.userSettings, this );
+    this.stageControls = new StageControls(callback, this.userSettings, this );
     this.stageControls.init();
     this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
     document.addEventListener('keydown', (event) => {
@@ -1515,6 +1621,127 @@ export default class extends SoundWorld {
     return video;
   }
 
+  async togglePosters(show) {
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
+    var spaceConfig = this.spaceConfig;
+    return new Promise((resolve, reject) => {
+      var attempt = () => {
+        var posterGallery = this.scene.getTransformNodeByName("posterGallery");
+        if(!posterGallery) {
+          return;
+        }
+        var posters = posterGallery.getChildren();
+        if(posters && posters.length === spaceConfig.posters.length) {
+          for (var poster of posters) {
+            if (poster._position.y > 3) {
+              this.fadeMesh(poster, show ? 1 : 0)
+            }
+          }
+          clearInterval(interval);
+          resolve();
+        }
+      }
+      attempt();
+      var interval = setInterval(() => attempt(), 500);
+    })
+  }
+
+  async toggleSkybox(show) {
+    // If we're already showing the skybox, return
+    if(show === this.skyboxVisible) {
+      return;
+    }
+    this.skyboxVisible = show;
+
+    if(!show) {
+      var skybox = this.scene.getMeshByName('skyBox');
+      setTimeout(() => {
+        skybox.material.emissiveTexture.dispose();
+        skybox.material.diffuseTexture.dispose();
+        skybox.material.dispose();
+      }, 3000);
+    }
+
+    // Fully transparent
+    for(meshName of this.skyboxManifest.meshesToHide) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0 : 1)
+    }
+    for(meshName of this.skyboxManifest.barMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0 : 1)
+    }
+    var rootMeshes = this.scene.getMeshByName("__root__").getChildren();
+    for(var mesh of rootMeshes) {
+      if(mesh.name === "Cube") {
+        this.fadeMesh(mesh, show ? 0 : 1)
+      }
+    }
+
+    if(this.spaceConfig.posters) {
+      this.togglePosters(!show); // Flip value since we want to hide posters when showing skybox
+    }
+
+    // Half opacity
+    for(var meshName of this.skyboxManifest.halfOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.5 : 1)
+    }
+
+    // 1/3rd opacity
+    for(var meshName of this.skyboxManifest.oneThirdOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.35 : 1)
+    }
+
+    // 1/4th opacity
+    for(var meshName of this.skyboxManifest.quarterOpacityMeshes) {
+      this.fadeMesh(this.scene.getMeshByName(meshName), show ? 0.25 : 1)
+    }
+  }
+
+  fadeMesh(mesh, opacity) {
+    var fadeInterval;
+    var fadeStep = function(mesh, targetOpacity) {
+      if(mesh.visibility < targetOpacity) {
+        mesh.visibility = parseFloat((mesh.visibility += .005).toFixed(3));
+      } else if(mesh.visibility > targetOpacity) {
+        mesh.visibility = parseFloat((mesh.visibility -= .005).toFixed(3));
+      } else {
+        clearInterval(fadeInterval);
+      }
+    }
+    fadeInterval = setInterval(() => fadeStep(mesh, opacity), 10);
+  }
+
+  rescaleSkybox(scale) {
+    if(!this.userSettings.enableVisuals) {
+      return;
+    }
+    var targetVscale = 5 * scale;
+    var targetUscale = 3 * scale;
+    var uScaleStepSize = .01;
+    var vScaleStepSize = .02;
+
+    var rescaleStep = (texture, targetVscale, targetUscale) => {
+      if(texture.vScale < targetVscale) {
+        texture.vScale = parseFloat((texture.vScale += vScaleStepSize).toFixed(2));
+      } else if(texture.vScale > targetVscale) {
+        texture.vScale = parseFloat((texture.vScale -= vScaleStepSize).toFixed(2));
+      }
+      if(texture.uScale < targetUscale) {
+        texture.uScale = parseFloat((texture.uScale += uScaleStepSize).toFixed(2));
+      } else if(texture.uScale > targetUscale) {
+        texture.uScale = parseFloat((texture.uScale -= uScaleStepSize).toFixed(2));
+      }
+      if(texture.uScale === targetUscale && texture.vScale === targetVscale) {
+        clearInterval(rescaleInterval);
+      }
+    }
+    var material = this.scene.getMeshByName('skyBox').material;
+    if(material) {
+      var rescaleInterval = setInterval(() => rescaleStep(material.diffuseTexture, targetVscale, targetUscale), 1);
+    }
+  }
+
   adjustGraphicsQuality(setting, callback) {
     return; // temporarily disable
     this.stageControls.userSettings.graphicsQuality = setting;
@@ -1523,7 +1750,7 @@ export default class extends SoundWorld {
       this.scene.meshes.forEach(mesh => {
         for(let name of meshes) {
           if (mesh.name.includes(name)) {
-            mesh.isVisible = isVisible;
+            mesh.visibility = isVisible;
           }
         }
       });
@@ -1564,9 +1791,9 @@ export default class extends SoundWorld {
     }
 
     // Lights optimization
-      if (this.scene.getTransformNodeByName("allBarLights")) {
-        this.scene.getTransformNodeByName("allBarLights").dispose();
-      }
+    if (this.scene.getTransformNodeByName("allBarLights")) {
+      this.scene.getTransformNodeByName("allBarLights").dispose();
+    }
     if (setting === "high" || setting === "ultra-high") {
       let maxLights = 8; // Sets max lights for material
       let allBarLights = new BABYLON.TransformNode("allBarLights");
@@ -1600,8 +1827,9 @@ export default class extends SoundWorld {
     }
   }
 
-// FOR TESTING, WILL BE REMOVED
+  // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
+    return;
     // environmentIntensity Control
     if(event.key === "-") {
       this.scene.environmentIntensity -= 0.01;
@@ -1701,41 +1929,29 @@ export default class extends SoundWorld {
     }
   }
 
+  // Save state of animated elements
   async saveState() {
     if ( ! this.worldState || document.querySelector("#saveState").checked === false) {
       return;
     }
-    console.log('saving');
-    let state = this.worldState.properties;
-    state.activeMood = this.stageControls.activeMood;
-    state.fogSetting = this.stageControls.fogSetting;
-    state.environmentIntensity = this.scene.environmentIntensity;
-    state.environmentTexture = this.stageControls.activeCubeTexture;
-    state.videoBeingPlayed = this.stageControls.videoBeingPlayed;
-    state.userBeingCasted = this.stageControls.userBeingCasted;
-    state.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
-    state.DJPlatformRaised = this.stageControls.DJPlatformRaised;
-    state.tunnelLightsOn = this.stageControls.tunnelLightsOn;
-    state.gridFloorOn = this.stageControls.gridFloorOn;
-    state.moodParticlesOn = this.stageControls.moodParticlesOn;
-    state.DJSpotLightIntensity = this.DJSpotLight ? this.DJSpotLight.intensity : false;
-    this.worldState.publish();
+    this.properties.activeMood = this.stageControls.activeMood;
+    this.properties.fogSetting = this.stageControls.fogSetting;
+    this.properties.environmentIntensity = this.scene.environmentIntensity;
+    this.properties.environmentTexture = this.stageControls.activeCubeTexture;
+    this.properties.pedestalColor = this.stageControls.pedestal.material.emissiveColor;
+    this.properties.DJPlatformRaised = this.stageControls.DJPlatformRaised;
+    this.properties.tunnelLightsOn = this.stageControls.tunnelLightsOn;
+    this.properties.gridFloorOn = this.stageControls.gridFloorOn;
+    this.properties.moodParticlesOn = this.stageControls.moodParticlesOn;
+    this.properties.DJSpotLightIntensity = this.DJSpotLight ? this.DJSpotLight.intensity : false;
+    this.shareProperties();
   }
 
   applyState() {
     return; // temporarily disable
     let state = this.worldState.properties;
 
-    if(this.properties.castUser) {
-      var attemptCastUser = () => {
-        if(this.properties.castUser && this.stageControls.fetchPeerVideoElement(this.properties.castUser)) {
-          this.stageControls.playUserVideo(this.properties.castUser, this.properties.castTarget);
-          return true;
-        }
-        setTimeout(() => attemptCastUser(), 500);
-      }
-      attemptCastUser();
-    }
+    this.initializeDisplays();
 
     this.stageControls.activeMood = state.activeMood;
     this.stageControls.fogSetting = state.fogSetting;
@@ -1757,7 +1973,7 @@ export default class extends SoundWorld {
     if(state.DJSpotLightIntensity && this.DJSpotLight) {
       this.DJSpotLight.intensity = state.DJSpotLightIntensity;
     }
-    if(this.spaceConfig.mode === 'soundclub') {
+    if(this.spaceConfig.mode === 'soundclub' && this.storeLight) {
       this.storeLight.intensity = state.activeMood ? 15 : 0;
     }
 
@@ -1779,6 +1995,9 @@ export default class extends SoundWorld {
         }
         if (state.fogSetting) {
           document.querySelector('#fogSetting').value = state.fogSetting;
+        }
+        if(state.skyboxScale) {
+          document.querySelector('#skyboxScale').value = state.skyboxScale;
         }
         document.querySelector("#app")._vnode.component.data.DJSpotLightIntensity = state.DJSpotLightIntensity;
         document.querySelector("#app")._vnode.component.data.tunnelLightsOn = state.tunnelLightsOn;
