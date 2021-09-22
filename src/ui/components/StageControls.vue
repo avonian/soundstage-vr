@@ -167,6 +167,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg> Acoustics Boost
             </a>
+            <div class="flex items-center text-lg mr-3">
+                Teleport Users:
+                <select id="teleport-users" class="bg-white text-sm text-black mx-2 rounded-md" @change="$emit('teleportUsers', $event.target.value)">
+                    <option :value=space.slug v-for="space of spaces" :key="space" :selected="spaceConfig.space_slug === space.slug">{{ space.name }}</option>
+                </select>
+            </div>
         </div>
     </div>
 </template>
@@ -189,6 +195,7 @@
           loop: false,
           volume: 0,
           userCount: 1,
+          spaces: [],
           attenuationOptions: [
             {
               value: 0.00001,
@@ -200,7 +207,7 @@
             }
           ],
           mixerUrl: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_URL : this.spaceConfig.mixerUrl,
-          mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.spaceConfig.mixerToken,
+          mixerToken: process.env.VUE_APP_MIXER_URL ? process.env.VUE_APP_MIXER_TOKEN : this.spaceConfig.mixerToken
         }
       },
       computed: {
@@ -235,6 +242,7 @@
         if(this.spaceConfig.locked) {
           this.locked = 1;
         }
+        this.fetchSpaces();
       },
       methods: {
         async connectToMixer() {
@@ -470,6 +478,24 @@
         },
         toggleAttenuation() {
           this.$emit('applyAcoustics', this.attenuation === 0.00001 ? 0.5 : 0.00001)
+        },
+        async fetchSpaces() {
+          if(process.env.VUE_APP_DEMO_CONFIG) {
+            return;
+          }
+          try {
+            let response = await fetch(`${process.env.VUE_APP_API_URL}/spaces/list`, {
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                'Accept': 'application/json'
+              },
+              'method': 'GET'
+            });
+            let data = await response.json();
+            if(data.success) {
+              this.spaces = data.spaces;
+            }
+          } catch(err) {}
         }
       }
     }

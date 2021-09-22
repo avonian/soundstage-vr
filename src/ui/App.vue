@@ -94,6 +94,7 @@
                 @rescaleSkybox="(scale) => world.stageControls.emitRescaleSkybox(scale)"
                 @lockSpace="lockSpace"
                 @toggleDisplayConfigTarget="(display) => world.displayConfig[display].target = world.displayConfig[display].target !== true"
+                @teleportUsers="teleportUsers($event)"
                 />
         <Chat class="absolute top-12 left-12"
                :world="world"
@@ -1201,12 +1202,29 @@
           }
         })
       },
-      async switchSpace(slug) {
+      async teleportUsers(slug) {
         if(process.env.VUE_APP_DEMO_CONFIG) {
           alert("Disabled in dev mode.");
           return;
         }
-        // await sessionStorage.removeItem('skipWelcome');
+
+        let confirmCallback = async () => {
+          let stageEvent = { action: 'switchSpace', space: slug };
+          world.stageControls.executeAndSend(stageEvent);
+          this.modal = false;
+        }
+
+        let cancelCallback = () => {
+          this.modal = false;
+          document.querySelector('#teleport-users').value = this.spaceConfig.space_slug;
+        }
+
+        this.showModal(
+          "Teleport Users?",
+          "<p class='mb-4'>Are you sure you want to teleport users to another space?</p>",
+          confirmCallback,
+          cancelCallback
+        )
       }
     }
   }

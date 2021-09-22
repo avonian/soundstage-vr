@@ -546,6 +546,10 @@ export class StageControls {
       case "toggleMoodParticles":
         this.toggleMoodParticles(event.value, event.speed);
         break;
+      case "switchSpace":
+        await sessionStorage.setItem('skipWelcome', 'true');
+        window.location.href = `${process.env.VUE_APP_API_URL}/spaces/${event.space}`;
+        break;
     }
   }
 }
