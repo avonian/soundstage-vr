@@ -99,7 +99,9 @@
         <Chat class="absolute top-12 left-12"
                :world="world"
                :class="showStageControls ? 'top-64 mt-4' : 'top-12'"
-               :chat-log="chatLog"/>
+               :chat-log="chatLog"
+               v-show="hideDuringFreecam"
+        />
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
                 :recording="recording"
