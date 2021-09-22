@@ -27,22 +27,15 @@ export default class extends SoundWorld {
       rotation: { x: 0, y: 0.7, z: 0, w: 0.7 }
     };
     this.displayConfig = {
-      'WindowVideo': {
+      'pantalla_Material #411_0': {
         'label': 'Main Panel',
         'target': true,
         'diffuseTexture': {
-          'vScale': 0.65,
-          'uScale': -1,
-          'vOffset': 0.17
-        },
-        'canShowMusicVideo': true
-      },
-      'DJTableVideo': {
-        'label': 'DJ Table',
-        'target': true,
-        'diffuseTexture': {
-          'vScale': 0.50,
-          'vOffset': -0.75
+          'vScale': 1,
+          'uScale': 1,
+          'vOffset': 0,
+          'uAngle': 180,
+          'uAng': 3.142
         },
         'canShowMusicVideo': true
       },
@@ -57,11 +50,7 @@ export default class extends SoundWorld {
       }
     }
     this.defaultDisplayProperties = {
-      'DJTableVideo': {
-        'video_id': 0,
-        'user_id': null
-      },
-      'WindowVideo': {
+      'pantalla_Material #411_0': {
         'video_id': 0,
         'user_id': null
       },
@@ -123,21 +112,43 @@ export default class extends SoundWorld {
     }
   }
   initAfterLoad() {
-
-    try {
-      this.scene.getMeshByName('Object081').material.environmentIntensity = 0.71;
-      this.scene.getMeshByName('Object081').material.sheen._linkSheenWithAlbedo = true;
-      this.scene.getMeshByName('Object081').material.sheen._isEnabled = true;
-      this.scene.getMeshByName('Object081').material.sheen.intensity = 0.22;
-      this.scene.getMeshByName('FreeLookCam').dispose();
-    } catch(err) {
-
-    }
-
-    return; // temporarily disable
     this.scene.getNodeByName('skyBox').applyFog = false;
     this.scene.getMeshByName('ground').isVisible = false;
     this.chat = new Chat(this);
+
+    // Tweak the scene
+    this.scene.environmentIntensity = 0.03;
+    this.scene.getMeshByName('piso_Material #28_0').material.clearCoat.isEnabled = true;
+    this.scene.getMeshByName('piso_Material #28_0').material.clearCoat.intensity = 0.18;
+
+    var disablePhysicalLightFalloff = [
+      'piso_Material #28_0',
+      'Plane007_reja_0',
+      'Plane009_reja_0',
+      'Plane010_reja_0',
+      'Plane013_reja_0',
+      'Line002_escaleras_0',
+      'Line004_Material #458_0',
+      'pantalla_Material #411_0',
+      'Cylinder005_ianBck_0',
+      'Cylinder004_morrisey_0',
+      'Cylinder002_SixBack_0',
+      'Cylinder002_SixBack_0',
+      'mrWrl_Material #436_0',
+      'lamparas_techo'
+    ];
+    disablePhysicalLightFalloff.forEach(meshName => { var mesh = this.scene.getMeshByName(meshName); if(mesh) { mesh.material.usePhysicalLightFalloff = false; } })
+
+    // Mood light
+    var moodlight1 = new BABYLON.SpotLight("moodLight1", new BABYLON.Vector3(-23.2, 10.81, -0.25), new BABYLON.Vector3(0.45, -0.89, -0.01), 359, 1, this.scene);
+    moodlight1.diffuse = new BABYLON.Color3(1, 0, 1);
+    moodlight1.specular = new BABYLON.Color3(1, 0, 1);
+
+    var moodlight2 = new BABYLON.SpotLight("moodLight2", new BABYLON.Vector3(-7.44, 6.16, -1.13), new BABYLON.Vector3(-0.16, -0.97, -0.16), 147, 1, this.scene);
+    moodlight2.diffuse = new BABYLON.Color3(0, 1, 1);
+    moodlight2.specular = new BABYLON.Color3(0, 1, 1);
+
+    return; // temporarily disable
     this.createMaterials();
     this.initVipEntrance();
     this.initVipExit();
@@ -147,19 +158,6 @@ export default class extends SoundWorld {
       this.initKiosk();
       this.initInbox();
     }
-    // Reposition some furniture
-    if(this.spaceConfig.mode !== 'soundclub') {
-      this.scene.getMeshByName('Sofa.001_Sofa.001_Base_2_15346').position.x = 0.34;
-      this.scene.getMeshByName('Sofa.001_Sofa.001_Emission_2_15348').position.x = 0.34;
-      this.scene.getMeshByName('Table_Table.003_Base_2_15346').position.x = 0.37;
-      this.scene.getMeshByName('Table_Table.003_Emission_2_15348').position.x = 0.37;
-      this.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.x = 0.3;
-      this.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.x = 0.3;
-      this.scene.getMeshByName('Armchair_Armchair.006_Blue_15390').position.z = 2;
-      this.scene.getMeshByName('Armchair_Armchair.006_Emission_15392').position.z = 2;
-    }
-    // Fix alpha index on walls
-    // this.scene.getMeshByName('Room_Room_Base_15926').alphaIndex = 0.5;
   }
   createMaterials() {
     this.transparentMaterial = new BABYLON.StandardMaterial("transparentMaterial", this.scene);
@@ -911,7 +909,6 @@ export default class extends SoundWorld {
   }
 
   updateDisplay(display, video) {
-    return; // temporarily disable
     if(!this.userSettings.enableVisuals) {
       return;
     }
@@ -969,13 +966,9 @@ export default class extends SoundWorld {
 
   // Initialize the displays using current displayProperties
   async initializeDisplays() {
-    return; // temporarily disable
     if(!this.userSettings.enableVisuals) {
       return;
     }
-    // Remove these guys once video playing starts
-    this.scene.getMeshByName("LogoText").visibility = 0;
-    this.scene.getMeshByName("LogoSign").visibility = 0;
 
     var displayProperties = this.properties.displayProperties;
     for(var display of Object.keys(displayProperties)) {
@@ -1183,7 +1176,7 @@ export default class extends SoundWorld {
         fogSetting: this.stageControls.fogSetting,
         environmentIntensity: this.scene.environmentIntensity,
         environmentTexture: this.stageControls.activeCubeTexture,
-        pedestalColor: this.stageControls.pedestal.material.emissiveColor,
+        // pedestalColor: this.stageControls.pedestal.material.emissiveColor,
         DJSpotLightIntensity: this.DJSpotLightIntensity,
         DJPlatformRaised: this.stageControls.DJPlatformRaised,
         tunnelLightsOn: this.stageControls.tunnelLightsOn,
