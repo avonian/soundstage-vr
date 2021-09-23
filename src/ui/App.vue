@@ -156,6 +156,7 @@
   import Chat from './components/Chat'
 
   import browser from 'browser-detect';
+  import { VRSPACEUI } from '../lib/vrspace/vrspace-ui'
 
   // variables required to use babylon.js:
   var canvas

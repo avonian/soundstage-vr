@@ -583,8 +583,11 @@ export default class extends SoundWorld {
     this.collisionsEnabled = true;
 
     // First person camera:
-
-    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575);
+    if(this.spaceConfig['role'] === 'camera') {
+      this.spawnPosition = new BABYLON.Vector3(this.cinecamConfig.cinecamSpawnPosition.x, this.cinecamConfig.cinecamSpawnPosition.y, this.cinecamConfig.cinecamSpawnPosition.z);
+    } else {
+      this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(5.00683956820889, -2.509445424079895, 34.47109323271263) : new BABYLON.Vector3(11.434676717597117, 0.643570636510849, -7.233532864707575);
+    }
     this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.52,-1.69,36.54) : new BABYLON.Vector3(0,1,-5);
 
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
@@ -1500,11 +1503,7 @@ export default class extends SoundWorld {
         rollDegrees: 0,
         yawDegrees: 0
       },
-      position: {
-        x: -2.1,
-        y: 1.2,
-        z: 4.8
-      }
+      position: this.musicPosition
     }
     if(this.hifi && this.hifi._inputAudioMediaStream && this.hifi._inputAudioMediaStream.isStereo) {
       pos = stagePos;
@@ -2011,6 +2010,8 @@ export default class extends SoundWorld {
 
   buildCinecamConfig() {
 
+    let cinecamSpawnPosition = { x: 8.3985268, y: -3.4950000, z: -17.364640 };
+
     let cameraLocations = {
       entrance: {"position":{"_x":11,"_y":1.3,"_z":-7},"rotation":{"_x":0,"_y":-1.0164888305933453,"_z":0}},
       dj_from_the_bar: {"position":{"_x":2.714840163985193,"_y":1.3339231382204182,"_z":-5.868889062744814},"rotation":{"_x":0.00042169254924161756,"_y":0.03705942461793172,"_z":0}},
@@ -2172,6 +2173,7 @@ export default class extends SoundWorld {
 
     let autoLoopSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     return {
+      cinecamSpawnPosition,
       cameraLocations,
       animations,
       autoLoopSequence
