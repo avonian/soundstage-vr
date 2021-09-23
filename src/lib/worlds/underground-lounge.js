@@ -110,6 +110,7 @@ export default class extends SoundWorld {
       oneThirdOpacityMeshes: ["Room_Room_Base_1_15402"],
       quarterOpacityMeshes: ["Fencing_Fencing_Base_15926", "Stairs_Stairs_Base_15926"]
     }
+    this.cinecamConfig = this.buildCinecamConfig();
   }
   initAfterLoad() {
     this.scene.getNodeByName('skyBox').applyFog = false;
@@ -579,7 +580,7 @@ export default class extends SoundWorld {
 
     // First person camera:
 
-    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-1.8720515762330525, 1.0976061296383584, -7.824081584066127) : new BABYLON.Vector3(-1.8720515762330525, 1.0976061296383584, -7.824081584066127);
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-2.427630756872774, 0.5381524847067379, -8.231156278064084) : new BABYLON.Vector3(-2.427630756872774, 0.5381524847067379, -8.231156278064084);
     this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-28.183256730378364, 2.117588242313411, 0.41637308313343674) : new BABYLON.Vector3(-28.183256730378364, 2.117588242313411, 0.41637308313343674);
 
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
@@ -1250,7 +1251,7 @@ export default class extends SoundWorld {
     // stage controls
     this.stageControls = new StageControls(callback, this.userSettings, this );
     this.stageControls.init();
-    this.cineCam = new CinemaCamera(this.cameraFree, this.scene)
+    this.cineCam = new CinemaCamera(this.cameraFree, this.scene, this.cinecamConfig)
     document.addEventListener('keydown', (event) => {
       if(event.key === '/') {
         this.cineCam.showHideUI(!document.body.querySelector(".ui-hide").classList.contains('hidden'));
@@ -2001,6 +2002,59 @@ export default class extends SoundWorld {
         document.querySelector("#app")._vnode.component.data.gridFloorOn = state.gridFloorOn;
         document.querySelector("#app")._vnode.component.data.moodParticlesOn = state.moodParticlesOn;
       }, 1000);
+    }
+  }
+
+  buildCinecamConfig() {
+
+    let cameraLocations = {
+      entrance: {"position":{"_isDirty":true,"_x":-0.5071954702712147,"_y":1.6327891429696677,"_z":-9.360245217316985},"rotation":{"_isDirty":true,"_x":0.0003018184457265685,"_y":-1.0389444390758462,"_z":0}},
+      back_left: {"position":{"_isDirty":true,"_x":-5.497615095323435,"_y":1.6291377750541094,"_z":-7.2804418571966965},"rotation":{"_isDirty":true,"_x":0.006201921377906006,"_y":-1.2486486150577105,"_z":0}},
+      back_right: {"position":{"_isDirty":true,"_x":-5.56071708215107,"_y":1.6291377749452955,"_z":5.03294940212516},"rotation":{"_isDirty":true,"_x":-0.020053380765536855,"_y":-1.7487822727007865,"_z":0}},
+      top_left: {"position":{"_isDirty":true,"_x":-4.486758727165403,"_y":4.122270475340018,"_z":-4.863689858593263},"rotation":{"_isDirty":true,"_x":0.1197917256791989,"_y":-1.2917651753518058,"_z":0}},
+      front_row: {"position":{"_isDirty":true,"_x":-21.291878736332894,"_y":2.3861894291588976,"_z":0.12697219108874336},"rotation":{"_isDirty":true,"_x":-0.02458225077241773,"_y":-1.5714171257496137,"_z":0}},
+      back_row: {"position":{"_isDirty":true,"_x":-8.799385024733235,"_y":2.07810763646197,"_z":0.13012875321530787},"rotation":{"_isDirty":true,"_x":-0.02458225077241773,"_y":-1.5733232655961382,"_z":0}},
+      top_right: {"position":{"_isDirty":true,"_x":-8.104464004437366,"_y":4.893745928809674,"_z":7.750567604428931},"rotation":{"_isDirty":true,"_x":0.11034154274534587,"_y":-2.143555992547927,"_z":0}},
+      mezzanine: {"position":{"_isDirty":true,"_x":-19.269908930305657,"_y":4.9880680297329505,"_z":6.0452318888793135},"rotation":{"_isDirty":true,"_x":0.11785472492321106,"_y":-2.1286138805726416,"_z":0}},
+      bottom_stairs: {"position":{"_isDirty":true,"_x":-23.910811663214417,"_y":1.324856497444054,"_z":-8.164942636449945},"rotation":{"_isDirty":true,"_x":0.07783960940552641,"_y":-0.014681543897073246,"_z":0}},
+    }
+
+    let animations = [];
+    // Pan from back row
+    animations[0] = {
+      0: cameraLocations.back_left,
+      2000: cameraLocations.back_right
+    }
+
+    // From top-left to front row
+    animations[1] = {
+      0: cameraLocations.top_left,
+      2000: cameraLocations.front_row
+    }
+
+    // From front-row to back row
+    animations[2] = {
+      0: cameraLocations.front_row,
+      2500: cameraLocations.back_row
+    }
+
+    // Top right to mezzanine
+    animations[3] = {
+      0: cameraLocations.top_right,
+      2500: cameraLocations.mezzanine,
+    }
+
+    // Bottom stairs to entrance
+    animations[4] = {
+      0: cameraLocations.bottom_stairs,
+      2500: cameraLocations.entrance,
+    }
+
+    let autoLoopSequence = [0, 1, 2, 3, 4];
+    return {
+      cameraLocations,
+      animations,
+      autoLoopSequence
     }
   }
 }

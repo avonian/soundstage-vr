@@ -86,7 +86,7 @@
                 <option value="SineEase">Sine Ease</option>
             </select>
             <span class="inline-flex" v-if="world && world.cineCam">
-                <input type="text" class="rounded-lg mr-3 text-black" value="0,1,2,3,4,5,6,7,8,9" id="autoloop-sequence" style="width: 100px;"/>
+                <input type="text" class="rounded-lg mr-3 text-black" :value="world.cineCam.autoLoopSequence.join(',')" id="autoloop-sequence" style="width: 100px;"/>
                 <a class="glow-dark flex items-center justify-center px-2 py-1 text-sm rounded-lg text-white mr-3 bg-indigo-500"
                    @click="$emit('playCameraAnimations', i)"
                    v-for="i in Object.keys(world.cineCam.animations)" :key="i">
