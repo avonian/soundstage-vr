@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'Sklad3008.glb';
+    this.file = 'SKLAD-SM1-2309.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -123,17 +123,9 @@ export default class extends SoundWorld {
     }
   }
   initAfterLoad() {
-
-    try {
-      this.scene.getMeshByName('Object081').material.environmentIntensity = 0.71;
-      this.scene.getMeshByName('Object081').material.sheen._linkSheenWithAlbedo = true;
-      this.scene.getMeshByName('Object081').material.sheen._isEnabled = true;
-      this.scene.getMeshByName('Object081').material.sheen.intensity = 0.22;
-      this.scene.getMeshByName('FreeLookCam').dispose();
-    } catch(err) {
-
-    }
-
+    // Tweak the scene
+    this.scene.getMeshByName('ground').position.y = -5.024;
+    this.scene.environmentIntensity = 0.5;
     return; // temporarily disable
     this.scene.getNodeByName('skyBox').applyFog = false;
     this.scene.getMeshByName('ground').isVisible = false;
@@ -581,7 +573,7 @@ export default class extends SoundWorld {
 
     // First person camera:
 
-    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(0, 0.5, 0) : new BABYLON.Vector3(0, 0.5, 0);
+    this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-0.01, -4.52, -4.04) : new BABYLON.Vector3(-0.01, -4.52, -4.04);
     this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-0.2037127241238964,2.79810058491568, 16.604472408151985) : new BABYLON.Vector3(-0.2037127241238964,2.79810058491568, 16.604472408151985);
 
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
