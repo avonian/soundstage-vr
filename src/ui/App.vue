@@ -27,7 +27,7 @@
         @setUserSettings="setUserSettings($event)"
         @connect="apply"/>
     <!-- Main app start -->
-    <div class="min-h-screen" v-else>
+    <div class="min-h-screen" v-else-if="!skipWelcome">
         <Showcase/>
         <QuickStart v-if="showHelp"
                 @continue="showHelp = false"/>
