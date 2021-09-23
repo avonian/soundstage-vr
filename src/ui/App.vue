@@ -638,6 +638,10 @@
                 /* Preload remaining videos */
                 world.adjustGraphicsQuality(userSettings.graphicsQuality);
                 this.preloadVideos(this.spaceConfig.videos)
+
+                if(this.spaceConfig['role'] === 'camera') {
+                  this.playCameraAnimations(0);
+                }
               }
             );
 
