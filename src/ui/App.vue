@@ -17,7 +17,7 @@
     <InvalidEvent v-if="invalidAccess"/>
     <Banned v-else-if="userBanned"/>
     <IncompatibleDevice v-else-if="deviceType === 'mobile'"/>
-    <WelcomeScreen v-else-if="!entered"
+    <WelcomeScreen v-else-if="!entered && !skipWelcome"
         :browser-supported="browserSupported"
         :graphics-options="graphicsOptions"
         :user-settings="userSettings"
@@ -290,7 +290,8 @@
         modalIframe: false,
         app_url: process.env.VUE_APP_API_URL,
         attenuation: '',
-        chatLog: []
+        chatLog: [],
+        skipWelcome: false
       }
     },
     computed: {
@@ -306,6 +307,8 @@
       }
     },
     mounted: async function () {
+
+      this.skipWelcome = await sessionStorage.getItem('skipWelcome');
 
       if(this.userKicked) {
         this.showModal("You've been removed from the space.", "<p class='mb-4'>A moderator has deemed it necessary to temporarily remove you from this event.</p><p class='mb-4'>You are allowed to rejoin, but we ask that you please be mindful of your behavior moving forward.</p>");
@@ -356,7 +359,7 @@
       this.preloadVideos(this.spaceConfig.videos, true)
 
       /* Retrieve values from local storage */
-      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || await sessionStorage.getItem('skipWelcome')) {
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || this.skipWelcome) {
         this.alreadyVisited = true;
       } else {
         this.alreadyVisited = await localStorage.getItem('alreadyVisited')
@@ -379,13 +382,15 @@
       this.cachedUserSettings = JSON.parse(JSON.stringify(userSettings))
 
       /* Detects when devices are plugged/unplugged */
-      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || await sessionStorage.getItem('skipWelcome')) {
+      if(process.env.VUE_APP_SKIP_WELCOME === 'true' || this.skipWelcome) {
         this.apply()
       } else {
         navigator.mediaDevices.ondevicechange = () => {
           this.pollForDevices()
         }
       }
+
+      this.skipWelcome = false;
       await sessionStorage.removeItem('skipWelcome');
 
       this.pollForDevices()
