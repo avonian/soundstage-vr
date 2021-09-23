@@ -122,6 +122,20 @@ export default class extends SoundWorld {
       quarterOpacityMeshes: ["Fencing_Fencing_Base_15926", "Stairs_Stairs_Base_15926"]
     }
     this.cinecamConfig = this.buildCinecamConfig();
+    this.particleSources = [
+      {
+        position: new BABYLON.Vector3(2.23, 3.7, 5.58),
+        rotation: new BABYLON.Vector3(0.624, 3, 0)
+      },
+      {
+        position: new BABYLON.Vector3(2.25, 4.4, -6.5),
+        rotation: new BABYLON.Vector3(0.31, -0.633, 0)
+      },
+      {
+        position: new BABYLON.Vector3(2.013333819018861, 4.7,-1.7649511062161576),
+        rotation: new BABYLON.Vector3(-0.07640118009133463, -0.34017953987188365, 0)
+      }
+    ]
   }
   initAfterLoad() {
     this.scene.getNodeByName('skyBox').applyFog = false;

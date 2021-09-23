@@ -13,6 +13,7 @@ export class StageControls {
     this.moodParticlesOn = false;
     this.fogSetting = false;
     this.moodParticleSystems = [];
+    this.particleSources = world.particleSources;
     this.cubeTextures = {
       default: { url: 'https://playground.babylonjs.com/textures/environment.env', environmentIntensity: 1 },
       runyon: { url: 'https://playground.babylonjs.com/textures/Runyon_Canyon_A_2k_cube_specular.env', environmentIntensity: 1.4 },
@@ -383,21 +384,7 @@ export class StageControls {
     }
 
     // Positions array to move particles emitter
-    let particleSources = [
-      {
-        position: new BABYLON.Vector3(2.23, 3.7, 5.58),
-        rotation: new BABYLON.Vector3(0.624, 3, 0)
-      },
-      {
-        position: new BABYLON.Vector3(2.25, 4.4, -6.5),
-        rotation: new BABYLON.Vector3(0.31, -0.633, 0)
-      },
-      {
-        position: new BABYLON.Vector3(2.013333819018861, 4.7,-1.7649511062161576),
-        rotation: new BABYLON.Vector3(-0.07640118009133463, -0.34017953987188365, 0)
-      }
-    ]
-    for(let particleSource of particleSources) {
+    for(let particleSource of this.particleSources) {
       // For reliability it may be better to use json file for particles instead of snippet - later
       BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.world.scene, false).then((system) => {
         //  console.log("partSystemPos moved ")
