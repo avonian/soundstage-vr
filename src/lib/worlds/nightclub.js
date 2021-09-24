@@ -1214,7 +1214,7 @@ export default class extends SoundWorld {
   }
 
   createAvatar(obj) {
-    if(this.spaceConfig.blocklist.indexOf(obj.properties.soundStageUserId) !== -1) {
+    if(obj.properties.soundStageUserId && this.spaceConfig.blocklist.indexOf(obj.properties.soundStageUserId) !== -1) {
       return false;
     }
     let avatar = new HoloAvatar( this.worldManager.scene, null, this.worldManager.customOptions );
