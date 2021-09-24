@@ -272,6 +272,9 @@
               this.activeAudioTrack = data.activeTrack;
               this.loop = data.loop;
               this.volume = data.gain * 100;
+              if(!this.activeAudioTrack) {
+                this.world.stageControls.executeAndSend({ action: 'showTrackInfo', track: false })
+              }
             }
           } catch(err) {
             console.log(err);
@@ -390,6 +393,9 @@
                   position: this.world.musicPosition
                 }),
               });
+              if(this.spaceConfig.trackInfo) {
+                this.world.stageControls.executeAndSend({ action: 'showTrackInfo', track: this.spaceConfig.trackInfo[this.activeAudioTrack] });
+              }
               if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {
                 if(this.musicVideoTarget === 'all') {
                   this.world.stageControls.emitPlayVideo(this.spaceConfig.musicVideos[this.activeAudioTrack], this.musicVideoDisplays.map(d => d.key))
