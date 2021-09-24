@@ -537,6 +537,16 @@ export class StageControls {
         await sessionStorage.setItem('skipWelcome', 'true');
         window.location.href = `${process.env.VUE_APP_API_URL}/spaces/${event.space}`;
         break;
+      case "showTrackInfo":
+        let vue = document.querySelector("#app")._vnode.component;
+        if(event.track) {
+          vue.data.currentTrack = event.track;
+          document.querySelector('#track-panel').classList.remove('translate-y-full');
+        } else {
+          document.querySelector('#track-panel').classList.add('translate-y-full');
+          setTimeout(() => vue.data.currentTrack = false, 700);
+        }
+        break;
     }
   }
 }

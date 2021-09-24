@@ -272,7 +272,9 @@
               this.activeAudioTrack = data.activeTrack;
               this.loop = data.loop;
               this.volume = data.gain * 100;
-              if(!this.activeAudioTrack) {
+              if(this.activeAudioTrack && this.spaceConfig.trackInfo && this.spaceConfig.trackInfo[this.activeAudioTrack]) {
+                this.world.stageControls.executeAndSend({ action: 'showTrackInfo', track: this.spaceConfig.trackInfo[this.activeAudioTrack] });
+              } else {
                 this.world.stageControls.executeAndSend({ action: 'showTrackInfo', track: false })
               }
             }
@@ -393,7 +395,7 @@
                   position: this.world.musicPosition
                 }),
               });
-              if(this.spaceConfig.trackInfo) {
+              if(this.spaceConfig.trackInfo && this.spaceConfig.trackInfo[this.activeAudioTrack]) {
                 this.world.stageControls.executeAndSend({ action: 'showTrackInfo', track: this.spaceConfig.trackInfo[this.activeAudioTrack] });
               }
               if(this.spaceConfig.musicVideos && this.spaceConfig.musicVideos[this.activeAudioTrack] && this.musicVideoTarget) {

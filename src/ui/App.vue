@@ -102,6 +102,10 @@
                :chat-log="chatLog"
                v-show="hideDuringFreecam"
         />
+        <TrackPlaying
+                :current-track="currentTrack"
+                v-show="hideDuringFreecam"
+        />
         <UserControls v-show="hideDuringFreecam"
                 :debugging="debugging"
                 :recording="recording"
@@ -154,6 +158,7 @@
   import ModalIframe from './components/ModalIframe'
   import Showcase from './components/Showcase'
   import Chat from './components/Chat'
+  import TrackPlaying from './components/TrackPlaying'
 
   import browser from 'browser-detect';
   import { VRSPACEUI } from '../lib/vrspace/vrspace-ui'
@@ -216,7 +221,8 @@
       Showcase,
       Modal,
       ModalIframe,
-      Chat
+      Chat,
+      TrackPlaying
     },
     data () {
       return {
@@ -292,7 +298,8 @@
         app_url: process.env.VUE_APP_API_URL,
         attenuation: '',
         chatLog: [],
-        skipWelcome: false
+        skipWelcome: false,
+        currentTrack: false
       }
     },
     computed: {
