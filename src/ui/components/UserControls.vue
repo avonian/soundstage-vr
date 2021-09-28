@@ -18,6 +18,10 @@
                 <g><g><path d="M50.701,7.379H13.299c-3.256,0-5.92,2.664-5.92,5.92v37.403c0,3.256,2.664,5.92,5.92,5.92h37.403 c3.256,0,5.92-2.664,5.92-5.92V13.299C56.621,10.043,53.957,7.379,50.701,7.379z M22.387,30.049c0,1.356-0.861,2.506-2.062,2.957    v13.507h-2V33.071c-1.31-0.389-2.273-1.589-2.273-3.023v-3.407c0-1.434,0.964-2.635,2.273-3.024v-8.288h2v8.354    c1.201,0.451,2.062,1.602,2.062,2.958V30.049z M35.168,39.938c0,1.395-0.913,2.569-2.168,2.99l0.004,3.245l-2,0.002l-0.004-3.248    c-1.254-0.422-2.167-1.595-2.167-2.99V36.53c0-1.39,0.906-2.56,2.154-2.986l-0.025-18.129l2-0.003l0.025,18.124    c1.262,0.417,2.181,1.594,2.181,2.994V39.938z M47.949,31.798c0,1.403-0.922,2.581-2.188,2.997v11.718h-2v-11.73    c-1.245-0.427-2.148-1.596-2.148-2.985v-3.407c0-1.388,0.903-2.558,2.148-2.985v-9.908h2v9.896    c1.265,0.416,2.188,1.594,2.188,2.997V31.798z"></path></g></g>
             </svg>
         </a>
+        <a class="btn-ui-primary gradient-ultra" v-if="canPerform && world.supportsStageTransitions" v-show="!world.stageTransitionInProgress">
+            <span @click="world.exitStage()" v-if="world.onStage">Exit Stage</span>
+            <span @click="world.enterStage()" v-else>Enter Stage</span>
+        </a>
         <a class="btn-ui-tertiary" @click="$emit('toggleDebug')" v-if="debugging">
             Debug
         </a>
@@ -70,7 +74,15 @@
     export default {
       name: "UserControls",
       components: { InstrumentationPanel, AudioMixer }, // eslint-disable-line
-      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic', 'enableStageControls'],
+      props: ['debugging', 'cameraMode', 'recording', 'userSettings', 'videoDevices', 'webcamEnabled', 'micEnabled', 'showEmojiMenu', 'showInstrumentation', 'world', 'enableStereo', 'useComputerSound', 'sendingMusic', 'enableStageControls', 'onStage'],
+      computed: {
+        canPerform() {
+          if(this.world) {
+            return this.world.spaceConfig.permissions['stage_controls'] || this.world.spaceConfig.role === 'artist';
+          }
+          return false;
+        }
+      },
       mounted() {
         document.addEventListener('keydown', (e) => {
           if(e.code === "F9" && this.enableStereo && this.useComputerSound) {

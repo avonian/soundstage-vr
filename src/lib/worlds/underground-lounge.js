@@ -22,6 +22,8 @@ export default class extends SoundWorld {
     this.userSettings = userSettings;
     this.spaceConfig = spaceConfig;
     this.videos = spaceConfig.videos;
+    this.supportsStageTransitions = true;
+    this.stageTransitionInProgress = false;
     this.musicPosition = {
       position: { x: 31, y: 2.4, z: 0.1 },
       rotation: { x: 0, y: 0.7, z: 0, w: 0.7 }
@@ -125,6 +127,7 @@ export default class extends SoundWorld {
         rotation: new BABYLON.Vector3(0.010, -4.694, 0)
       }
     ]
+    this.onStage = false;
   }
   initAfterLoad() {
     this.scene.getNodeByName('skyBox').applyFog = false;
@@ -2072,5 +2075,77 @@ export default class extends SoundWorld {
       animations,
       autoLoopSequence
     }
+  }
+  enterStage() {
+    this.stageTransitionInProgress = true;
+    this.onStage = true;
+
+    let animationGroup = VRSPACEUI.createAnimation(this.camera1, "position", 0.15);
+
+    // Switch user to camera1
+    let vue = document.querySelector("#app")._vnode.component;
+    let cameraMode = vue.data.cameraModes[0];
+    vue.data.cameraMode = cameraMode;
+    vue.data.world.activateCamera(cameraMode[0]);
+    // Lock target onto poster and animate the camera
+    this.camera1LookAt = { x: -8.887523180859871, y: 2.463613949060342, z: 0.6325308420553314 };
+    VRSPACEUI.updateAnimation(animationGroup, this.camera1.position.clone(), { x: -31.355088105545416, y: 3.7663087623740004, z: -0.1431068198608867 });
+    this.camera1.applyGravity = false;
+    this.movement.disableKeys();
+
+    let observable;
+    let callback = async () => {
+      this.stageTransitionInProgress = false;
+
+      // Plug in to PA
+      vue.data.userSettings.enableStereo = this.userSettings.enableStereo = true;
+      await this.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId, !vue.data.micEnabled);
+
+      this.camera1LookAt = false;
+      cameraMode = vue.data.cameraModes[2];
+      vue.data.cameraMode = cameraMode;
+      vue.data.world.activateCamera(cameraMode[0]);
+      this.cameraFree.position = new BABYLON.Vector3(-31.355088105545416, 3.7663087623740004, 0.505364078503031);
+      this.cameraFree.rotation = new BABYLON.Vector3(-0.009664668114321677, 1.4931442231375014, 0);
+      VRSPACEUI.updateAnimation(animationGroup, this.camera1.position.clone(), { x: -32.355088105545416, y: 3.7663087623740004, z: -0.1431068198608867 });
+      this.stageControls.emitCastUser(this.worldManager.VRSPACE.me.id);
+      animationGroup.onAnimationGroupEndObservable.remove(observable);
+    };
+    observable = animationGroup.onAnimationGroupEndObservable.add(callback);
+  }
+  exitStage() {
+    this.stageTransitionInProgress = true;
+    this.onStage = false;
+
+    let animationGroup = VRSPACEUI.createAnimation(this.camera1, "position", 0.3);
+
+    // Switch user to camera1
+    let vue = document.querySelector("#app")._vnode.component;
+    let cameraMode = vue.data.cameraModes[0];
+    vue.data.cameraMode = cameraMode;
+    vue.data.world.activateCamera(cameraMode[0]);
+    // Lock target onto poster and animate the camera
+    this.camera1LookAt = { x: -8.887523180859871, y: 2.463613949060342, z: 0.6325308420553314 };
+
+    this.camera1.position = new BABYLON.Vector3(-31.355088105545416, 3.7663087623740004, -0.1431068198608867);
+
+    VRSPACEUI.updateAnimation(animationGroup, this.camera1.position.clone(), { x: -27.5767410, y: 0.53815356, z: -0.1431068198608867});
+    this.camera1.applyGravity = false;
+
+    this.stageControls.emitPlayVideo(0);
+
+    // Unplug from PA
+    vue.data.userSettings.enableStereo = this.userSettings.enableStereo = false;
+    this.connectHiFi(this.userSettings.selectedAudioDeviceId, this.userSettings.computerAudioStream, this.userSettings.selectedPlaybackDeviceId, !vue.data.micEnabled);
+
+    let observable;
+    let callback = () => {
+      this.camera1LookAt = false;
+      this.camera1.applyGravity = true;
+      this.stageTransitionInProgress = false;
+      this.movement.enableKeys();
+      animationGroup.onAnimationGroupEndObservable.remove(observable);
+    };
+    observable = animationGroup.onAnimationGroupEndObservable.add(callback);
   }
 }
