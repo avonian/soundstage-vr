@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'SKLAD-SM1-2409.glb';
+    this.file = 'SKLAD-SM1-1610-5.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1906,14 +1906,8 @@ export default class extends SoundWorld {
       });
     }
     // for VIP portal door
-    if (event.key === "v") {
-      let tempMesh = this.scene.getMeshByName("portal-door-top");
-      let tempMeshEmiss = this.scene.getMeshByName("portal-door-emissive");
-      console.log("portal-door 1");
-      tempMesh.visibility = 0;
-      tempMesh.isPickable = false;
-      tempMeshEmiss.visibility = 0;
-      tempMeshEmiss.isPickable = false;
+    if (event.key === "l") {
+      console.log("LLLLLLLLLLLLLLLLLLL");
     }
   }
 
