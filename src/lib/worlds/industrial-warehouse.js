@@ -125,7 +125,9 @@ export default class extends SoundWorld {
   }
   initAfterLoad() {
     // Tweak the scene
-    this.scene.getMeshByName('ground').position.y = -5.024;
+    let ground = this.scene.getMeshByName('ground');
+    ground.position.y = -5.024;
+    ground.isVisible = false;
     this.scene.environmentIntensity = 0.5;
     return; // temporarily disable
     this.scene.getNodeByName('skyBox').applyFog = false;
@@ -1825,7 +1827,6 @@ export default class extends SoundWorld {
 
   // FOR TESTING, WILL BE REMOVED
   HDRControl(event) {
-    return;
     // environmentIntensity Control
     if(event.key === "-") {
       this.scene.environmentIntensity -= 0.01;
