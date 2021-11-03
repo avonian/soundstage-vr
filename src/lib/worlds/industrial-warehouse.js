@@ -1893,8 +1893,14 @@ export default class extends SoundWorld {
       noiseTexture.persistence = 0.9;
       mat.emissiveTexture = noiseTexture;
       mat.emissiveColor = BABYLON.Color3.Black();
-      let tempMesh= this.scene.getMeshByName("Pedestal_Pedestal_Blue_15390");
+      let tempMesh = this.scene.getMeshByName("room-r-wall-2");
+      let tempMesh2 = this.scene.getMeshByName("room-r-wall");
+      let tempMesh3 = this.scene.getMeshByName("floor-balcone.4");
+      let tempMesh4 = this.scene.getMeshByName("potolok-room-r");
       tempMesh.material = mat;
+      tempMesh2.material = mat;
+      tempMesh3.material = mat;
+      tempMesh4.material = mat;
       console.log("FLOOR");
     }
     // for future Slideshow
@@ -1906,9 +1912,59 @@ export default class extends SoundWorld {
         tempMesh.material.emissiveTexture.uOffset += 0.003;
       });
     }
-    // for VIP portal door
+    // for 3 RGB LIGHTS
     if (event.key === "l") {
-      console.log("LLLLLLLLLLLLLLLLLLL");
+      console.log("Lights are on");
+      var lightWare = new BABYLON.DirectionalLight("lightWare", new BABYLON.Vector3(0, -0.5, 0.8), this.scene);
+      var lightWare2 = new BABYLON.DirectionalLight("lightWare", new BABYLON.Vector3(0, -0.5, 0.8), this.scene);
+      var lightWare3 = new BABYLON.DirectionalLight("lightWare", new BABYLON.Vector3(0, -0.5, 0.8), this.scene);
+
+      lightWare.position = new BABYLON.Vector3(0, 120.0, -10);
+      lightWare2.position = new BABYLON.Vector3(0, 120.0, -10);
+      lightWare3.position = new BABYLON.Vector3(0, 120.0, -10);
+
+      lightWare.diffuse = BABYLON.Color3.Red();
+      lightWare2.diffuse = BABYLON.Color3.Green();
+      lightWare3.diffuse = BABYLON.Color3.Blue();
+
+      lightWare.intensity = 4 * this.scene.environmentIntensity;
+      lightWare2.intensity = 4 * this.scene.environmentIntensity;
+      lightWare3.intensity = 4 * this.scene.environmentIntensity;
+
+      // Animations
+      let alpha = 0;
+      this.scene.registerBeforeRender(function () {
+        lightWare.direction.z = 0.8 * Math.cos(alpha);
+        lightWare.direction.x = 0.3 * Math.sin(alpha);
+
+        lightWare2.direction.z = 0.3 * Math.cos(alpha);
+        lightWare2.direction.x = 0.8 * Math.sin(alpha);
+
+        lightWare3.direction.x = 0.3 * Math.cos(alpha);
+        lightWare3.direction.z = 0.8 * Math.sin(alpha);
+        alpha += 0.01;
+      });
+
+    }
+
+    // for future Slideshow
+    if (event.key === "v") {
+      let tempMesh = this.scene.getMeshByName("Display001 (1)");
+      console.log("Get Wall Screen! ");
+
+      let tempMesh2 = this.scene.getMeshByName("Display");
+      console.log("Get Display! ");
+
+      let tempMesh3 = this.scene.getMeshByName("Displ.Detail.1");
+      console.log("Get Right Display! ");
+
+      let vidTex = new BABYLON.VideoTexture("vidtex", "https://raw.githubusercontent.com/eldinor/ForBJS/master/Ripples-640.mp4", this.scene);
+      tempMesh.material.albedoTexture = vidTex;
+      tempMesh.material.emissiveTexture = vidTex;
+      tempMesh2.material.albedoTexture = vidTex;
+      tempMesh2.material.emissiveTexture = vidTex;
+      tempMesh3.material.albedoTexture = vidTex;
+      tempMesh3.material.emissiveTexture = vidTex;
     }
   }
 
