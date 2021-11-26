@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'SKLAD-SM1-1610-5.glb';
+    this.file = 'SKLAD-SM1-26112021.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1904,13 +1904,24 @@ export default class extends SoundWorld {
       console.log("FLOOR");
     }
     // for future Slideshow
-    if(event.key === "h") {
-      let tempMesh = this.scene.getMeshByName("PosterClubS1");
-      console.log("Slide Show! ");
-      this.scene.registerBeforeRender(function () {
-        tempMesh.material.albedoTexture.uOffset +=0.003;
-        tempMesh.material.emissiveTexture.uOffset += 0.003;
-      });
+    if(event.key === "p") {
+      console.log("Projection LIGHT ");
+        var spotLight = new BABYLON.SpotLight("spot02", new BABYLON.Vector3(2, 3, 6),
+            new BABYLON.Vector3(-1, -2, -1), 1.1, 16, this.scene);
+        spotLight.projectionTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/co.png", this.scene);
+        spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
+        spotLight.intensity = 3000;
+        spotLight.angle = Math.PI / 9;
+
+        /*
+        var alpha = 0;
+        this.scene.registerBeforeRender(function () {
+            spotLight.position = new BABYLON.Vector3(Math.cos(alpha) * 10, 2, Math.sin(alpha) * 10);
+            spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
+            alpha += 0.01;
+        });
+        */
+
     }
     // for 3 RGB LIGHTS
     if (event.key === "l") {
