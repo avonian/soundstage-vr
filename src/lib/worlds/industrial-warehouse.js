@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-    this.file = 'SKLAD-SM1-26112021.glb';
+      this.file = 'SKLAD-SM1-02122021_Main.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -1976,7 +1976,15 @@ export default class extends SoundWorld {
       tempMesh2.material.emissiveTexture = vidTex;
       tempMesh3.material.albedoTexture = vidTex;
       tempMesh3.material.emissiveTexture = vidTex;
-    }
+      }
+
+      if (event.key === "r") {
+
+          console.log("r: ");
+          let storeWall = BABYLON.MeshBuilder.CreatePlane("storeWall", { width: 2.26, height: 1.68 });
+          storeWall.position.x = 10;
+      }
+
   }
 
   startSavingState() {
