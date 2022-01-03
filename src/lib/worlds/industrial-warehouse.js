@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-      this.file = 'SKLAD-SM1-02122021_Main.glb';
+      this.file = 'IndustrialWarehouse-20211231.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -125,10 +125,11 @@ export default class extends SoundWorld {
   }
   initAfterLoad() {
     // Tweak the scene
-    let ground = this.scene.getMeshByName('ground');
-    ground.position.y = -5.024;
-    ground.isVisible = false;
+    this.scene.getMeshByName('ground').position.y = -5.024;
+    this.scene.getMeshByName('ground').visibility = 0;
+    // this.scene.getMeshByName('pol_fae-pol_fae').visibility = 0.3;
     this.scene.environmentIntensity = 0.5;
+    this.gallery = new Gallery(this);
     return; // temporarily disable
     this.scene.getNodeByName('skyBox').applyFog = false;
     this.scene.getMeshByName('ground').isVisible = false;
@@ -136,7 +137,6 @@ export default class extends SoundWorld {
     this.createMaterials();
     this.initVipEntrance();
     this.initVipExit();
-    this.gallery = new Gallery(this);
     if(this.spaceConfig.mode === 'soundclub') {
       this.initStore();
       this.initKiosk();

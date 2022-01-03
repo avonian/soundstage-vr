@@ -69,190 +69,197 @@ export default {
     'url': 'https://assets.soundstage.fm/vr/Ultra.mp4',
     'label': 'Ultra'
   }],
-  'posters': [
-    {
-      'name': 'DOGE-AtomicSwap',
-      'width': 2,
-      'height': 2,
-      'posX': -5,
-      'posY': 4.45,
-      'posZ': 3.428,
-      'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/DOGE-AtomicSwap.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/DOGE-AtomicSwap.min.mp4'
-    }, {
-      'name': 'BTC_BlackSwan',
-      'width': 2,
-      'height': 2,
-      'posX': -5,
-      'posY': 4.45,
-      'posZ': -5.022,
-      'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/BTC_BlackSwan_2.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/BTC_BlackSwan.min.mp4'
-    }, {
-      'name': 'CRYPTOWAVES_AtomicSwap',
-      'width': 3.15,
-      'height': 2,
-      'posX': 4.437,
-      'posY': 4.450,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_AtomicSwap.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_AtomicSwap.min.mp4'
-    }, {
-      'name': 'CRYPTOWAVES_BlackSwan',
-      'width': 3.15,
-      'height': 2,
-      'posX': 9.228,
-      'posY': 4.450,
-      'posZ': -5.977,
-      'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_BlackSwan.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_BlackSwan.min.mp4'
-    }, {
-      'name': 'Galaxy_B',
-      'width': 2.6,
-      'height': 1.6,
-      'posX': -5,
-      'posY': 1.088,
-      'posZ': -2.908,
-      'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.min.mp4',
-      'showcase': {
-        'title': 'Galaxy B',
-        'author': 'Luigi Tasso',
-        'image': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
-        'description': '<p>Galaxy B is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
-        'auction': {
-          'price': '0.15 ETH',
-          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
-        }
-      }
-    }, {
-      'name': 'CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal',
-      'width': 3.15,
-      'height': 2,
-      'posX': 9.228,
-      'posY': 4.450,
-      'posZ': -1.380,
-      'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal.min.mp4'
-    }, {
-      'name': 'CRYPTOWAVES_GenesisBlock',
-      'width': 3.15,
-      'height': 2,
-      'posX': 9.228,
-      'posY': 4.450,
-      'posZ': 3.316,
-      'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_GenesisBlock.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_GenesisBlock.min.mp4'
-    }, {
-      'name': 'ETH-GenesisBlock',
-      'width': 2,
-      'height': 2,
-      'posX': -0.911,
-      'posY': 4.450,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/ETH-GenesisBlock_2.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/ETH-GenesisBlock.min.mp4'
-    }, {
-      'name': 'UNI-EclipseAttack',
-      'width': 2,
-      'height': 2,
-      'posX': -5,
-      'posY': 4.45,
-      'posZ': -0.740,
-      'rotationY': -90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack_3.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack.min.mp4'
-    }, {
-      'name': 'Protons Neutrons',
-      'width': 1,
-      'height': 1.6,
-      'posX': 4.87,
-      'posY': 1.057,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/ProtonsNeutrons.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.min.mp4',
-      'showcase': {
-        'title': 'Protons & Neutrons',
-        'author': 'Luigi Tasso',
-        'image': 'https://assets.soundstage.fm/vr/cryptowaves/ProtonsNeutrons.png',
-        'description': '<p>Protons & Neutrons is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
-        'auction': {
-          'price': '0.15 ETH',
-          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
-        }
-      }
-    },  {
-      'name': 'Galaxy_A',
-      'width': 1,
-      'height': 1.6,
-      'posX': 6.79,
-      'posY': 1.057,
-      'posZ': -8.545,
-      'rotationY': 180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.min.mp4',
-      'showcase': {
-        'title': 'Galaxy A',
-        'author': 'Luigi Tasso',
-        'image': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
-        'description': '<p>Galaxy A is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
-        'auction': {
-          'price': '0.15 ETH',
-          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
-        }
-      }
-    }, {
-      'name': 'Electrons',
-      'width': 1,
-      'height': 1.6,
-      'posX': -1.8,
-      'posY': 1.088,
-      'posZ': -8.545,
-      'rotationY': -180,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.min.mp4',
-      'showcase': {
-        'title': 'Electrons',
-        'author': 'Luigi Tasso',
-        'image': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
-        'description': '<p>Electrons is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
-        'auction': {
-          'price': '0.15 ETH',
-          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
-        }
-      }
-    }, {
-      'name': 'Space Time',
-      'width': 1,
-      'height': 1.6,
-      'posX': 9.23,
-      'posY': 1.06,
-      'posZ': -4.29,
-      'rotationY': 90,
-      'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
-      'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.min.mp4',
-      'showcase': {
-        'title': 'Space & Time',
-        'author': 'Luigi Tasso',
-        'image': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
-        'description': '<p>Space & Time is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>',
-        'auction': {
-          'price': '0.15 ETH',
-          'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767'
-        }
-      }
+  'posters': [{
+    'name': 'DOGE-AtomicSwap',
+    'posX': -10.83,
+    'posY': -2.63,
+    'posZ': 5,
+    'width': 2,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/DOGE-AtomicSwap.png',
+    'rotationY': -90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/DOGE-AtomicSwap.min.mp4'
+  }, {
+    'name': 'BTC_BlackSwan',
+    'posX': -10.83,
+    'posY': -2.63,
+    'posZ': -6.6,
+    'width': 2,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/BTC_BlackSwan_2.png',
+    'rotationY': -90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/BTC_BlackSwan.min.mp4'
+  }, {
+    'name': 'UNI-EclipseAttack',
+    'posX': -10.83,
+    'posY': -2.63,
+    'posZ': -0,
+    'width': 2,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack_3.png',
+    'rotationY': -90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/UNI-EclipseAttack.min.mp4'
+  }, {
+    'name': 'CRYPTOWAVES_AtomicSwap',
+    'posX': 10.84,
+    'posY': 1.54,
+    'posZ': -1.15,
+    'width': 3.15,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_AtomicSwap.png',
+    'rotationY': 90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_AtomicSwap.min.mp4'
+  }, {
+    'name': 'CRYPTOWAVES_BlackSwan',
+    'posX': 10.84,
+    'posY': -2.63,
+    'posZ': -6.8,
+    'width': 3.15,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_BlackSwan.png',
+    'rotationY': 90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_BlackSwan.min.mp4'
+  }, {
+    'name': 'Galaxy_B',
+    'posX': -27,
+    'posY': -1.84,
+    'posZ': 2.8,
+    'width': 5.2,
+    'height': 3.2,
+    'showcase': {
+      'image': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
+      'title': 'Galaxy B',
+      'author': 'Luigi Tasso',
+      'auction': { 'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767', 'price': '0.15 ETH' },
+      'description': '<p>Galaxy B is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>'
     },
-    {"name": "LandscapePoster3", "posX": -1.52, "posY": -1.69, "posZ": 36.54, "width": 3.1, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/landscape-poster-3.jpg", "rotationY": -90},
-    {"name": "LansdscapeGalaxyLogo", "posX": 2.139, "posY": -1.689, "posZ": 39.45, "width": 3.25, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/landscape-galaxy-logo.jpg", "rotationY": 0},
-    {"name": "VerticalPoster5", "posX": 5.826, "posY": -1.689, "posZ": 36.824, "width": 1.6, "height": 1.85, "photo_url": "https://assets.soundstage.fm/vr/kill-paris/vertical-poster-5.jpg", "rotationY": 90}
-  ]
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B_3.png',
+    'rotationY': 90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_B.min.mp4'
+  }, {
+    'name': 'CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal',
+    'posX': 10.84,
+    'posY': -2.63,
+    'posZ': -1.15,
+    'width': 3.15,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal.png',
+    'rotationY': 90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_EP_CoverVIP_Deluxe_Journal.min.mp4'
+  }, {
+    'name': 'CRYPTOWAVES_GenesisBlock',
+    'posX': 10.84,
+    'posY': -2.63,
+    'posZ': 4.86,
+    'width': 3.15,
+    'height': 2,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_GenesisBlock.png',
+    'rotationY': 90,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/CRYPTOWAVES_GenesisBlock.min.mp4'
+  }, {
+    'name': 'Protons Neutrons',
+    'posX': -24,
+    'posY': -2.84,
+    'posZ': -4.84,
+    'width': 1.67,
+    'height': 2.5,
+    'showcase': {
+      'image': 'https://assets.soundstage.fm/vr/cryptowaves/ProtonsNeutrons.png',
+      'title': 'Protons & Neutrons',
+      'author': 'Luigi Tasso',
+      'auction': { 'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767', 'price': '0.15 ETH' },
+      'description': '<p>Protons & Neutrons is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>'
+    },
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/ProtonsNeutrons.png',
+    'rotationY': 180,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Protons_Neutrons.min.mp4'
+  }, {
+    'name': 'Galaxy_A',
+    'posX': -34.5,
+    'posY': -1.84,
+    'posZ': -13.27,
+    'width': 2,
+    'height': 3.2,
+    'showcase': {
+      'image': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
+      'title': 'Galaxy A',
+      'author': 'Luigi Tasso',
+      'auction': { 'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767', 'price': '0.15 ETH' },
+      'description': '<p>Galaxy A is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>'
+    },
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.png',
+    'rotationY': 180,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Galaxy_A.min.mp4'
+  }, {
+    'name': 'ETH-GenesisBlock',
+    'posX': -19.77,
+    'posY': -2.84,
+    'posZ': -1.72,
+    "rotationY": 0,
+    'width': 2.5,
+    'height': 2.5,
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/ETH-GenesisBlock_2.png',
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/ETH-GenesisBlock.min.mp4'
+  }, {
+    'name': 'Electrons',
+    'posX': -19.77,
+    'posY': -2.84,
+    'posZ': -4.84,
+    'width': 1.67,
+    'height': 2.5,
+    'showcase': {
+      'image': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
+      'title': 'Electrons',
+      'author': 'Luigi Tasso',
+      'auction': { 'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767', 'price': '0.15 ETH' },
+      'description': '<p>Electrons is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>'
+    },
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.png',
+    'rotationY': 180,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Electrons.min.mp4'
+  }, {
+    'name': 'Space Time',
+    'posX': -15,
+    'posY': -2.84,
+    'posZ': -4.84,
+    'width': 1.67,
+    'height': 2.5,
+    'showcase': {
+      'image': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
+      'title': 'Space & Time',
+      'author': 'Luigi Tasso',
+      'auction': { 'href': 'https://foundation.app/GENGIBRES/cosmic-touch-37767', 'price': '0.15 ETH' },
+      'description': '<p>Space & Time is an audiovisual NFT from Luigi Tasso that\'s being auctioned off this month as part of a larger effort to raise awareness on environmental issues. Visit the live auction to learn more.</p>'
+    },
+    'photo_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.png',
+    'rotationY': 180,
+    'video_url': 'https://assets.soundstage.fm/vr/cryptowaves/Space_Time.min.mp4'
+  }, {
+    'name': 'LandscapePoster3',
+    'posX': -27,
+    'posY': -1.84,
+    'posZ': -8.88,
+    'width': 5.2,
+    'height': 3.2,
+    'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-poster-3.jpg',
+    'rotationY': 90
+  }, {
+    'name': 'LansdscapeGalaxyLogo',
+    'posX': -34.29,
+    'posY': -1.84,
+    'posZ': -13.23,
+    'width': 5.2,
+    'height': 3.2,
+    'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/landscape-galaxy-logo.jpg',
+    'rotationY': 180
+  }, {
+    'name': 'VerticalPoster5',
+    'posX': -41.72,
+    'posY': -1.84,
+    'posZ': -7.35,
+    'width': 2.76,
+    'height': 3.2,
+    'photo_url': 'https://assets.soundstage.fm/vr/kill-paris/vertical-poster-5.jpg',
+    'rotationY': -90
+  }]
 }
