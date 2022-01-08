@@ -16,7 +16,7 @@ import Utilities from '../utilities'
 export default class extends SoundWorld {
   constructor(spaceConfig, userSettings) {
     super();
-      this.file = 'IndustrialWarehouse-20211231.glb';
+      this.file = 'IndustrialWarehouse-20220104.glb';
     this.displays = [];
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
@@ -123,18 +123,59 @@ export default class extends SoundWorld {
     }
     this.cinecamConfig = this.buildCinecamConfig();
   }
-  initAfterLoad() {
-    // Tweak the scene
-    this.scene.getMeshByName('ground').position.y = -5.024;
-    this.scene.getMeshByName('ground').visibility = 0;
-    // this.scene.getMeshByName('pol_fae-pol_fae').visibility = 0.3;
-    this.scene.environmentIntensity = 0.5;
-    this.gallery = new Gallery(this);
-    return; // temporarily disable
+
+  async createSkyBox () {
+    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, this.scene);
+    var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    var files = [
+      "https://assets.soundstage.fm/vr/textures/corona_lf.jpg",
+      "https://assets.soundstage.fm/vr/textures/corona_up.jpg",
+      "https://assets.soundstage.fm/vr/textures/corona_ft.jpg",
+      "https://assets.soundstage.fm/vr/textures/corona_rt.jpg",
+      "https://assets.soundstage.fm/vr/textures/corona_dn.jpg",
+      "https://assets.soundstage.fm/vr/textures/corona_bk.jpg",
+    ];
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture.CreateFromImages(files, this.scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.reflectionTexture.level = 1.5;
+    skybox.material = skyboxMaterial;
+
     this.scene.getNodeByName('skyBox').applyFog = false;
+    return skybox;
+  }
+
+  tweakScene() {
     this.scene.getMeshByName('ground').isVisible = false;
-    this.chat = new Chat(this);
+    this.scene.getMeshByName('ground').position.y = -5.024;
+    // this.scene.getMeshByName('wall').material = this.scene.getMaterialByName('Синий глянцевый 2')
+    let kioskMesh = this.scene.getTransformNodeByName('Boole.2').getChildren().find(c => c.name === "Cube.5");
+    kioskMesh.material = this.scene.getMaterialByName('Mat.8').clone("KioskMaterial")
+    kioskMesh.material.environmentIntensity = 0.6
+    this.scene.getMaterialByName('Mat. vip').environmentIntensity = 0.7;
+    let ceilingGrey = this.scene.getMeshByName("ceiling-grey");
+    let ceilingAlpha = ceilingGrey.clone("ceiling-alpha");
+    ceilingAlpha.material = this.scene.getMaterialByName("white").clone("white-alpha");
+    ceilingAlpha.visibility = 0.6
+    ceilingGrey.material.backFaceCulling = true;
+
+    // Allows us to see posters/artwork in the tunnel
+    // Remove backface on any materials that would interfere
+    let mat82 = this.scene.getMaterialByName('Mat.8-2');
+    mat82.environmentIntensity = 0.38;
+    // Make vertical SoundStage banners more emissive
+    this.scene.getMaterialByName("hqdefault").emissiveColor = new BABYLON.Color4(0.4,0.4,0.4);
+    // Remove logos
+    ['LogoSign', 'LogoText'].forEach(m => this.scene.getMeshByName(m).dispose());
+  }
+
+  initAfterLoad() {
     this.createMaterials();
+    this.tweakScene();
+    return;
+    this.chat = new Chat(this);
     this.initVipEntrance();
     this.initVipExit();
     if(this.spaceConfig.mode === 'soundclub') {
@@ -503,11 +544,6 @@ export default class extends SoundWorld {
   }
   // intialization methods override defaults that do nothing
   // superclass ensures everything is called in order, from world init() method
-  async createSkyBox() {
-    var skybox = BABYLON.Mesh.CreateBox("skyBox", 10000, this.scene);
-    skybox.infiniteDistance = true;
-    return skybox;
-  }
   async createGround() {
     //Ground
     this.ground = BABYLON.Mesh.CreatePlane("ground", 10000.0, this.scene);
@@ -581,7 +617,9 @@ export default class extends SoundWorld {
       this.spawnPosition = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-0.01, -4.52, -4.04) : new BABYLON.Vector3(-0.01, -4.52, -4.04);
     }
     this.spawnTarget = this.role === 'artist' || this.permissions.spawn_backstage === true ? new BABYLON.Vector3(-0.2037127241238964, 2.79810058491568, 16.604472408151985) : new BABYLON.Vector3(-0.2037127241238964, 2.79810058491568, 16.604472408151985);
-
+    this.spawnPosition = new BABYLON.Vector3(-5.441916, 5.804541, -10.571141);
+    this.spawnTarget = new BABYLON.Vector3(-0.085735, 1.921, 0);
+    
     this.camera1 = new BABYLON.UniversalCamera("First Person Camera", this.spawnPosition, this.scene); // If needed in the future DJ starts at 0, 3, 7
 
     this.camera1.maxZ = 100000;
