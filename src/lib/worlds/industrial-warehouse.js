@@ -150,6 +150,14 @@ export default class extends SoundWorld {
   tweakScene() {
     this.scene.getMeshByName('ground').isVisible = false;
     this.scene.getMeshByName('ground').position.y = -5.024;
+
+    //Ground
+    this.skybarGround = BABYLON.Mesh.CreatePlane("skybarGround", 10000.0, this.scene);
+    this.skybarGround.visibility = 0;
+    this.skybarGround.position = new BABYLON.Vector3(0, 5.15, 0);
+    this.skybarGround.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+    this.skybarGround.checkCollisions = true;
+
     // this.scene.getMeshByName('wall').material = this.scene.getMaterialByName('Синий глянцевый 2')
     let kioskMesh = this.scene.getTransformNodeByName('Boole.2').getChildren().find(c => c.name === "Cube.5");
     kioskMesh.material = this.scene.getMaterialByName('Mat.8').clone("KioskMaterial")
