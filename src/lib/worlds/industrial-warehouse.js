@@ -18,6 +18,8 @@ export default class extends SoundWorld {
     super();
       this.file = 'IndustrialWarehouse-20220104.glb';
     this.displays = [];
+    this.videoAvatarSize = 0.42;
+    this.avatarHeight = 0.42;
     this.freeCamSpatialAudio = false;
     this.userSettings = userSettings;
     this.spaceConfig = spaceConfig;
@@ -80,10 +82,6 @@ export default class extends SoundWorld {
     this.viewingMediaMesh = null;
     this.camera1LookAt = null; // used in render loop to decide if we keep focus on a position
     this.activeCameraType = '1p'; // initial camera - 1st person
-    // in this space, 0.5 is minimum size that phisically makes sense
-    this.videoAvatarSize = 0.25;
-    // distance from the floor
-    this.avatarHeight = 0.25;
     // movement implementation
     this.movement = new Movement(this);
     // world manager
@@ -179,13 +177,93 @@ export default class extends SoundWorld {
     ['LogoSign', 'LogoText'].forEach(m => this.scene.getMeshByName(m).dispose());
   }
 
+  initVipEffects() {
+    if(!this.skyboxParticleSystems) {
+      this.skyboxParticleSystems = [];
+      this.skyboxParticleSources = [{
+        position: new BABYLON.Vector3(1.852739, 39.769087, 20.653055),
+        rotation: new BABYLON.Vector3(0.687509, 3.164548, 0)
+      }
+      ]
+    }
+    for(let particleSource of this.skyboxParticleSources) {
+      // For reliability it may be better to use json file for particles instead of snippet - later
+      BABYLON.ParticleHelper.CreateFromSnippetAsync("HYB2FR#22", this.scene, BABYLON.GPUParticleSystem.IsSupported).then((system) => {
+        //  console.log("partSystemPos moved ")
+        system.updateSpeed = 0.5;
+        setTimeout(() => {
+          system.updateSpeed = .004;
+        }, 4000)
+        system.minLifeTime = 15;
+        system.maxLifeTime = 18;
+        system.particleEmitterType.radius = 20;
+        system.particleEmitterType.radiusRange = 1;
+        system.minSize = 2;
+        system.maxSize = 4;
+        system.emitRate = 10;
+        system.color1 = new BABYLON.Color3(0, 1, 0);
+        system.color2 = new BABYLON.Color3(1, 0, 1);
+        system.gravity = new BABYLON.Vector3(0, -0.2, 0);
+        system.emitter = particleSource['position'];
+        system.direction1 = particleSource['rotation'];
+        this.skyboxParticleSystems.push(system);
+      });
+    }
+  }
+
+  initVip() {
+
+    this.initVipEffects();
+
+    let cloneChair = (position, tag) => {
+      ['Chair_Chair_Base_2_15346', 'Chair_Chair_Emission_4_15378', 'Chair_Chair_Red_15380'].forEach(function (meshName) {
+        let clone = this.scene.getMeshByName(meshName).clone(meshName+`-clone${tag}`);
+        for(let key of Object.keys(position)) {
+          clone.position[key] = position[key]
+        }
+      }, this)
+    }
+
+    BABYLON.SceneLoader.ImportMesh('', process.env.NODE_ENV === 'production' ? 'https://assets.soundstage.fm/vr/models/' : '/models/', "Bar-20220120.glb", this.scene, function (meshes, particleSystems, skeletons) {
+      let barNode = meshes[0];
+      barNode.name = "Bar";
+      barNode.scaling.x = -0.8;
+      barNode.scaling.y = 0.8;
+      barNode.scaling.z = 0.8;
+      barNode.position.x = -5.7351837158203125;
+      barNode.position.y = 5.776000022888184;
+      barNode.position.z = 6.450212478637695;
+      barNode.rotationQuaternion.y = -0.7071067811865475;
+      barNode.rotationQuaternion.w = 0.7071067811865475;
+
+      meshes.forEach((mesh, i) => {
+        if(['Bar_counter_Bar_counter_Base_2_15346',
+          'Lamp.001_(1)_Lamp.003_Base_2_15346',
+          'Lamp.001_(1)_Lamp.003_Emission_5_15456',
+          'Lamp.002_Lamp.010_Blue_15390',
+          'Lamp.002_Lamp.010_Emission_4_15378',
+          'Lamp.003_Lamp.006_Blue_15390',
+          'Lamp.003_Lamp.006_Emission_15392',
+          'Lamp.004_Lamp.005_Base_1_15402',
+          'Lamp.004_Lamp.005_Emission_15392', 'Win Glass Lathe'].indexOf(mesh.name) !== -1) {
+          mesh.dispose();
+        } else if(i > 1) {
+          mesh.checkCollisions = true;
+          mesh.material.disableLighting = true;
+        }
+      })
+
+      cloneChair({ x: 8.55, z: -3.7 }, 'side1')
+      cloneChair({ x: 8.55, z: -5.5 }, 'side2')
+    });
+  }
+
   initAfterLoad() {
     this.createMaterials();
     this.tweakScene();
+    this.initVip();
     return;
     this.chat = new Chat(this);
-    this.initVipEntrance();
-    this.initVipExit();
     if(this.spaceConfig.mode === 'soundclub') {
       this.initStore();
       this.initKiosk();
