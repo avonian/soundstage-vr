@@ -1,6 +1,6 @@
 <!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-    <Dialog as="div" static class="fixed z-10 inset-0 overflow-y-auto" :open="open">
+    <Dialog as="div" static class="fixed z-10 inset-0 overflow-y-auto" :open="isVisible">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <DialogOverlay class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="$emit('close')"/>
 
@@ -114,7 +114,7 @@ export default {
             soundStageUserId: '',
             soundStageUserRole: '',
             avatar: '',
-            open: true
+            isVisible: true
         }
     },
     computed: {
@@ -138,12 +138,3 @@ export default {
     }
 </script>
 
-<style scoped>
-    #avatar-menu {
-        height: 200px;
-        width: 300px;
-        left: calc(50% - 150px);
-        top: calc(50% - 100px);
-        box-shadow: 0px 0px 15px 8px #5a1aa0;
-    }
-</style>
